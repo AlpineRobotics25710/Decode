@@ -30,7 +30,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.opmode.teleop;
+package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
@@ -126,7 +126,7 @@ public class StarterBotTeleop extends OpMode {
          */
         leftDrive = hardwareMap.get(DcMotor.class, "LD");
         rightDrive = hardwareMap.get(DcMotor.class, "RD");
-        //launcher = hardwareMap.get(DcMotorEx.class, "launcher");
+        launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "LF");
         rightFeeder = hardwareMap.get(CRServo.class, "RF");
 
@@ -147,7 +147,7 @@ public class StarterBotTeleop extends OpMode {
          * into the port right beside the motor itself. And that the motors polarity is consistent
          * through any wiring.
          */
-        //launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         /*
          * Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to
@@ -156,7 +156,7 @@ public class StarterBotTeleop extends OpMode {
          */
         leftDrive.setZeroPowerBehavior(BRAKE);
         rightDrive.setZeroPowerBehavior(BRAKE);
-        //launcher.setZeroPowerBehavior(BRAKE);
+        launcher.setZeroPowerBehavior(BRAKE);
 
         /*
          * set Feeders to an initial value to initialize the servo controller
@@ -164,7 +164,7 @@ public class StarterBotTeleop extends OpMode {
         leftFeeder.setPower(STOP_SPEED);
         rightFeeder.setPower(STOP_SPEED);
 
-        //launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
 
         /*
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
@@ -213,9 +213,9 @@ public class StarterBotTeleop extends OpMode {
          * queuing a shot.
          */
         if (gamepad1.y) {
-            //launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad1.b) { // stop flywheel
-            //launcher.setVelocity(STOP_SPEED);
+            launcher.setVelocity(STOP_SPEED);
         }
 
         /*
@@ -228,7 +228,7 @@ public class StarterBotTeleop extends OpMode {
          */
         telemetry.addData("State", launchState);
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
-        //telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData("motorSpeed", launcher.getVelocity());
 
     }
 
@@ -258,10 +258,10 @@ public class StarterBotTeleop extends OpMode {
                 }
                 break;
             case SPIN_UP:
-//                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-//                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
+                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
-//                }
+                }
                 break;
             case LAUNCH:
                 leftFeeder.setPower(FULL_SPEED);
