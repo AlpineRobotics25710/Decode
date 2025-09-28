@@ -34,6 +34,9 @@ package org.firstinspires.ftc.teamcode.starterbot;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -58,12 +61,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
+@Configurable
 @TeleOp(name = "StarterBotTeleop", group = "StarterBot")
 //@Disabled
 public class StarterBotTeleop extends OpMode {
-    final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
-    final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    final double FULL_SPEED = 1.0;
+    public static double FEED_TIME_SECONDS = 0.50; //The feeder servos run this long when a shot is requested.
+    public static double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
+    public static double FULL_SPEED = 1.0;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -71,8 +75,8 @@ public class StarterBotTeleop extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 1125;
-    final double LAUNCHER_MIN_VELOCITY = 1075;
+    public static double LAUNCHER_TARGET_VELOCITY = 825;
+    public static double LAUNCHER_MIN_VELOCITY = 775;
 
     // Declare OpMode members.
     private DcMotor leftDrive = null;
@@ -82,6 +86,8 @@ public class StarterBotTeleop extends OpMode {
     private CRServo rightFeeder = null;
 
     ElapsedTime feederTimer = new ElapsedTime();
+
+    private TelemetryManager panelsTelemetry;
 
     /*
      * TECH TIP: State Machines
@@ -108,7 +114,7 @@ public class StarterBotTeleop extends OpMode {
 
     private LaunchState launchState;
 
-    // Setup a variable for each drive wheel to save power level for telemetry
+    // Setup a variable for each drive wheel to save power level for panelsTelemetry
     double leftPower;
     double rightPower;
 
@@ -117,6 +123,7 @@ public class StarterBotTeleop extends OpMode {
      */
     @Override
     public void init() {
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         launchState = LaunchState.IDLE;
 
         /*
@@ -175,7 +182,8 @@ public class StarterBotTeleop extends OpMode {
         /*
          * Tell the driver that initialization is complete.
          */
-        telemetry.addData("Status", "Initialized");
+        panelsTelemetry.addData("Status", "Initialized");
+        panelsTelemetry.update(telemetry);
     }
 
     /*
@@ -212,24 +220,30 @@ public class StarterBotTeleop extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        if (gamepad1.y) {
+        if (gamepad1.triangle) {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad1.b) { // stop flywheel
+        } else if (gamepad1.circle) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
 
-        /*
-         * Now we call our "Launch" function.
-         */
-        launch(gamepad1.rightBumperWasPressed());
+        if (gamepad1.rightBumperWasPressed()) {
+            /*
+             * Now we call our "Launch" function.
+             */
+            launch(true);
+        } else {
+            launcher.setVelocity(gamepad1.right_trigger);
+        }
 
         /*
          * Show the state and motor powers
          */
-        telemetry.addData("State", launchState);
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
-        telemetry.addData("motorSpeed", launcher.getVelocity());
-
+        panelsTelemetry.addData("State", launchState);
+        panelsTelemetry.debug();
+        panelsTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
+        panelsTelemetry.debug();
+        panelsTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
+        panelsTelemetry.update(telemetry);
     }
 
     /*
