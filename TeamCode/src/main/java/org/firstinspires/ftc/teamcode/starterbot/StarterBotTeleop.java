@@ -75,8 +75,8 @@ public class StarterBotTeleop extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    public static double LAUNCHER_TARGET_VELOCITY = 825;
-    public static double LAUNCHER_MIN_VELOCITY = 775;
+    public static double LAUNCHER_TARGET_VELOCITY = 90;
+    public static double LAUNCHER_MIN_VELOCITY = 80;
 
     // Declare OpMode members.
     private DcMotor leftDrive = null;
@@ -144,8 +144,8 @@ public class StarterBotTeleop extends OpMode {
          * Note: The settings here assume direct drive on left and right wheels. Gear
          * Reduction or 90 Deg drives may require direction flips
          */
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
         /*
          * Here we set our launcher to the RUN_USING_ENCODER runmode.
@@ -214,35 +214,33 @@ public class StarterBotTeleop extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
-        arcadeDrive(-gamepad1.left_stick_y, gamepad1.right_stick_x);
+        arcadeDrive(-gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        if (gamepad1.triangle) {
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad1.circle) { // stop flywheel
+        if (gamepad1.circle) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
 
-        if (gamepad1.rightBumperWasPressed()) {
-            /*
-             * Now we call our "Launch" function.
-             */
-            launch(true);
+        launcher.setVelocity(gamepad1.right_trigger * LAUNCHER_TARGET_VELOCITY);
+        if (gamepad1.a) {
+            leftFeeder.setPower(FULL_SPEED);
+            rightFeeder.setPower(FULL_SPEED);
         } else {
-            launcher.setVelocity(gamepad1.right_trigger);
+            leftFeeder.setPower(STOP_SPEED);
+            rightFeeder.setPower(STOP_SPEED);
         }
 
         /*
          * Show the state and motor powers
          */
         panelsTelemetry.addData("State", launchState);
-        panelsTelemetry.debug();
         panelsTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
-        panelsTelemetry.debug();
         panelsTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
+        panelsTelemetry.addData("Launcher speed", launcher.getVelocity());
+        panelsTelemetry.addData("Right bumper was pressed", gamepad1.rightBumperWasPressed());
         panelsTelemetry.update(telemetry);
     }
 
