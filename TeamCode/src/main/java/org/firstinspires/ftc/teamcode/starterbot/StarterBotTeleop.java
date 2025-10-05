@@ -85,6 +85,7 @@ public class StarterBotTeleop extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
 
+    @SuppressWarnings("unused")
     ElapsedTime feederTimer = new ElapsedTime();
 
     private TelemetryManager panelsTelemetry;
@@ -220,11 +221,13 @@ public class StarterBotTeleop extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        if (gamepad1.circle) { // stop flywheel
-            launcher.setVelocity(STOP_SPEED);
-        }
+        // legacy/old code
 
-        launcher.setVelocity(gamepad1.right_trigger * LAUNCHER_TARGET_VELOCITY);
+//        if (gamepad1.circle) { // stop flywheel
+//            launcher.setVelocity(STOP_SPEED);
+//        }
+
+        // gecko wheel servos
         if (gamepad1.a) {
             leftFeeder.setPower(FULL_SPEED);
             rightFeeder.setPower(FULL_SPEED);
@@ -262,32 +265,33 @@ public class StarterBotTeleop extends OpMode {
         rightDrive.setPower(rightPower);
     }
 
-    void launch(boolean shotRequested) {
-        switch (launchState) {
-            case IDLE:
-                if (shotRequested) {
-                    launchState = LaunchState.SPIN_UP;
-                }
-                break;
-            case SPIN_UP:
-                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
-                    launchState = LaunchState.LAUNCH;
-                }
-                break;
-            case LAUNCH:
-                leftFeeder.setPower(FULL_SPEED);
-                rightFeeder.setPower(FULL_SPEED);
-                feederTimer.reset();
-                launchState = LaunchState.LAUNCHING;
-                break;
-            case LAUNCHING:
-                if (feederTimer.seconds() > FEED_TIME_SECONDS) {
-                    launchState = LaunchState.IDLE;
-                    leftFeeder.setPower(STOP_SPEED);
-                    rightFeeder.setPower(STOP_SPEED);
-                }
-                break;
-        }
-    }
+    // old code
+//    void launch(boolean shotRequested) {
+//        switch (launchState) {
+//            case IDLE:
+//                if (shotRequested) {
+//                    launchState = LaunchState.SPIN_UP;
+//                }
+//                break;
+//            case SPIN_UP:
+//                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+//                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
+//                    launchState = LaunchState.LAUNCH;
+//                }
+//                break;
+//            case LAUNCH:
+//                leftFeeder.setPower(FULL_SPEED);
+//                rightFeeder.setPower(FULL_SPEED);
+//                feederTimer.reset();
+//                launchState = LaunchState.LAUNCHING;
+//                break;
+//            case LAUNCHING:
+//                if (feederTimer.seconds() > FEED_TIME_SECONDS) {
+//                    launchState = LaunchState.IDLE;
+//                    leftFeeder.setPower(STOP_SPEED);
+//                    rightFeeder.setPower(STOP_SPEED);
+//                }
+//                break;
+//        }
+//    }
 }
