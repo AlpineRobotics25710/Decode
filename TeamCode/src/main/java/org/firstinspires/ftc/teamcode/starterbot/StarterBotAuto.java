@@ -191,11 +191,11 @@ public class StarterBotAuto extends OpMode
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the driver's station).
          */
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        leftDrive  = hardwareMap.get(DcMotor.class, "LD");
+        rightDrive = hardwareMap.get(DcMotor.class, "RD");
         launcher = hardwareMap.get(DcMotorEx.class,"launcher");
-        leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
-        rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+        leftFeeder = hardwareMap.get(CRServo.class, "LF");
+        rightFeeder = hardwareMap.get(CRServo.class, "RF");
 
 
         /*
