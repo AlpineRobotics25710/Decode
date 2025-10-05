@@ -64,7 +64,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Configurable
 @TeleOp(name = "StarterBotTeleop", group = "StarterBot")
 //@Disabled
-public class StarterBotTeleop extends OpMode {
+public class StarterBotTeleOp extends OpMode {
     public static double FEED_TIME_SECONDS = 0.50; //The feeder servos run this long when a shot is requested.
     public static double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public static double FULL_SPEED = 1.0;
@@ -227,7 +227,16 @@ public class StarterBotTeleop extends OpMode {
 //            launcher.setVelocity(STOP_SPEED);
 //        }
 
-        // gecko wheel servos
+        // launcher controls
+        if (gamepad1.right_bumper) {
+            launcher.setVelocity(0.65 * LAUNCHER_TARGET_VELOCITY);
+        } else if (gamepad1.left_bumper) {
+            launcher.setVelocity(0.8 * LAUNCHER_TARGET_VELOCITY);
+        } else {
+            launcher.setVelocity(0);
+        }
+
+        // servos feeding into launcher
         if (gamepad1.a) {
             leftFeeder.setPower(FULL_SPEED);
             rightFeeder.setPower(FULL_SPEED);
