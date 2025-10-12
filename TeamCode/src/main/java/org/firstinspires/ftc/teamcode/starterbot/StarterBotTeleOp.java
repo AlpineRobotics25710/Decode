@@ -104,11 +104,11 @@ public class StarterBotTeleOp extends OpMode {
 
         // launcher controls
         if (gamepad1.right_bumper) {
-            Robot.setLauncherVelocity(0.65 * Constants.LAUNCHER_TARGET_VELOCITY); // big triangle launch velocity(less distance, less power)
+            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_TARGET_VELOCITY); // big triangle launch velocity(less distance, less power)
         } else if (gamepad1.left_bumper) {
-            Robot.setLauncherVelocity(0.8 * Constants.LAUNCHER_TARGET_VELOCITY); // small triangle launch velocity(further distance, more power)
+            Robot.launcher.setVelocity(0.8 * Constants.LAUNCHER_TARGET_VELOCITY); // small triangle launch velocity(further distance, more power)
         } else {
-            Robot.setLauncherVelocity(0);
+            Robot.launcher.setVelocity(0);
         }
 
         // servos feeding into launcher
@@ -118,10 +118,18 @@ public class StarterBotTeleOp extends OpMode {
             Robot.setFeederPower(Constants.STOP_SPEED);
         }
 
+        if (gamepad1.bWasPressed()) {
+            if (Robot.blocker.getPosition() == Constants.BLOCKER_CLOSED) {
+                Robot.blocker.setPosition(Constants.BLOCKER_OPEN);
+            } else {
+                Robot.blocker.setPosition(Constants.BLOCKER_CLOSED);
+            }
+        }
+
         // Intake controls (can change later)
         // Right trigger rotates forward, left trigger rotates backwards
         // By subtracting, you're able to prevent them from fighting to give power to the motor
-        Robot.setFeederPower(gamepad1.right_trigger - gamepad1.left_trigger);
+        Robot.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
 
         // TODO: Need to code hinge mechanism and get values for that (add to Constants file)
 

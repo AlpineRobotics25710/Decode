@@ -12,18 +12,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Robot {
     // Drivetrain motors
-    private static DcMotor leftDrive;
-    private static DcMotor rightDrive;
+    public static DcMotor leftDrive;
+    public static DcMotor rightDrive;
 
     // Launch motors
-    private static DcMotorEx launcher;
-    private static CRServo leftFeeder;
-    private static CRServo rightFeeder;
+    public static DcMotorEx launcher;
+    public static CRServo leftFeeder;
+    public static CRServo rightFeeder;
 
     // Intake motors
-    private static DcMotorEx leftIntake;
-    private static DcMotorEx rightIntake;
-    private static Servo hinge;
+    public static DcMotorEx leftIntake;
+    public static DcMotorEx rightIntake;
+    public static Servo hinge;
+    public static Servo blocker;
 
     // Singleton. Prevent instantiation from other classes.
     private Robot() {
@@ -43,6 +44,7 @@ public class Robot {
         leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
         rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
         hinge = hardwareMap.get(Servo.class, "hinge");
+        blocker = hardwareMap.get(Servo.class, "blocker");
 
 
         /*
@@ -104,10 +106,6 @@ public class Robot {
         CommonTelemetry.addData("Launcher speed", launcher.getVelocity());
     }
 
-    public static void setLauncherVelocity(double velocity) {
-        launcher.setVelocity(velocity);
-    }
-
     public static void setFeederPower(double power) {
         leftFeeder.setPower(power);
         rightFeeder.setPower(power);
@@ -116,10 +114,6 @@ public class Robot {
     public static void setIntakePower(double power) {
         leftIntake.setPower(power);
         rightIntake.setPower(power);
-    }
-
-    public static void setHingePosition(double position) {
-        hinge.setPosition(position);
     }
 
     public static void arcadeDrive(double forward, double rotate) {

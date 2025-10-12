@@ -11,6 +11,9 @@ public class Constants {
     public static double INTAKE_POS = 0; // TODO: NEED TO GET VALUES
     public static double OUTTAKE_POS = 0.65; // TODO: NEED TO GET VALUES
 
+    public static double BLOCKER_OPEN = 0.0; // TODO: NEED TO GET VALUES
+    public static double BLOCKER_CLOSED = 0.5; // TODO: NEED TO GET VALUES
+
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
      * to read the current speed of the motor and apply more or less power to keep it at a constant
