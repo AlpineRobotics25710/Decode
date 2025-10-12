@@ -35,7 +35,7 @@ public class CommonTelemetry {
 
     public static void update() {
         try {
-            panelsTelemetry.update();
+            panelsTelemetry.update(robotTelemetry);
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
