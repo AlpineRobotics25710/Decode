@@ -44,6 +44,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -69,6 +70,9 @@ public class StarterBotTeleOp extends OpMode {
     public static double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public static double FULL_SPEED = 1.0;
 
+    public static double INTAKE_POS = 0; // @todo: NEED TO GET VALUES
+    public static double OUTTAKE_POS = 0.65; // @todo: NEED TO GET VALUES
+
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
      * to read the current speed of the motor and apply more or less power to keep it at a constant
@@ -84,6 +88,9 @@ public class StarterBotTeleOp extends OpMode {
     private DcMotorEx launcher = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
+    private DcMotorEx leftIntake = null;
+    private DcMotorEx rightIntake = null;
+    private Servo hinge = null;
 
     @SuppressWarnings("unused")
     ElapsedTime feederTimer = new ElapsedTime();
@@ -137,6 +144,10 @@ public class StarterBotTeleOp extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "LF");
         rightFeeder = hardwareMap.get(CRServo.class, "RF");
+        leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
+        rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
+        hinge = hardwareMap.get(Servo.class, "hinge");
+
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -147,6 +158,9 @@ public class StarterBotTeleOp extends OpMode {
          */
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        leftIntake.setDirection(DcMotorEx.Direction.FORWARD); // Might need to switch this
+        rightIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
 
         /*
          * Here we set our launcher to the RUN_USING_ENCODER runmode.
@@ -171,6 +185,7 @@ public class StarterBotTeleOp extends OpMode {
          */
         leftFeeder.setPower(STOP_SPEED);
         rightFeeder.setPower(STOP_SPEED);
+        hinge.setPosition(INTAKE_POS);
 
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
 
@@ -229,9 +244,9 @@ public class StarterBotTeleOp extends OpMode {
 
         // launcher controls
         if (gamepad1.right_bumper) {
-            launcher.setVelocity(0.65 * LAUNCHER_TARGET_VELOCITY);
+            launcher.setVelocity(0.65 * LAUNCHER_TARGET_VELOCITY); // big triangle launch velocity(less distance, less power)
         } else if (gamepad1.left_bumper) {
-            launcher.setVelocity(0.8 * LAUNCHER_TARGET_VELOCITY);
+            launcher.setVelocity(0.8 * LAUNCHER_TARGET_VELOCITY); // small triangle launch velocity(further distance, more power)
         } else {
             launcher.setVelocity(0);
         }
