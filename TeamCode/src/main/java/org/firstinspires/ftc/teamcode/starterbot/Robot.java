@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.starterbot;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import static org.firstinspires.ftc.teamcode.starterbot.Constants.OUTTAKE_POS;
+import static org.firstinspires.ftc.teamcode.starterbot.Constants.INTAKE_POS;
+
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -26,9 +29,12 @@ public class Robot {
     public static Servo hinge;
     public static Servo blocker;
 
-    // Singleton. Prevent instantiation from other classes.
-    private Robot() {
-    }
+
+    // States(Enums)
+    private static HingeState hingeState;
+
+    // Prevent instantiation from other classes.
+    private Robot() {}
 
     public static void init(HardwareMap hardwareMap) {
         /*
@@ -125,5 +131,20 @@ public class Robot {
          */
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
+    }
+
+    public static void switchHingeState() {
+
+        // State Machine for Hinge/Ramp state
+        switch (hingeState) {
+            case INTAKE: // we are currently in INTAKE state, and want to switch states
+                hinge.setPosition(OUTTAKE_POS); // then change to OUTTAKE state
+                hingeState = HingeState.OUTTAKE;  // then change to OUTTAKE state
+                break;
+            case OUTTAKE: // we are currently in OUTTAKE state, and want to switch states
+                hinge.setPosition(INTAKE_POS); // then change to INTAKE state
+                hingeState = HingeState.INTAKE; // then change to INTAKE state
+                break;
+            }
     }
 }
