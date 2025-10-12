@@ -12,7 +12,7 @@ public class Constants {
     public static double OUTTAKE_POS = 0.65; // TODO: NEED TO GET VALUES
 
     public static double BLOCKER_OPEN = 0.0; // TODO: NEED TO GET VALUES
-    public static double BLOCKER_CLOSED = 0.5; // TODO: NEED TO GET VALUES
+    public static double BLOCKER_CLOSED = 0.3; // TODO: NEED TO GET VALUES
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -22,4 +22,10 @@ public class Constants {
      */
     public static double LAUNCHER_TARGET_VELOCITY = 90;
     public static double LAUNCHER_MIN_VELOCITY = 80;
+}
+
+enum HingeState {
+    // Add more states if necessary
+    INTAKE,
+    OUTTAKE
 }
