@@ -92,32 +92,23 @@ public class StarterBotTeleOp extends OpMode {
          */
         Robot.arcadeDrive(-gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
-        /*
-         * Here we give the user control of the speed of the launcher motor without automatically
-         * queuing a shot.
-         */
-        // legacy/old code
-
-//        if (gamepad1.circle) { // stop flywheel
-//            launcher.setVelocity(STOP_SPEED);
-//        }
-
-        // launcher controls
+        // Launcher controls
         if (gamepad1.right_bumper) {
-            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_TARGET_VELOCITY); // big triangle launch velocity(less distance, less power)
+            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_TARGET_VELOCITY); // big triangle launch zone -> higher velocity(less distance, less power)
         } else if (gamepad1.left_bumper) {
-            Robot.launcher.setVelocity(0.8 * Constants.LAUNCHER_TARGET_VELOCITY); // small triangle launch velocity(further distance, more power)
+            Robot.launcher.setVelocity(0.8 * Constants.LAUNCHER_TARGET_VELOCITY); // small triangle launch zone -> lower velocity(further distance, more power)
         } else {
             Robot.launcher.setVelocity(0);
         }
 
-        // servos feeding into launcher
+        // Servos feeding into launcher
         if (gamepad1.a) {
             Robot.setFeederPower(Constants.FULL_SPEED);
         } else {
             Robot.setFeederPower(Constants.STOP_SPEED);
         }
 
+        // Blocker controls
         if (gamepad1.bWasPressed()) {
             if (Robot.blocker.getPosition() == Constants.BLOCKER_CLOSED) {
                 Robot.blocker.setPosition(Constants.BLOCKER_OPEN);
@@ -126,12 +117,15 @@ public class StarterBotTeleOp extends OpMode {
             }
         }
 
+        // Calling State Machine for Hinge/Ramp state
+        if (gamepad1.x) {
+            Robot.switchHingeState();
+        }
+
         // Intake controls (can change later)
         // Right trigger rotates forward, left trigger rotates backwards
         // By subtracting, you're able to prevent them from fighting to give power to the motor
         Robot.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
-
-        // TODO: Need to code hinge mechanism and get values for that (add to Constants file)
 
         // Loop the robot
         Robot.loop();
@@ -149,35 +143,4 @@ public class StarterBotTeleOp extends OpMode {
     @Override
     public void stop() {
     }
-
-
-    // old code
-//    void launch(boolean shotRequested) {
-//        switch (launchState) {
-//            case IDLE:
-//                if (shotRequested) {
-//                    launchState = LaunchState.SPIN_UP;
-//                }
-//                break;
-//            case SPIN_UP:
-//                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-//                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
-//                    launchState = LaunchState.LAUNCH;
-//                }
-//                break;
-//            case LAUNCH:
-//                leftFeeder.setPower(FULL_SPEED);
-//                rightFeeder.setPower(FULL_SPEED);
-//                feederTimer.reset();
-//                launchState = LaunchState.LAUNCHING;
-//                break;
-//            case LAUNCHING:
-//                if (feederTimer.seconds() > FEED_TIME_SECONDS) {
-//                    launchState = LaunchState.IDLE;
-//                    leftFeeder.setPower(STOP_SPEED);
-//                    rightFeeder.setPower(STOP_SPEED);
-//                }
-//                break;
-//        }
-//    }
 }
