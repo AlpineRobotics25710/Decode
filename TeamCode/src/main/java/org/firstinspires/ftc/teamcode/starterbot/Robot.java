@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
-import static org.firstinspires.ftc.teamcode.starterbot.Constants.OUTTAKE_POS;
 import static org.firstinspires.ftc.teamcode.starterbot.Constants.INTAKE_POS;
+import static org.firstinspires.ftc.teamcode.starterbot.Constants.OUTTAKE_POS;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -34,7 +33,8 @@ public class Robot {
     private static HingeState hingeState;
 
     // Prevent instantiation from other classes.
-    private Robot() {}
+    private Robot() {
+    }
 
     public static void init(HardwareMap hardwareMap) {
         /*
@@ -155,6 +155,6 @@ public class Robot {
                 hinge.setPosition(INTAKE_POS); // then change to INTAKE state
                 hingeState = HingeState.INTAKE; // then change to INTAKE state
                 break;
-            }
+        }
     }
 }

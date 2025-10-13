@@ -10,7 +10,8 @@ public class CommonTelemetry {
     private static Telemetry robotTelemetry;
 
     // Make singleton
-    private CommonTelemetry() {}
+    private CommonTelemetry() {
+    }
 
     public static void init(Telemetry robotTelemetry) {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();

@@ -20,8 +20,8 @@ public class Constants {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    public static double LAUNCHER_TARGET_VELOCITY = 90;
-    public static double LAUNCHER_MIN_VELOCITY = 80;
+    public static double LAUNCHER_MAX_VELOCITY = 90;
+    // public static double LAUNCHER_MIN_VELOCITY = 80; // Commented out because unnecessary (for now)
 }
 
 enum HingeState {

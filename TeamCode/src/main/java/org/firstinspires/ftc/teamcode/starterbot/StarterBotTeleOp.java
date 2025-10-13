@@ -94,9 +94,9 @@ public class StarterBotTeleOp extends OpMode {
 
         // Launcher controls
         if (gamepad1.right_bumper) {
-            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_TARGET_VELOCITY); // big triangle launch zone -> higher velocity(less distance, less power)
+            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // big triangle launch zone -> lower velocity (less distance, less power)
         } else if (gamepad1.left_bumper) {
-            Robot.launcher.setVelocity(0.8 * Constants.LAUNCHER_TARGET_VELOCITY); // small triangle launch zone -> lower velocity(further distance, more power)
+            Robot.launcher.setVelocity(Constants.LAUNCHER_MAX_VELOCITY); // small triangle launch zone -> higher velocity(further distance, more power)
         } else {
             Robot.launcher.setVelocity(0);
         }
