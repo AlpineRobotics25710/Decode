@@ -62,9 +62,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @Configurable
-@TeleOp(name = "StarterBotTeleop", group = "StarterBot")
+@TeleOp(name = "ShooterTester", group = "StarterBot")
 //@Disabled
-public class ShooterTesterTeleOp extends OpMode {
+public class ShooterTester extends OpMode {
     public static double FEED_TIME_SECONDS = 0.50; //The feeder servos run this long when a shot is requested.
     public static double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     public static double FULL_SPEED = 1.0;
@@ -99,12 +99,6 @@ public class ShooterTesterTeleOp extends OpMode {
      * of our code while only running specific code when it's necessary. We can continuously check
      * what "State" our machine is in, run the associated code, and when we are done with that step
      * move on to the next state.
-     * This enum is called the "LaunchState". It reflects the current condition of the shooter
-     * motor and we move through the enum when the user asks our code to fire a shot.
-     * It starts at idle, when the user requests a launch, we enter SPIN_UP where we get the
-     * motor up to speed, once it meets a minimum speed then it starts and then ends the launch process.
-     * We can use higher level code to cycle through these states. But this allows us to write
-     * functions and autonomous routines in a way that avoids loops within loops, and "waits".
      */
     private enum LaunchState {
         IDLE,

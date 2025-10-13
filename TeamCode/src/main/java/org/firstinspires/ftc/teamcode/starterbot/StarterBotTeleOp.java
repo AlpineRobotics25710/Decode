@@ -117,8 +117,19 @@ public class StarterBotTeleOp extends OpMode {
             }
         }
 
+        /*
+         * TECH TIP: State Machines
+         * We use a "state machine" to control our launcher motor and feeder servos in this program.
+         * The first step of a state machine is creating an enum that captures the different "states"
+         * that our code can be in.
+         * The core advantage of a state machine is that it allows us to continue to loop through all
+         * of our code while only running specific code when it's necessary. We can continuously check
+         * what "State" our machine is in, run the associated code, and when we are done with that step
+         * move on to the next state.
+         */
+
         // Calling State Machine for Hinge/Ramp state
-        if (gamepad1.x) {
+        if (gamepad1.xWasPressed()) {
             Robot.switchHingeState();
         }
 
