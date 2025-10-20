@@ -28,9 +28,9 @@ public class Robot {
     public static Servo hinge;
     public static Servo blocker;
 
-
     // States(Enums)
     private static HingeState hingeState;
+    private static BlockerState blockerState;
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -90,6 +90,10 @@ public class Robot {
         leftFeeder.setPower(Constants.STOP_SPEED);
         rightFeeder.setPower(Constants.STOP_SPEED);
         hinge.setPosition(Constants.INTAKE_POS);
+        blocker.setPosition(Constants.BLOCKER_CLOSED);
+
+        hingeState = HingeState.INTAKE;
+        blockerState = BlockerState.CLOSED;
 
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
 
@@ -134,26 +138,30 @@ public class Robot {
     }
 
     public static void switchHingeState() {
-        /*
-         * TECH TIP: State Machines
-         * We use a "state machine" to control our launcher motor and feeder servos in this program.
-         * The first step of a state machine is creating an enum that captures the different "states"
-         * that our code can be in.
-         * The core advantage of a state machine is that it allows us to continue to loop through all
-         * of our code while only running specific code when it's necessary. We can continuously check
-         * what "State" our machine is in, run the associated code, and when we are done with that step
-         * move on to the next state.
-         */
-
         // State Machine for Hinge/Ramp state
         switch (hingeState) {
             case INTAKE: // we are currently in INTAKE state, and want to switch states
                 hinge.setPosition(OUTTAKE_POS); // then change to OUTTAKE state
                 hingeState = HingeState.OUTTAKE;  // then change to OUTTAKE state
                 break;
+
             case OUTTAKE: // we are currently in OUTTAKE state, and want to switch states
                 hinge.setPosition(INTAKE_POS); // then change to INTAKE state
                 hingeState = HingeState.INTAKE; // then change to INTAKE state
+                break;
+        }
+    }
+
+    public static void switchBlockerState() {
+        switch (blockerState) {
+            case OPEN:
+                blocker.setPosition(Constants.BLOCKER_CLOSED);
+                blockerState = BlockerState.CLOSED;
+                break;
+
+            case CLOSED:
+                blocker.setPosition(Constants.BLOCKER_OPEN);
+                blockerState = BlockerState.OPEN;
                 break;
         }
     }

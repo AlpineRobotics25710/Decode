@@ -29,3 +29,8 @@ enum HingeState {
     INTAKE,
     OUTTAKE
 }
+
+enum BlockerState {
+    OPEN,
+    CLOSED
+}

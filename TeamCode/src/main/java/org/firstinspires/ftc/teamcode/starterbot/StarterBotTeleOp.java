@@ -108,15 +108,6 @@ public class StarterBotTeleOp extends OpMode {
             Robot.setFeederPower(Constants.STOP_SPEED);
         }
 
-        // Blocker controls
-        if (gamepad1.bWasPressed()) {
-            if (Robot.blocker.getPosition() == Constants.BLOCKER_CLOSED) {
-                Robot.blocker.setPosition(Constants.BLOCKER_OPEN);
-            } else {
-                Robot.blocker.setPosition(Constants.BLOCKER_CLOSED);
-            }
-        }
-
         /*
          * TECH TIP: State Machines
          * We use a "state machine" to control our launcher motor and feeder servos in this program.
@@ -131,6 +122,11 @@ public class StarterBotTeleOp extends OpMode {
         // Calling State Machine for Hinge/Ramp state
         if (gamepad1.xWasPressed()) {
             Robot.switchHingeState();
+        }
+
+        // Calling State Machine for Blocker state
+        if (gamepad1.bWasPressed()) {
+            Robot.switchBlockerState();
         }
 
         // Intake controls (can change later)
