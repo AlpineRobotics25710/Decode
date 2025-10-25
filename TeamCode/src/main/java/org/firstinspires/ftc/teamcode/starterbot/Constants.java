@@ -24,7 +24,7 @@ public class Constants {
     // public static double LAUNCHER_MIN_VELOCITY = 80; // Commented out because unnecessary (for now)
 }
 
-enum HingeState {
+enum RampState {
     // Add more states if necessary
     INTAKE,
     OUTTAKE

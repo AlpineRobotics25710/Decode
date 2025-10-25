@@ -25,11 +25,11 @@ public class Robot {
     // Intake motors
     public static DcMotorEx leftIntake;
     public static DcMotorEx rightIntake;
-    public static Servo hinge;
+    public static Servo ramp;
     public static Servo blocker;
 
     // States(Enums)
-    private static HingeState hingeState;
+    private static RampState rampState;
     private static BlockerState blockerState;
 
     // Prevent instantiation from other classes.
@@ -49,7 +49,7 @@ public class Robot {
         rightFeeder = hardwareMap.get(CRServo.class, "RF");
         leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
         rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
-        hinge = hardwareMap.get(Servo.class, "hinge");
+        ramp = hardwareMap.get(Servo.class, "ramp");
         blocker = hardwareMap.get(Servo.class, "blocker");
 
 
@@ -89,10 +89,10 @@ public class Robot {
          */
         leftFeeder.setPower(Constants.STOP_SPEED);
         rightFeeder.setPower(Constants.STOP_SPEED);
-        hinge.setPosition(Constants.INTAKE_POS);
+        ramp.setPosition(Constants.INTAKE_POS);
         blocker.setPosition(Constants.BLOCKER_CLOSED);
 
-        hingeState = HingeState.INTAKE;
+        rampState = RampState.INTAKE;
         blockerState = BlockerState.CLOSED;
 
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
@@ -137,17 +137,17 @@ public class Robot {
         rightDrive.setPower(rightPower);
     }
 
-    public static void switchHingeState() {
+    public static void switchRampState() {
         // State Machine for Hinge/Ramp state
-        switch (hingeState) {
+        switch (rampState) {
             case INTAKE: // we are currently in INTAKE state, and want to switch states
-                hinge.setPosition(OUTTAKE_POS); // then change to OUTTAKE state
-                hingeState = HingeState.OUTTAKE;  // then change to OUTTAKE state
+                ramp.setPosition(OUTTAKE_POS); // then change to OUTTAKE state
+                rampState = RampState.OUTTAKE;  // then change to OUTTAKE state
                 break;
 
             case OUTTAKE: // we are currently in OUTTAKE state, and want to switch states
-                hinge.setPosition(INTAKE_POS); // then change to INTAKE state
-                hingeState = HingeState.INTAKE; // then change to INTAKE state
+                ramp.setPosition(INTAKE_POS); // then change to INTAKE state
+                rampState = RampState.INTAKE; // then change to INTAKE state
                 break;
         }
     }

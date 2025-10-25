@@ -121,7 +121,7 @@ public class StarterBotTeleOp extends OpMode {
 
         // Calling State Machine for Hinge/Ramp state
         if (gamepad1.xWasPressed()) {
-            Robot.switchHingeState();
+            Robot.switchRampState();
         }
 
         // Calling State Machine for Blocker state
