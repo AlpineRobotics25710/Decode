@@ -87,8 +87,8 @@ public class Robot {
         /*
          * set Feeders to an initial value to initialize the servo controller
          */
-        leftFeeder.setPower(Constants.STOP_SPEED);
-        rightFeeder.setPower(Constants.STOP_SPEED);
+        leftFeeder.setPower(Constants.STOP_POWER);
+        rightFeeder.setPower(Constants.STOP_POWER);
         ramp.setPosition(Constants.INTAKE_POS);
         blocker.setPosition(Constants.BLOCKER_CLOSED);
 

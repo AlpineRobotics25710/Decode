@@ -5,11 +5,13 @@ import com.bylazar.configurables.annotations.Configurable;
 @Configurable
 public class Constants {
     public static double FEED_TIME_SECONDS = 0.50; //The feeder servos run this long when a shot is requested.
-    public static double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    public static double FULL_SPEED = 1.0;
+    public static double STOP_POWER = 0.0; //We send this power to the servos when we want them to stop.
+    public static double FULL_POWER = 1.0;
 
-    public static double INTAKE_POS = 0; // TODO: NEED TO GET VALUES
-    public static double OUTTAKE_POS = 0.65; // TODO: NEED TO GET VALUES
+    public static double LAUNCHER_INTAKE_POWER = -0.8 * FULL_POWER;
+
+    public static double RAMP_INTAKE_POS = 0; // TODO: NEED TO GET VALUES
+    public static double RAMP_OUTTAKE_POS = 0.65; // TODO: NEED TO GET VALUES
 
     public static double BLOCKER_OPEN = 0.0; // TODO: NEED TO GET VALUES
     public static double BLOCKER_CLOSED = 0.3; // TODO: NEED TO GET VALUES

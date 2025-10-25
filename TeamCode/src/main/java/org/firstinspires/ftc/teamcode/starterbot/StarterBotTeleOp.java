@@ -93,19 +93,18 @@ public class StarterBotTeleOp extends OpMode {
         Robot.arcadeDrive(-gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         // Launcher controls
-        if (gamepad1.right_bumper) {
-            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // big triangle launch zone -> lower velocity (less distance, less power)
+        if (gamepad1.right_bumper) { // outtake controls
+            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // big triangle launch zone
+            Robot.setFeederPower(Constants.FULL_POWER); // Servos feeding into launcher
         } else if (gamepad1.left_bumper) {
-            Robot.launcher.setVelocity(Constants.LAUNCHER_MAX_VELOCITY); // small triangle launch zone -> higher velocity(further distance, more power)
+            Robot.launcher.setVelocity(Constants.LAUNCHER_MAX_VELOCITY); // small triangle launch zone
+            Robot.setFeederPower(Constants.FULL_POWER); // Servos feeding into launcher
+        } else if (gamepad1.a) { // intake controls
+            Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_POWER);
+            Robot.setFeederPower(-Constants.FULL_POWER);
         } else {
             Robot.launcher.setVelocity(0);
-        }
-
-        // Servos feeding into launcher
-        if (gamepad1.a) {
-            Robot.setFeederPower(Constants.FULL_SPEED);
-        } else {
-            Robot.setFeederPower(Constants.STOP_SPEED);
+            Robot.setFeederPower(Constants.STOP_POWER);
         }
 
         /*
@@ -125,7 +124,7 @@ public class StarterBotTeleOp extends OpMode {
         }
 
         // Calling State Machine for Blocker state
-        if (gamepad1.bWasPressed()) {
+        if (gamepad1.yWasPressed()) {
             Robot.switchBlockerState();
         }
 
