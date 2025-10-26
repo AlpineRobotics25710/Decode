@@ -14,11 +14,17 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
     compileSdk 35
+
+
     defaultConfig {
         minSdk 24
     }
@@ -30,14 +36,13 @@ android {
 
 repositories {
     maven {
-        url = "https://repo.dairy.foundation/releases"
-        url = "https://repo.dairy.foundation/snapshots"
+        url "https://repo.dairy.foundation/releases"
     }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
-
-    implementation "org.solverslib:core:SNAPSHOT-7cdcc66" // core
-    implementation "org.solverslib:pedroPathing:SNAPSHOT-7cdcc66" // pedroPathing
+    implementation "com.bylazar:ftcontrol:0.6.8"
+    implementation "org.solverslib:core:0.3.3"
+    implementation "org.solverslib:pedroPathing:0.3.3"
 }
