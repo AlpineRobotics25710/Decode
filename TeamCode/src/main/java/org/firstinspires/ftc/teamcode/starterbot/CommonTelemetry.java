@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
-import com.bylazar.ftcontrol.panels.Panels;
-import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
+import com.bylazar.telemetry.TelemetryManager;
+import com.bylazar.telemetry.PanelsTelemetry;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class CommonTelemetry {
@@ -13,7 +13,7 @@ public class CommonTelemetry {
     }
 
     public static void init(Telemetry robotTelemetry) {
-        panelsTelemetry = Panels.getTelemetry();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         CommonTelemetry.robotTelemetry = robotTelemetry;
     }
 
