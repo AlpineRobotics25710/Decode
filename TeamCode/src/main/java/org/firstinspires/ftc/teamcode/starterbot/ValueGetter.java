@@ -15,7 +15,7 @@ public class ValueGetter extends LinearOpMode {
     public static double rampPos = 0.0;
     public static double blockerPos = 0.0;
     public static double intakePower = 0.0;
-    public static double launcherPower = 0.0;
+    public static double launcherPower = 0.0; // this is in ticks/second
     public static double feederPower = 0.0;
 
     @Override
@@ -24,7 +24,7 @@ public class ValueGetter extends LinearOpMode {
         Servo blocker = hardwareMap.get(Servo.class, "blocker");
         DcMotor leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
         DcMotor rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
-        DcMotor launcher = hardwareMap.get(DcMotorEx.class, "launcher");
+        DcMotorEx launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         CRServo leftFeeder = hardwareMap.get(CRServo.class, "LF");
         CRServo rightFeeder = hardwareMap.get(CRServo.class, "RF");
 
@@ -40,7 +40,7 @@ public class ValueGetter extends LinearOpMode {
             blocker.setPosition(blockerPos);
             leftIntake.setPower(intakePower);
             rightIntake.setPower(intakePower);
-            launcher.setPower(launcherPower);
+            launcher.setVelocity(launcherPower);
             leftFeeder.setPower(feederPower);
             rightFeeder.setPower(feederPower);
 

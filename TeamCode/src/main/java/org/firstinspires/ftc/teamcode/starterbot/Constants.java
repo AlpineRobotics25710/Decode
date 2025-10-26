@@ -16,11 +16,15 @@ public class Constants {
 
     public static double INTAKE_POWER = 0.85; // Intake motors power
 
-    public static double RAMP_INTAKE_POS = 0.0;
+    public static double RAMP_INTAKE_POS = 0.05;
     public static double RAMP_OUTTAKE_POS = 0.475;
 
     public static double BLOCKER_OPEN = 0.0;
     public static double BLOCKER_CLOSED = 0.36;
+
+    public static double LAUNCH_READY_TOLERANCE = 0.05; // ±5% of target velocity OK
+    public static long   READY_HOLD_MS          = 150;  // must hold at-speed this long
+    public static long   SPINUP_TIMEOUT_MS      = 4000; // abort if never reaches speed
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
