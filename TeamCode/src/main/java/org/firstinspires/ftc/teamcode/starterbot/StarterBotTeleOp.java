@@ -98,10 +98,10 @@ public class StarterBotTeleOp extends OpMode {
         // Launcher controls
         if (gamepad1.rightBumperWasPressed()) { // outtake controls
             Robot.setIntakePower(0.0); // turn off intake
-            Robot.launch(Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
+            Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
         } else if (gamepad1.leftBumperWasPressed()) {
             Robot.setIntakePower(0.0); // turn off intake
-            Robot.launch(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
+            Robot.launchTimeDelay(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
         } else if (gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(Constants.INTAKE_POWER);
@@ -109,7 +109,7 @@ public class StarterBotTeleOp extends OpMode {
         } else if (!gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.launcher.setVelocity(0);
             Robot.setIntakePower(0.0);
-            Robot.setFeederPower(0);
+            Robot.setFeederPower(Constants.FEEDER_POWER);
         }
 
         Robot.launch(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launch sequence going in loop

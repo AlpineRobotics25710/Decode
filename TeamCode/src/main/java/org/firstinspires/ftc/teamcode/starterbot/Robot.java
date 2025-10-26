@@ -269,4 +269,37 @@ public class Robot {
             }
         }
     }
+
+    public static void launchTimeDelay(double launcherVelocity) {
+        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
+            Robot.launcher.setVelocity(launcherVelocity);
+            launchSequenceState = LaunchSequenceState.SPINNING_UP;
+            stateStartTime = System.currentTimeMillis();
+        }
+
+        switch (launchSequenceState) {
+            case SPINNING_UP:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_DELAY_MS) {
+                    Robot.setFeederPower(Constants.FEEDER_POWER);
+                    launchSequenceState = LaunchSequenceState.FEEDING;
+                    stateStartTime = System.currentTimeMillis();
+                }
+                break;
+
+            case FEEDING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
+                    Robot.setFeederPower(0.0);
+                    stateStartTime = System.currentTimeMillis();
+                    launchSequenceState = LaunchSequenceState.SHOOTING;
+                }
+                break;
+
+            case SHOOTING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    Robot.launcher.setVelocity(Constants.FEEDER_POWER);
+                    launchSequenceState = LaunchSequenceState.IDLE;
+                }
+                break;
+        }
+    }
 }

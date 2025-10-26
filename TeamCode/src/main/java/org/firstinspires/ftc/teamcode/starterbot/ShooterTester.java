@@ -32,19 +32,8 @@
 
 package org.firstinspires.ftc.teamcode.starterbot;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
  * This file includes a teleop (driver-controlled) file for the goBILDA® StarterBot for the
@@ -61,124 +50,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@Configurable
-@TeleOp(name = "ShooterTester", group = "StarterBot")
+@TeleOp(name = "StarterBotTeleop", group = "StarterBot")
 //@Disabled
 public class ShooterTester extends OpMode {
-    public static double FEED_TIME_SECONDS = 0.50; //The feeder servos run this long when a shot is requested.
-    public static double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    public static double FULL_SPEED = 1.0;
-
-    /*
-     * When we control our launcher motor, we are using encoders. These allow the control system
-     * to read the current speed of the motor and apply more or less power to keep it at a constant
-     * velocity. Here we are setting the target, and minimum velocity that the launcher should run
-     * at. The minimum velocity is a threshold for determining when to fire.
-     */
-    public static double LAUNCHER_TARGET_VELOCITY = 90;
-    public static double LAUNCHER_MIN_VELOCITY = 80;
-
-    // Declare OpMode members.
-    private DcMotor leftDrive = null;
-    private DcMotor rightDrive = null;
-    private DcMotorEx launcher = null;
-    private CRServo leftFeeder = null;
-    private CRServo rightFeeder = null;
-
-    @SuppressWarnings("unused")
-    ElapsedTime feederTimer = new ElapsedTime();
-
-    private TelemetryManager panelsTelemetry;
-
-    /*
-     * TECH TIP: State Machines
-     * We use a "state machine" to control our launcher motor and feeder servos in this program.
-     * The first step of a state machine is creating an enum that captures the different "states"
-     * that our code can be in.
-     * The core advantage of a state machine is that it allows us to continue to loop through all
-     * of our code while only running specific code when it's necessary. We can continuously check
-     * what "State" our machine is in, run the associated code, and when we are done with that step
-     * move on to the next state.
-     */
-    private enum LaunchState {
-        IDLE,
-        SPIN_UP,
-        LAUNCH,
-        LAUNCHING,
-    }
-
-    private LaunchState launchState;
-
-    // Setup a variable for each drive wheel to save power level for panelsTelemetry
-    double leftPower;
-    double rightPower;
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        launchState = LaunchState.IDLE;
-
-        /*
-         * Initialize the hardware variables. Note that the strings used here as parameters
-         * to 'get' must correspond to the names assigned during the robot configuration
-         * step.
-         */
-        leftDrive = hardwareMap.get(DcMotor.class, "LD");
-        rightDrive = hardwareMap.get(DcMotor.class, "RD");
-        launcher = hardwareMap.get(DcMotorEx.class, "launcher");
-        leftFeeder = hardwareMap.get(CRServo.class, "LF");
-        rightFeeder = hardwareMap.get(CRServo.class, "RF");
-
-        /*
-         * To drive forward, most robots need the motor on one side to be reversed,
-         * because the axles point in opposite directions. Pushing the left stick forward
-         * MUST make robot go forward. So adjust these two lines based on your first test drive.
-         * Note: The settings here assume direct drive on left and right wheels. Gear
-         * Reduction or 90 Deg drives may require direction flips
-         */
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
-
-        /*
-         * Here we set our launcher to the RUN_USING_ENCODER runmode.
-         * If you notice that you have no control over the velocity of the motor, it just jumps
-         * right to a number much higher than your set point, make sure that your encoders are plugged
-         * into the port right beside the motor itself. And that the motors polarity is consistent
-         * through any wiring.
-         */
-        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        /*
-         * Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to
-         * slow down much faster when it is coasting. This creates a much more controllable
-         * drivetrain. As the robot stops much quicker.
-         */
-        leftDrive.setZeroPowerBehavior(BRAKE);
-        rightDrive.setZeroPowerBehavior(BRAKE);
-        launcher.setZeroPowerBehavior(BRAKE);
-
-        /*
-         * set Feeders to an initial value to initialize the servo controller
-         */
-        leftFeeder.setPower(STOP_SPEED);
-        rightFeeder.setPower(STOP_SPEED);
-
-        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
-
-        /*
-         * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
-         * both work to feed the ball into the robot.
-         */
-        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        /*
-         * Tell the driver that initialization is complete.
-         */
-        panelsTelemetry.addData("Status", "Initialized");
-        panelsTelemetry.update(telemetry);
+        CommonTelemetry.init(telemetry);
+        Robot.init(hardwareMap);
     }
 
     /*
@@ -186,6 +67,9 @@ public class ShooterTester extends OpMode {
      */
     @Override
     public void init_loop() {
+        // See if code is updating on control hub
+        CommonTelemetry.addData("Curr time", System.currentTimeMillis());
+        CommonTelemetry.update();
     }
 
     /*
@@ -209,39 +93,63 @@ public class ShooterTester extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
-        arcadeDrive(-gamepad1.left_stick_y, -gamepad1.right_stick_x);
+        Robot.arcadeDrive(gamepad1.left_stick_y, -gamepad1.right_stick_x);
+
+        // Launcher controls
+        if (gamepad1.rightBumperWasPressed()) { // outtake controls
+            Robot.setIntakePower(0.0); // turn off intake
+            Robot.launcher.setVelocity(Constants.LAUNCHER_MAX_VELOCITY);
+
+            Robot.setFeederPower(Constants.FEEDER_POWER);
+        } else if (gamepad1.leftBumperWasPressed()) {
+            Robot.setIntakePower(0.0); // turn off intake
+            Robot.launch(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
+        } else if (gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
+            Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
+            Robot.setIntakePower(Constants.INTAKE_POWER);
+            Robot.setFeederPower(-Constants.FEEDER_POWER);
+        } else if (!gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+            Robot.launcher.setVelocity(0);
+            Robot.setIntakePower(0.0);
+            Robot.setFeederPower(0);
+        }
+
+        Robot.launch(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launch sequence going in loop
 
         /*
-         * Here we give the user control of the speed of the launcher motor without automatically
-         * queuing a shot.
+         * TECH TIP: State Machines
+         * We use a "state machine" to control our launcher motor and feeder servos in this program.
+         * The first step of a state machine is creating an enum that captures the different "states"
+         * that our code can be in.
+         * The core advantage of a state machine is that it allows us to continue to loop through all
+         * of our code while only running specific code when it's necessary. We can continuously check
+         * what "State" our machine is in, run the associated code, and when we are done with that step
+         * move on to the next state.
          */
-        // legacy/old code
 
-//        if (gamepad1.circle) { // stop flywheel
-//            launcher.setVelocity(STOP_POWER);
-//        }
-
-        // launcher controls
-        launcher.setVelocity(Math.min(0.9, gamepad1.right_trigger) * LAUNCHER_TARGET_VELOCITY);
-
-        // servos feeding into launcher
-        if (gamepad1.a) {
-            leftFeeder.setPower(FULL_SPEED);
-            rightFeeder.setPower(FULL_SPEED);
-        } else {
-            leftFeeder.setPower(STOP_SPEED);
-            rightFeeder.setPower(STOP_SPEED);
+        // Calling State Machine for Hinge/Ramp state
+        if (gamepad1.xWasPressed()) {
+            Robot.switchRampState();
         }
+
+        // Calling State Machine for Blocker state
+        if (gamepad1.yWasPressed()) {
+            Robot.switchBlockerState();
+        }
+
+        // Intake controls (can change later)
+        // Right trigger rotates forward, left trigger rotates backwards
+        // By subtracting, you're able to prevent them from fighting to give power to the motor
+        //Robot.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
+
+        // Loop the robot
+        Robot.loop();
 
         /*
          * Show the state and motor powers
          */
-        panelsTelemetry.addData("State", launchState);
-        panelsTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
-        panelsTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
-        panelsTelemetry.addData("Launcher speed", launcher.getVelocity());
-        panelsTelemetry.addData("Right bumper was pressed", gamepad1.rightBumperWasPressed());
-        panelsTelemetry.update(telemetry);
+        CommonTelemetry.addData("Adi laptop", "updated");
+        CommonTelemetry.update();
     }
 
     /*
@@ -250,45 +158,4 @@ public class ShooterTester extends OpMode {
     @Override
     public void stop() {
     }
-
-    void arcadeDrive(double forward, double rotate) {
-        leftPower = forward + rotate;
-        rightPower = forward - rotate;
-
-        /*
-         * Send calculated power to wheels
-         */
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
-    }
-
-    // old code
-//    void launch(boolean shotRequested) {
-//        switch (launchState) {
-//            case IDLE:
-//                if (shotRequested) {
-//                    launchState = LaunchState.SPIN_UP;
-//                }
-//                break;
-//            case SPIN_UP:
-//                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-//                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
-//                    launchState = LaunchState.LAUNCH;
-//                }
-//                break;
-//            case LAUNCH:
-//                leftFeeder.setPower(FULL_POWER);
-//                rightFeeder.setPower(FULL_POWER);
-//                feederTimer.reset();
-//                launchState = LaunchState.LAUNCHING;
-//                break;
-//            case LAUNCHING:
-//                if (feederTimer.seconds() > FEED_TIME_SECONDS) {
-//                    launchState = LaunchState.IDLE;
-//                    leftFeeder.setPower(STOP_POWER);
-//                    rightFeeder.setPower(STOP_POWER);
-//                }
-//                break;
-//        }
-//    }
 }
