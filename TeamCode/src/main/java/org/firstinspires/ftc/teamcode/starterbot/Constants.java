@@ -8,7 +8,9 @@ public class Constants {
     public static double STOP_POWER = 0.0; //We send this power to the servos when we want them to stop.
     public static double FULL_POWER = 1.0;
 
-    public static double LAUNCHER_INTAKE_POWER = -0.8 * FULL_POWER;
+    public static double INTAKE_POWER = 0.65;
+
+    public static double LAUNCHER_INTAKE_VELOCITY = -70;
 
     public static double RAMP_INTAKE_POS = 0.0; // TODO: NEED TO GET VALUES
     public static double RAMP_OUTTAKE_POS = 0.4; // TODO: NEED TO GET VALUES

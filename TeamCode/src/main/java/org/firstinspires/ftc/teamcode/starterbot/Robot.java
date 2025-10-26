@@ -109,7 +109,7 @@ public class Robot {
     }
 
     public static void loop() {
-        CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
+        //CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
         CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
         CommonTelemetry.addData("Launcher speed", launcher.getVelocity());
     }

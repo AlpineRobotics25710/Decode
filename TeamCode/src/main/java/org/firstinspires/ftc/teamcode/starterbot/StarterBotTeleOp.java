@@ -96,12 +96,14 @@ public class StarterBotTeleOp extends OpMode {
         if (gamepad1.right_bumper) { // outtake controls
             Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // big triangle launch zone
             Robot.setFeederPower(Constants.FULL_POWER); // Servos feeding into launcher
+            Robot.setIntakePower(Constants.INTAKE_POWER);
         } else if (gamepad1.left_bumper) {
             Robot.launcher.setVelocity(Constants.LAUNCHER_MAX_VELOCITY); // small triangle launch zone
             Robot.setFeederPower(Constants.FULL_POWER); // Servos feeding into launcher
         } else if (gamepad1.a) { // intake controls
-            Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_POWER);
+            Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setFeederPower(-Constants.FULL_POWER);
+            Robot.setIntakePower(-Constants.INTAKE_POWER);
         } else {
             Robot.launcher.setVelocity(0);
             Robot.setFeederPower(Constants.STOP_POWER);
