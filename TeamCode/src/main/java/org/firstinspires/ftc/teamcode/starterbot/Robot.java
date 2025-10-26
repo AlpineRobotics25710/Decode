@@ -27,8 +27,11 @@ public class Robot {
     public static Servo blocker;
 
     // States(Enums)
-    private static RampState rampState;
-    private static BlockerState blockerState;
+    static RampState rampState;
+    static BlockerState blockerState;
+    static LaunchSequenceState launchSequenceState;
+
+    private static long stateStartTime;
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -61,8 +64,8 @@ public class Robot {
         //leftDrive.setDirection(DcMotor.Direction.FORWARD);
         //rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        leftIntake.setDirection(DcMotorEx.Direction.FORWARD); // Might need to switch this
-        rightIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
+        leftIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
+        rightIntake.setDirection(DcMotorEx.Direction.FORWARD); // Might need to switch this
 
         /*
          * Here we set our launcher to the RUN_USING_ENCODER runmode.
@@ -92,6 +95,7 @@ public class Robot {
 
         rampState = RampState.INTAKE;
         blockerState = BlockerState.CLOSED;
+        launchSequenceState = LaunchSequenceState.IDLE;
 
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
 
@@ -112,6 +116,9 @@ public class Robot {
         //CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
         CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
         CommonTelemetry.addData("Launcher speed", launcher.getVelocity());
+        CommonTelemetry.addData("Ramp State", rampState.toString());
+        CommonTelemetry.addData("Blocker State", blockerState.toString());
+        CommonTelemetry.addData("Launch Sequence State", launchSequenceState.toString());
     }
 
     public static void setFeederPower(double power) {
@@ -160,6 +167,39 @@ public class Robot {
             case CLOSED:
                 blocker.setPosition(Constants.BLOCKER_OPEN);
                 blockerState = BlockerState.OPEN;
+                break;
+        }
+    }
+
+    public static void launch(double launcherVelocity) {
+        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
+            Robot.launcher.setVelocity(launcherVelocity);
+            launchSequenceState = LaunchSequenceState.SPINNING_UP;
+            stateStartTime = System.currentTimeMillis();
+        }
+
+        switch (launchSequenceState) {
+            case SPINNING_UP:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_DELAY_MS) {
+                    Robot.setFeederPower(Constants.FULL_POWER);
+                    launchSequenceState = LaunchSequenceState.FEEDING;
+                    stateStartTime = System.currentTimeMillis();
+                }
+                break;
+
+            case FEEDING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
+                    Robot.setFeederPower(0.0);
+                    stateStartTime = System.currentTimeMillis();
+                    launchSequenceState = LaunchSequenceState.SHOOTING;
+                }
+                break;
+
+            case SHOOTING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    Robot.launcher.setVelocity(Constants.STOP_POWER);
+                    launchSequenceState = LaunchSequenceState.IDLE;
+                }
                 break;
         }
     }

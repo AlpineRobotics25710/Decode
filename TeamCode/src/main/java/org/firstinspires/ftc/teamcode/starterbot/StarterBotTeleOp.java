@@ -93,21 +93,23 @@ public class StarterBotTeleOp extends OpMode {
         //Robot.arcadeDrive(-gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         // Launcher controls
-        if (gamepad1.right_bumper) { // outtake controls
-            Robot.launcher.setVelocity(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // big triangle launch zone
-            Robot.setFeederPower(Constants.FULL_POWER); // Servos feeding into launcher
-            Robot.setIntakePower(Constants.INTAKE_POWER);
-        } else if (gamepad1.left_bumper) {
-            Robot.launcher.setVelocity(Constants.LAUNCHER_MAX_VELOCITY); // small triangle launch zone
-            Robot.setFeederPower(Constants.FULL_POWER); // Servos feeding into launcher
-        } else if (gamepad1.a) { // intake controls
+        if (gamepad1.rightBumperWasPressed()) { // outtake controls
+            Robot.setIntakePower(0.0); // turn off intake
+            Robot.launch(Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
+        } else if (gamepad1.leftBumperWasPressed()) {
+            Robot.setIntakePower(0.0); // turn off intake
+            Robot.launch(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
+        } else if (gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
+            Robot.setIntakePower(Constants.INTAKE_POWER);
             Robot.setFeederPower(-Constants.FULL_POWER);
-            Robot.setIntakePower(-Constants.INTAKE_POWER);
-        } else {
+        } else if (!gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.launcher.setVelocity(0);
+            Robot.setIntakePower(0.0);
             Robot.setFeederPower(Constants.STOP_POWER);
         }
+
+        Robot.launch(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launch sequence going in loop
 
         /*
          * TECH TIP: State Machines
@@ -133,7 +135,7 @@ public class StarterBotTeleOp extends OpMode {
         // Intake controls (can change later)
         // Right trigger rotates forward, left trigger rotates backwards
         // By subtracting, you're able to prevent them from fighting to give power to the motor
-        Robot.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
+        //Robot.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
 
         // Loop the robot
         Robot.loop();
@@ -141,7 +143,6 @@ public class StarterBotTeleOp extends OpMode {
         /*
          * Show the state and motor powers
          */
-        CommonTelemetry.addData("Right bumper was pressed", gamepad1.rightBumperWasPressed());
         CommonTelemetry.update();
     }
 
