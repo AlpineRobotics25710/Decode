@@ -67,6 +67,9 @@ public class StarterBotTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
+        // See if code is updating on control hub
+        CommonTelemetry.addData("Curr time", System.currentTimeMillis());
+        CommonTelemetry.update();
     }
 
     /*
@@ -143,6 +146,7 @@ public class StarterBotTeleOp extends OpMode {
         /*
          * Show the state and motor powers
          */
+        CommonTelemetry.addData("prathyush laptop", "updated");
         CommonTelemetry.update();
     }
 

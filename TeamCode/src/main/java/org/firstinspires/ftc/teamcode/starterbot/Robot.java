@@ -33,7 +33,7 @@ public class Robot {
     static BlockerState blockerState;
     static LaunchSequenceState launchSequenceState;
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
-    private static long   readySinceMs      = 0L;  // when we first hit "at speed"
+    private static long readySinceMs = 0L;  // when we first hit "at speed"
 
     private static long stateStartTime;
 

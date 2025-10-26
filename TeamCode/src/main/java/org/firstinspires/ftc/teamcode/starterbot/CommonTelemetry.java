@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
-
+import com.bylazar.ftcontrol.panels.Panels;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class CommonTelemetry {
@@ -14,7 +13,7 @@ public class CommonTelemetry {
     }
 
     public static void init(Telemetry robotTelemetry) {
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        panelsTelemetry = Panels.getTelemetry();
         CommonTelemetry.robotTelemetry = robotTelemetry;
     }
 
@@ -28,7 +27,7 @@ public class CommonTelemetry {
 
     public static void addData(String key, Object value) {
         try {
-            panelsTelemetry.addData(key, value);
+            panelsTelemetry.debug(key + ": " + value);
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
