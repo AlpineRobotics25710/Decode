@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import static org.firstinspires.ftc.teamcode.starterbot.Constants.INTAKE_POS;
-import static org.firstinspires.ftc.teamcode.starterbot.Constants.OUTTAKE_POS;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -42,8 +40,8 @@ public class Robot {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step.
          */
-        leftDrive = hardwareMap.get(DcMotor.class, "LD");
-        rightDrive = hardwareMap.get(DcMotor.class, "RD");
+        //leftDrive = hardwareMap.get(DcMotor.class, "LD");
+        //rightDrive = hardwareMap.get(DcMotor.class, "RD");
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "LF");
         rightFeeder = hardwareMap.get(CRServo.class, "RF");
@@ -60,8 +58,8 @@ public class Robot {
          * Note: The settings here assume direct drive on left and right wheels. Gear
          * Reduction or 90 Deg drives may require direction flips
          */
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        //leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        //rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
         leftIntake.setDirection(DcMotorEx.Direction.FORWARD); // Might need to switch this
         rightIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
@@ -80,8 +78,8 @@ public class Robot {
          * slow down much faster when it is coasting. This creates a much more controllable
          * drivetrain. As the robot stops much quicker.
          */
-        leftDrive.setZeroPowerBehavior(BRAKE);
-        rightDrive.setZeroPowerBehavior(BRAKE);
+        //leftDrive.setZeroPowerBehavior(BRAKE);
+        //rightDrive.setZeroPowerBehavior(BRAKE);
         launcher.setZeroPowerBehavior(BRAKE);
 
         /*
@@ -89,7 +87,7 @@ public class Robot {
          */
         leftFeeder.setPower(Constants.STOP_POWER);
         rightFeeder.setPower(Constants.STOP_POWER);
-        ramp.setPosition(Constants.INTAKE_POS);
+        ramp.setPosition(Constants.RAMP_INTAKE_POS);
         blocker.setPosition(Constants.BLOCKER_CLOSED);
 
         rampState = RampState.INTAKE;
@@ -141,12 +139,12 @@ public class Robot {
         // State Machine for Hinge/Ramp state
         switch (rampState) {
             case INTAKE: // we are currently in INTAKE state, and want to switch states
-                ramp.setPosition(OUTTAKE_POS); // then change to OUTTAKE state
+                ramp.setPosition(Constants.RAMP_OUTTAKE_POS); // then change to OUTTAKE state
                 rampState = RampState.OUTTAKE;  // then change to OUTTAKE state
                 break;
 
             case OUTTAKE: // we are currently in OUTTAKE state, and want to switch states
-                ramp.setPosition(INTAKE_POS); // then change to INTAKE state
+                ramp.setPosition(Constants.RAMP_INTAKE_POS); // then change to INTAKE state
                 rampState = RampState.INTAKE; // then change to INTAKE state
                 break;
         }

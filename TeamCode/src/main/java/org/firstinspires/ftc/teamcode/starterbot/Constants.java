@@ -10,11 +10,11 @@ public class Constants {
 
     public static double LAUNCHER_INTAKE_POWER = -0.8 * FULL_POWER;
 
-    public static double RAMP_INTAKE_POS = 0; // TODO: NEED TO GET VALUES
-    public static double RAMP_OUTTAKE_POS = 0.65; // TODO: NEED TO GET VALUES
+    public static double RAMP_INTAKE_POS = 0.0; // TODO: NEED TO GET VALUES
+    public static double RAMP_OUTTAKE_POS = 0.4; // TODO: NEED TO GET VALUES
 
     public static double BLOCKER_OPEN = 0.0; // TODO: NEED TO GET VALUES
-    public static double BLOCKER_CLOSED = 0.3; // TODO: NEED TO GET VALUES
+    public static double BLOCKER_CLOSED = 0.36; // TODO: NEED TO GET VALUES
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
