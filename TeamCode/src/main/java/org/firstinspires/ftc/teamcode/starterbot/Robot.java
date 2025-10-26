@@ -92,8 +92,8 @@ public class Robot {
         /*
          * set Feeders to an initial value to initialize the servo controller
          */
-        leftFeeder.setPower(Constants.STOP_POWER);
-        rightFeeder.setPower(Constants.STOP_POWER);
+        leftFeeder.setPower(0);
+        rightFeeder.setPower(0);
         ramp.setPosition(Constants.RAMP_INTAKE_POS);
         blocker.setPosition(Constants.BLOCKER_CLOSED);
 
@@ -240,11 +240,11 @@ public class Robot {
 
                 if (spinupTimedOut) {
                     Robot.setFeederPower(0.0);
-                    Robot.launcher.setVelocity(Constants.STOP_POWER);
+                    Robot.launcher.setVelocity(0);
                     launchSequenceState = LaunchSequenceState.IDLE;
                 } else if (minDelayElapsed && heldAtSpeed) {
                     // feed only after BOTH min time AND true at-speed -> consistent shots
-                    Robot.setFeederPower(Constants.FULL_POWER);
+                    Robot.setFeederPower(Constants.FEEDER_POWER);
                     launchSequenceState = LaunchSequenceState.FEEDING;
                     stateStartTime = now;
                 }
@@ -262,7 +262,7 @@ public class Robot {
 
             case SHOOTING: {
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(Constants.STOP_POWER);
+                    Robot.launcher.setVelocity(0);
                     launchSequenceState = LaunchSequenceState.IDLE;
                 }
                 break;

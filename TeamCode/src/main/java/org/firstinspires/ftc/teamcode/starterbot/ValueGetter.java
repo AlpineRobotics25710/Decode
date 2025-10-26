@@ -15,7 +15,7 @@ public class ValueGetter extends LinearOpMode {
     public static double rampPos = 0.0;
     public static double blockerPos = 0.0;
     public static double intakePower = 0.0;
-    public static double launcherPower = 0.0; // this is in ticks/second
+    public static double launcherVelocity = 0.0; // this is in ticks/second
     public static double feederPower = 0.0;
 
     @Override
@@ -29,7 +29,9 @@ public class ValueGetter extends LinearOpMode {
         CRServo rightFeeder = hardwareMap.get(CRServo.class, "RF");
 
         leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
         CommonTelemetry.init(telemetry);
 
@@ -40,14 +42,14 @@ public class ValueGetter extends LinearOpMode {
             blocker.setPosition(blockerPos);
             leftIntake.setPower(intakePower);
             rightIntake.setPower(intakePower);
-            launcher.setVelocity(launcherPower);
+            launcher.setVelocity(launcherVelocity);
             leftFeeder.setPower(feederPower);
             rightFeeder.setPower(feederPower);
 
             CommonTelemetry.addData("ramp pos", rampPos);
             CommonTelemetry.addData("blocker pos", blockerPos);
             CommonTelemetry.addData("intake power", intakePower);
-            CommonTelemetry.addData("launcher power", launcherPower);
+            CommonTelemetry.addData("launcher velocity", launcherVelocity);
             CommonTelemetry.addData("feeder power", feederPower);
             CommonTelemetry.addData("right direction", rightIntake.getDirection());
             CommonTelemetry.addData("left direction", leftIntake.getDirection());

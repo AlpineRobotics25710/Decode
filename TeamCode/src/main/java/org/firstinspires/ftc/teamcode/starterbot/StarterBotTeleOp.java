@@ -105,11 +105,11 @@ public class StarterBotTeleOp extends OpMode {
         } else if (gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(Constants.INTAKE_POWER);
-            Robot.setFeederPower(-Constants.FULL_POWER);
+            Robot.setFeederPower(-Constants.FEEDER_POWER);
         } else if (!gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.launcher.setVelocity(0);
             Robot.setIntakePower(0.0);
-            Robot.setFeederPower(Constants.STOP_POWER);
+            Robot.setFeederPower(0);
         }
 
         Robot.launch(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launch sequence going in loop
@@ -146,7 +146,7 @@ public class StarterBotTeleOp extends OpMode {
         /*
          * Show the state and motor powers
          */
-        CommonTelemetry.addData("prathyush laptop", "updated");
+        CommonTelemetry.addData("Adi laptop", "updated");
         CommonTelemetry.update();
     }
 
