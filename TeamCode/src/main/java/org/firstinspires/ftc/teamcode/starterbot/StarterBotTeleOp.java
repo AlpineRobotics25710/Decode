@@ -90,7 +90,7 @@ public class StarterBotTeleOp extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
-        Robot.arcadeDrive(-gamepad1.left_stick_y, -gamepad1.right_stick_x);
+        //Robot.arcadeDrive(-gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         // Launcher controls
         if (gamepad1.right_bumper) { // outtake controls

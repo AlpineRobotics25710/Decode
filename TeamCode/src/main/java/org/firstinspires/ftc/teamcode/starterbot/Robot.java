@@ -131,8 +131,8 @@ public class Robot {
         /*
          * Send calculated power to wheels
          */
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
+        //leftDrive.setPower(leftPower);
+        //rightDrive.setPower(rightPower);
     }
 
     public static void switchRampState() {
