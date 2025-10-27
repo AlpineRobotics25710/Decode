@@ -50,9 +50,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@TeleOp(name = "StarterBotTeleop", group = "StarterBot")
+@TeleOp(group = "prod")
 //@Disabled
-public class StarterBotTeleOp extends OpMode {
+public class OneDriverTeleOp extends OpMode {
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -96,17 +96,17 @@ public class StarterBotTeleOp extends OpMode {
         Robot.arcadeDrive(gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         // Launcher controls
-        if (gamepad1.rightBumperWasPressed()) { // outtake controls
+        if (gamepad1.aWasPressed()) { // outtake controls
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
-        } else if (gamepad1.leftBumperWasPressed()) {
+        } else if (gamepad1.bWasPressed()) {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchTimeDelay(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
-        } else if (gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
+        } else if (gamepad1.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(Constants.INTAKE_POWER);
             Robot.setFeederPower(-Constants.FEEDER_POWER);
-        } else if (!gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+        } else if (!gamepad1.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.launcher.setVelocity(Constants.ZERO);
             Robot.setIntakePower(Constants.ZERO);
             Robot.setFeederPower(Constants.FEEDER_POWER);

@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Configurable
-@TeleOp(group = "StarterBot")
+@TeleOp(group = "testers")
 public class ValueGetter extends LinearOpMode {
     public static double rampPos = 0.0;
     public static double blockerPos = 0.0;
