@@ -4,6 +4,8 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class Constants {
+    public static double ZERO = 0.0;
+
     // The feeder servos run this long when a shot is requested.
     public static long FEED_TIME_MS = 500; // TODO: Needs to be tuned
     // How long to delay the servos for before they feed the ball into the launcher in milliseconds

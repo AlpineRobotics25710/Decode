@@ -97,18 +97,18 @@ public class StarterBotTeleOp extends OpMode {
 
         // Launcher controls
         if (gamepad1.rightBumperWasPressed()) { // outtake controls
-            Robot.setIntakePower(0.0); // turn off intake
+            Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
         } else if (gamepad1.leftBumperWasPressed()) {
-            Robot.setIntakePower(0.0); // turn off intake
+            Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchTimeDelay(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
         } else if (gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(Constants.INTAKE_POWER);
             Robot.setFeederPower(-Constants.FEEDER_POWER);
         } else if (!gamepad1.a && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.launcher.setVelocity(0);
-            Robot.setIntakePower(0.0);
+            Robot.launcher.setVelocity(Constants.ZERO);
+            Robot.setIntakePower(Constants.ZERO);
             Robot.setFeederPower(Constants.FEEDER_POWER);
         }
 
@@ -146,7 +146,8 @@ public class StarterBotTeleOp extends OpMode {
         /*
          * Show the state and motor powers
          */
-        CommonTelemetry.addData("Adi laptop", "updated");
+        // Set this value to something new to see if the code is updating on the control hub
+        CommonTelemetry.addData("code", "updated");
         CommonTelemetry.update();
     }
 

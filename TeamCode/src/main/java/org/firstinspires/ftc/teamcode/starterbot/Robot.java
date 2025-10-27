@@ -92,8 +92,8 @@ public class Robot {
         /*
          * set Feeders to an initial value to initialize the servo controller
          */
-        leftFeeder.setPower(0);
-        rightFeeder.setPower(0);
+        leftFeeder.setPower(Constants.ZERO);
+        rightFeeder.setPower(Constants.ZERO);
         ramp.setPosition(Constants.RAMP_INTAKE_POS);
         blocker.setPosition(Constants.BLOCKER_CLOSED);
 
@@ -201,6 +201,39 @@ public class Robot {
         }
     }
 
+    public static void launchTimeDelay(double launcherVelocity) {
+        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
+            Robot.launcher.setVelocity(launcherVelocity);
+            launchSequenceState = LaunchSequenceState.SPINNING_UP;
+            stateStartTime = System.currentTimeMillis();
+        }
+
+        switch (launchSequenceState) {
+            case SPINNING_UP:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_DELAY_MS) {
+                    Robot.setFeederPower(Constants.FEEDER_POWER);
+                    launchSequenceState = LaunchSequenceState.FEEDING;
+                    stateStartTime = System.currentTimeMillis();
+                }
+                break;
+
+            case FEEDING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
+                    Robot.setFeederPower(Constants.ZERO);
+                    stateStartTime = System.currentTimeMillis();
+                    launchSequenceState = LaunchSequenceState.SHOOTING;
+                }
+                break;
+
+            case SHOOTING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    Robot.launcher.setVelocity(Constants.ZERO);
+                    launchSequenceState = LaunchSequenceState.IDLE;
+                }
+                break;
+        }
+    }
+
     public static void launch(double launcherVelocity) {
         // Arm a new launch only from IDLE with a real target velocity
         if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE
@@ -239,8 +272,8 @@ public class Robot {
                 boolean spinupTimedOut = (now - stateStartTime) >= Constants.SPINUP_TIMEOUT_MS;
 
                 if (spinupTimedOut) {
-                    Robot.setFeederPower(0.0);
-                    Robot.launcher.setVelocity(0);
+                    Robot.setFeederPower(Constants.ZERO);
+                    Robot.launcher.setVelocity(Constants.ZERO);
                     launchSequenceState = LaunchSequenceState.IDLE;
                 } else if (minDelayElapsed && heldAtSpeed) {
                     // feed only after BOTH min time AND true at-speed -> consistent shots
@@ -253,7 +286,7 @@ public class Robot {
 
             case FEEDING: {
                 if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
-                    Robot.setFeederPower(0.0);
+                    Robot.setFeederPower(Constants.ZERO);
                     stateStartTime = System.currentTimeMillis();
                     launchSequenceState = LaunchSequenceState.SHOOTING;
                 }
@@ -262,44 +295,11 @@ public class Robot {
 
             case SHOOTING: {
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(0);
+                    Robot.launcher.setVelocity(Constants.ZERO);
                     launchSequenceState = LaunchSequenceState.IDLE;
                 }
                 break;
             }
-        }
-    }
-
-    public static void launchTimeDelay(double launcherVelocity) {
-        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.launcher.setVelocity(launcherVelocity);
-            launchSequenceState = LaunchSequenceState.SPINNING_UP;
-            stateStartTime = System.currentTimeMillis();
-        }
-
-        switch (launchSequenceState) {
-            case SPINNING_UP:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_DELAY_MS) {
-                    Robot.setFeederPower(Constants.FEEDER_POWER);
-                    launchSequenceState = LaunchSequenceState.FEEDING;
-                    stateStartTime = System.currentTimeMillis();
-                }
-                break;
-
-            case FEEDING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
-                    Robot.setFeederPower(0.0);
-                    stateStartTime = System.currentTimeMillis();
-                    launchSequenceState = LaunchSequenceState.SHOOTING;
-                }
-                break;
-
-            case SHOOTING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(Constants.FEEDER_POWER);
-                    launchSequenceState = LaunchSequenceState.IDLE;
-                }
-                break;
         }
     }
 }
