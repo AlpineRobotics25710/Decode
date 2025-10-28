@@ -32,7 +32,6 @@
 
 package org.firstinspires.ftc.teamcode.starterbot;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /*
@@ -50,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@TeleOp(name = "StarterBotTeleop", group = "StarterBot")
+@TeleOp(group = "prod")
 //@Disabled
 public class TwoDriverTeleOp extends BaseTeleOp {
     @Override
