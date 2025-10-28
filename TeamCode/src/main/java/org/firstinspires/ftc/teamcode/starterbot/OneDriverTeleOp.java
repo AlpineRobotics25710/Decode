@@ -96,10 +96,10 @@ public class OneDriverTeleOp extends OpMode {
         Robot.arcadeDrive(gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
         // Launcher controls
-        if (gamepad1.aWasPressed()) { // outtake controls
+        if (gamepad1.aWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (gamepad1.bWasPressed()) {
+        } else if (gamepad1.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchTimeDelay(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (gamepad1.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
