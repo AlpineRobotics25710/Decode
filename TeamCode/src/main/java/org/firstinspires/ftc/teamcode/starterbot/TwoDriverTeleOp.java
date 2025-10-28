@@ -112,7 +112,7 @@ public class TwoDriverTeleOp extends OpMode {
             Robot.setFeederPower(Constants.FEEDER_POWER);
         }
 
-        Robot.launch(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launch sequence going in loop
+        Robot.launchTimeDelay(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launch sequence going in loop
 
         /*
          * TECH TIP: State Machines

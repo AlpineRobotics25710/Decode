@@ -98,10 +98,10 @@ public class OneDriverTeleOp extends OpMode {
         // Launcher controls
         if (gamepad1.aWasPressed()) { // outtake controls
             Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
+            Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (gamepad1.bWasPressed()) {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchTimeDelay(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launch sequence
+            Robot.launchTimeDelay(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (gamepad1.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(Constants.INTAKE_POWER);
@@ -112,7 +112,7 @@ public class OneDriverTeleOp extends OpMode {
             Robot.setFeederPower(Constants.FEEDER_POWER);
         }
 
-        Robot.launch(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launch sequence going in loop
+        Robot.launchTimeDelay(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
 
         /*
          * TECH TIP: State Machines

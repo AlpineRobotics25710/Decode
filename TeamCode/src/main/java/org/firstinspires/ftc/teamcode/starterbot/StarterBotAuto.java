@@ -258,8 +258,8 @@ public class StarterBotAuto extends OpMode {
         switch (autonomousState) {
             /*
              * Since the first state of our auto is LAUNCH, this is the first "case" we encounter.
-             * This case is very simple. We call our .launch() function with "true" in the parameter.
-             * This "true" value informs our launch function that we'd like to start the process of
+             * This case is very simple. We call our .launchBasedOnVelocity() function with "true" in the parameter.
+             * This "true" value informs our launchBasedOnVelocity function that we'd like to start the process of
              * firing a shot. We will call this function with a "false" in the next case. This
              * "false" condition means that we are continuing to call the function every loop,
              * allowing it to cycle through and continue the process of launching the first ball.
@@ -276,7 +276,7 @@ public class StarterBotAuto extends OpMode {
                  * motors and servos in a way that launches the ball, but it also "talks back" to
                  * our main loop by returning either "true" or "false". We've written it so that
                  * after the shot we requested has been fired, the function will return "true" for
-                 * one cycle. Once the launch function returns "true", we proceed in the code, removing
+                 * one cycle. Once the launchBasedOnVelocity function returns "true", we proceed in the code, removing
                  * one from the shotsToFire variable. If shots remain, we move back to the LAUNCH
                  * state on our state machine. Otherwise, we reset the encoders on our drive motors
                  * and move onto the next state.
@@ -358,7 +358,7 @@ public class StarterBotAuto extends OpMode {
      *
      * @param shotRequested "true" if the user would like to fire a new shot, and "false" if a shot
      *                      has already been requested and we need to continue to move through the
-     *                      state machine and launch the ball.
+     *                      state machine and launchBasedOnVelocity the ball.
      * @return "true" for one cycle after a ball has been successfully launched, "false" otherwise.
      */
     boolean launch(boolean shotRequested) {

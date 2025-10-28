@@ -234,7 +234,7 @@ public class Robot {
         }
     }
 
-    public static void launch(double launcherVelocity) {
+    public static void launchBasedOnVelocity(double launcherVelocity) {
         // Arm a new launch only from IDLE with a real target velocity
         if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE
                 && launchSequenceState == LaunchSequenceState.IDLE) {
