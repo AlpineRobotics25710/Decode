@@ -56,10 +56,10 @@ public abstract class BaseTeleOp extends OpMode {
         // Launcher controls
         if (operator.aWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
             Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchBasedOnVelocityActual(Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
+            Robot.launchBasedOnVelocity(Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchBasedOnVelocityActual(0.75 * Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
+            Robot.launchBasedOnVelocity(0.75 * Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(Constants.INTAKE_POWER);
@@ -74,7 +74,7 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.setFeederPower(Constants.ZERO);
         }
 
-        Robot.launchBasedOnVelocityActual(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
+        Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
 
         /*
          * TECH TIP: State Machines

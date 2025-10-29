@@ -218,7 +218,7 @@ public class Robot {
         }
     }
 
-    public static void launchBasedOnVelocityActual(double launcherVelocity) {
+    public static void launchBasedOnVelocity(double launcherVelocity) {
         if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
             targetVelocityTps = launcherVelocity;
             Robot.launcher.setVelocity(launcherVelocity);
@@ -250,75 +250,6 @@ public class Robot {
                     launchSequenceState = LaunchSequenceState.IDLE;
                 }
                 break;
-        }
-    }
-
-    public static void launchBasedOnVelocity(double launcherVelocity) {
-        // Arm a new launch only from IDLE with a real target velocity
-        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE
-                && launchSequenceState == LaunchSequenceState.IDLE) {
-
-            targetVelocityTps = launcherVelocity;          // remember target
-            Robot.launcher.setVelocity(targetVelocityTps); // DcMotorEx closed-loop velocity
-            launchSequenceState = LaunchSequenceState.SPINNING_UP;
-            stateStartTime = System.currentTimeMillis();
-            readySinceMs = 0L;                              // reset at-speed hold timer
-        }
-
-        switch (launchSequenceState) {
-            case SPINNING_UP: {
-                final long now = System.currentTimeMillis();
-
-                // keep your base minimum delay (ensures baseline spin-up time)
-                boolean minDelayElapsed = (now - stateStartTime) >= Constants.LAUNCH_DELAY_MS;
-
-                // live speed from motor encoder (ticks/sec)
-                // If your SDK doesn't have getLiveVelocity(), use getVelocity() instead.
-                double currentTps = Robot.launcher.getVelocity();
-
-                // at-speed check with tolerance and small hold (debounce)
-                double tol = Math.max(0.01, Constants.LAUNCH_READY_TOLERANCE); // guard against <1%
-                boolean atSpeed = currentTps >= (targetVelocityTps * (1.0 - tol));
-
-                if (atSpeed) {
-                    if (readySinceMs == 0L) readySinceMs = now;
-                } else {
-                    readySinceMs = 0L;
-                }
-                boolean heldAtSpeed = (readySinceMs != 0L) && (now - readySinceMs >= Constants.READY_HOLD_MS);
-
-                // fail-safe in-case wheel never reaches speed, we stop the launch sequence
-                boolean spinupTimedOut = (now - stateStartTime) >= Constants.SPINUP_TIMEOUT_MS;
-
-                if (spinupTimedOut) {
-                    Robot.setFeederPower(Constants.ZERO);
-                    Robot.launcher.setVelocity(Constants.ZERO);
-                    launchSequenceState = LaunchSequenceState.IDLE;
-                } else if (minDelayElapsed && heldAtSpeed) {
-                    // feed only after BOTH min time AND true at-speed -> consistent shots
-                    Robot.setFeederPower(Constants.FEEDER_POWER);
-                    launchSequenceState = LaunchSequenceState.FEEDING;
-                    stateStartTime = now;
-                }
-                break;
-            }
-
-            case FEEDING: {
-                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
-                    Robot.setFeederPower(Constants.ZERO);
-                    stateStartTime = System.currentTimeMillis();
-                    launchSequenceState = LaunchSequenceState.SHOOTING;
-                }
-                break;
-            }
-
-            case SHOOTING: {
-                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(Constants.ZERO);
-                    launchSequenceState = LaunchSequenceState.IDLE;
-                }
-                break;
-            }
         }
     }
 }
