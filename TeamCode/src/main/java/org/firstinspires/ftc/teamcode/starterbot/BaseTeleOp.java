@@ -56,21 +56,25 @@ public abstract class BaseTeleOp extends OpMode {
         // Launcher controls
         if (operator.aWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
             Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
+            Robot.launchBasedOnVelocityActual(Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchTimeDelay(0.65 * Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
+            Robot.launchBasedOnVelocityActual(0.5 * Constants.LAUNCHER_MAX_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
             Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(Constants.INTAKE_POWER);
             Robot.setFeederPower(-Constants.FEEDER_POWER);
-        } else if (!operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+        } else if (operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+            Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY);
+            Robot.setIntakePower(-Constants.INTAKE_POWER);
+            Robot.setFeederPower(Constants.FEEDER_POWER);
+        } else if (!operator.right_bumper &&  !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.launcher.setVelocity(Constants.ZERO);
             Robot.setIntakePower(Constants.ZERO);
-            Robot.setFeederPower(Constants.FEEDER_POWER);
+            Robot.setFeederPower(Constants.ZERO);
         }
 
-        Robot.launchTimeDelay(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
+        Robot.launchBasedOnVelocityActual(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
 
         /*
          * TECH TIP: State Machines

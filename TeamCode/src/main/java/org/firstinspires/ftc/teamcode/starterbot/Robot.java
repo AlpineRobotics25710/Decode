@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
-import java.util.Locale;
-
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -11,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import java.util.Locale;
 
 public class Robot {
     // Drivetrain motors
@@ -123,28 +123,12 @@ public class Robot {
         // launcher telemetry
         long now = System.currentTimeMillis();
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher tps (cur/target)",
-                String.format(Locale.US, "%.0f / %.0f", curTps, targetVelocityTps));
+        CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.0f / %.0f", curTps, targetVelocityTps));
 
-        // Gates/Flags
-        boolean minDelayElapsed = (now - stateStartTime) >= Constants.LAUNCH_DELAY_MS;
-        double tol = Math.max(0.01, Constants.LAUNCH_READY_TOLERANCE);
-        boolean atSpeed = curTps >= (targetVelocityTps * (1.0 - tol));
-        boolean heldAtSpeed = (readySinceMs != 0L) && (now - readySinceMs >= Constants.READY_HOLD_MS);
-        boolean spinupTimedOut = (now - stateStartTime) >= Constants.SPINUP_TIMEOUT_MS;
-
-        CommonTelemetry.addData("SpinUp flags",
-                String.format(Locale.US, "delay:%b at:%b held:%b timeout:%b",
-                        minDelayElapsed, atSpeed, heldAtSpeed, spinupTimedOut));
-
-        CommonTelemetry.addData("SpinUp timers ms",
-                String.format(Locale.US, "sinceStart:%d sinceReady:%d",
-                        (launchSequenceState == LaunchSequenceState.SPINNING_UP) ? (now - stateStartTime) : 0L,
-                        (readySinceMs == 0L) ? 0L : (now - readySinceMs)));
+        CommonTelemetry.addData("SpinUp timers ms", String.format(Locale.US, "sinceStart:%d sinceReady:%d", (launchSequenceState == LaunchSequenceState.SPINNING_UP) ? (now - stateStartTime) : 0L, (readySinceMs == 0L) ? 0L : (now - readySinceMs)));
 
         // estimated RPM (5203 @ ~537.7 ticks/rev)
-        CommonTelemetry.addData("Launcher rpm (est)",
-                String.format(Locale.US, "%.0f", curTps * 60.0 / 537.7));
+        CommonTelemetry.addData("Launcher rpm (est)", String.format(Locale.US, "%.0f", curTps * 60.0 / 537.7));
 
         CommonTelemetry.addData("Ramp State", rampState.toString());
         CommonTelemetry.addData("Blocker State", blockerState.toString());
@@ -211,6 +195,41 @@ public class Robot {
         switch (launchSequenceState) {
             case SPINNING_UP:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_DELAY_MS) {
+                    Robot.setFeederPower(Constants.FEEDER_POWER);
+                    launchSequenceState = LaunchSequenceState.FEEDING;
+                    stateStartTime = System.currentTimeMillis();
+                }
+                break;
+
+            case FEEDING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
+                    Robot.setFeederPower(Constants.ZERO);
+                    stateStartTime = System.currentTimeMillis();
+                    launchSequenceState = LaunchSequenceState.SHOOTING;
+                }
+                break;
+
+            case SHOOTING:
+                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    Robot.launcher.setVelocity(Constants.ZERO);
+                    launchSequenceState = LaunchSequenceState.IDLE;
+                }
+                break;
+        }
+    }
+
+    public static void launchBasedOnVelocityActual(double launcherVelocity) {
+        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
+            targetVelocityTps = launcherVelocity;
+            Robot.launcher.setVelocity(launcherVelocity);
+            launchSequenceState = LaunchSequenceState.SPINNING_UP;
+            stateStartTime = System.currentTimeMillis();
+        }
+
+        switch (launchSequenceState) {
+            case SPINNING_UP:
+                if (Robot.launcher.getVelocity() >= targetVelocityTps - Constants.LAUNCHER_VELOCITY_TOLERANCE
+                        && System.currentTimeMillis() - stateStartTime < Constants.SPINUP_TIMEOUT_MS) {
                     Robot.setFeederPower(Constants.FEEDER_POWER);
                     launchSequenceState = LaunchSequenceState.FEEDING;
                     stateStartTime = System.currentTimeMillis();

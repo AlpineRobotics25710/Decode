@@ -17,7 +17,7 @@ public class CommonTelemetry {
         CommonTelemetry.robotTelemetry = robotTelemetry;
     }
 
-    public static void debug(String... data) {
+    public static void debug(Object... data) {
         try {
             panelsTelemetry.debug(data);
         } catch (NullPointerException e) {

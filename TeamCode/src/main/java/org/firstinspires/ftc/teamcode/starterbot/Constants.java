@@ -7,11 +7,11 @@ public class Constants {
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
-    public static long FEED_TIME_MS = 500; // TODO: Needs to be tuned
+    public static long FEED_TIME_MS = 150; // TODO: Needs to be tuned
     // How long to delay the servos for before they feed the ball into the launcher in milliseconds
     // Waiting for the launcher to reach the target velocity
     public static long LAUNCH_DELAY_MS = 2500; // TODO: Needs to be tuned
-    public static long LAUNCH_TIME_MS = 1500; // TODO: Needs to be tuned
+    public static long LAUNCH_TIME_MS = 500; // TODO: Needs to be tuned
 
     public static double FEEDER_POWER = 1.0;
 
@@ -25,7 +25,7 @@ public class Constants {
 
     public static double LAUNCH_READY_TOLERANCE = 0.05; // ±5% of target velocity OK
     public static long   READY_HOLD_MS          = 150;  // must hold at-speed this long
-    public static long   SPINUP_TIMEOUT_MS      = 4000; // abort if never reaches speed
+    public static long   SPINUP_TIMEOUT_MS      = 5000; // abort if never reaches speed
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -33,10 +33,19 @@ public class Constants {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    public static double LAUNCHER_MAX_VELOCITY = 4000; // Max velocity when shooting the ball
+    public static double LAUNCHER_MAX_VELOCITY = 2000; // Max velocity when shooting the ball
     public static double LAUNCHER_INTAKE_VELOCITY = -1750; // Velocity to run at when intaking the ball
     public static double CONTINUE_LAUNCH_SEQUENCE = -1; // Constant to continue the launch sequence
     // public static double LAUNCHER_MIN_VELOCITY = 80; // Commented out because unnecessary (for now)
+
+    // Autonomous Constants
+    public static double DRIVE_SPEED = 0.5;
+    public static double ROTATE_SPEED = 0.2;
+    public static double WHEEL_DIAMETER_MM = 96;
+    public static double ENCODER_TICKS_PER_REV = 537.7;
+    public static double TICKS_PER_MM = (ENCODER_TICKS_PER_REV / (WHEEL_DIAMETER_MM * Math.PI));
+    public static double TRACK_WIDTH_MM = 404;
+    public static double LAUNCHER_VELOCITY_TOLERANCE = 100;
 }
 
 enum RampState {
