@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.starterbot;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -27,9 +29,9 @@ public class AprilTagAlignTest extends BaseTeleOp {
     public void init() {
         super.init();
 
-        // Initialize the AprilTag processor.
+        // Initialize the AprilTag processor and Vision Portal
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
-        visionPortal = new VisionPortal.Builder().addProcessor(aprilTagProcessor).build();
+        visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
 
         // Initialize the IMU
         imu = hardwareMap.get(IMU.class, "imu");
@@ -49,9 +51,10 @@ public class AprilTagAlignTest extends BaseTeleOp {
         }
 
         if (!aprilTagProcessor.getDetections().isEmpty()) {
-            telemetry.addData("AprilTag Detected", aprilTagProcessor.getDetections().get(0).id);
+            for (AprilTagDetection detection : aprilTagProcessor.getDetections())
+                CommonTelemetry.addData("AprilTag Detected: ", detection.id);
         }
-        telemetry.addData("Robot Yaw", "%.2f degrees", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        CommonTelemetry.addData("Robot Yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
 
         Robot.loop();
         CommonTelemetry.update();
@@ -59,12 +62,20 @@ public class AprilTagAlignTest extends BaseTeleOp {
 
     private void alignToAprilTag() {
         if (!aprilTagProcessor.getDetections().isEmpty()) {
-            AprilTagDetection detection = aprilTagProcessor.getDetections().get(0);
+            // Get the bearing of the red goal AprilTag
+            double tagBearing = 0.0;
+            for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
+                if (detection.id == 24) {
+                    tagBearing = detection.ftcPose.bearing;
+                }
+            }
 
-            // To be "square" with the tag, we need to correct for both the angle *to* the tag (bearing)
-            // and the tag's own rotation relative to the robot (yaw).
-            // The error is the combination of these two angles.
-            double headingError = detection.ftcPose.yaw - detection.ftcPose.bearing;
+            // Get the current yaw of the imu
+            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+            double imuYaw = orientation.getYaw(AngleUnit.DEGREES);
+
+            // Error in degrees
+            double headingError = tagBearing - imuYaw;
 
             double turn = 0;
 
