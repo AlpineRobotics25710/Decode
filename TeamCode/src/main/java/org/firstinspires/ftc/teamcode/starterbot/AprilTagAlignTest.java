@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -10,14 +12,16 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+@Configurable
+@TeleOp(group = "testers")
 public class AprilTagAlignTest extends BaseTeleOp {
+    // Adjust these values to tune the alignment
+    public static double turnGain = 0.02;
+    public static double headingTolerance = 1.0; // degrees
+    public static double goalTagId = 24;
     private AprilTagProcessor aprilTagProcessor;
     private VisionPortal visionPortal;
     private IMU imu;
-
-    // Adjust these values to tune the alignment
-    public static double TURN_GAIN = 0.02;
-    public static double HEADING_TOLERANCE = 1.0; // degrees
 
     @Override
     public void initGamepads() {
@@ -30,7 +34,7 @@ public class AprilTagAlignTest extends BaseTeleOp {
         super.init();
 
         // Initialize the AprilTag processor and Vision Portal
-        aprilTagProcessor = new AprilTagProcessor.Builder().build();
+        aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
 
         // Initialize the IMU
@@ -50,11 +54,20 @@ public class AprilTagAlignTest extends BaseTeleOp {
             alignToAprilTag();
         }
 
+        AprilTagDetection goalTag = null;
         if (!aprilTagProcessor.getDetections().isEmpty()) {
-            for (AprilTagDetection detection : aprilTagProcessor.getDetections())
+            for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
                 CommonTelemetry.addData("AprilTag Detected: ", detection.id);
+                if (detection.id == goalTagId) {
+                    goalTag = detection;
+                }
+            }
         }
+
         CommonTelemetry.addData("Robot Yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        if (goalTag != null) {
+            CommonTelemetry.addData("April Tag bearing", goalTag.ftcPose.bearing);
+        }
 
         Robot.loop();
         CommonTelemetry.update();
@@ -65,7 +78,7 @@ public class AprilTagAlignTest extends BaseTeleOp {
             // Get the bearing of the red goal AprilTag
             double tagBearing = 0.0;
             for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
-                if (detection.id == 24) {
+                if (detection.id == goalTagId) {
                     tagBearing = detection.ftcPose.bearing;
                 }
             }
@@ -79,9 +92,9 @@ public class AprilTagAlignTest extends BaseTeleOp {
 
             double turn = 0;
 
-            if (Math.abs(headingError) > HEADING_TOLERANCE) {
+            if (Math.abs(headingError) > headingTolerance) {
                 // Use a proportional controller to calculate the turn power.
-                turn = headingError * TURN_GAIN;
+                turn = headingError * turnGain;
             }
 
             // No forward movement, only turning.
