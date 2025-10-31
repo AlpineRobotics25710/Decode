@@ -32,15 +32,9 @@
 
 package org.firstinspires.ftc.teamcode.starterbot;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -182,7 +176,7 @@ public class StarterBotAuto extends OpMode {
              * allowing it to cycle through and continue the process of launching the first ball.
              */
             case LAUNCH:
-                Robot.launchTimeDelay(Constants.LAUNCHER_MAX_VELOCITY);
+                Robot.launchTimeDelay(Constants.LAUNCHER_FAR_VELOCITY);
                 autonomousState = AutonomousState.WAIT_FOR_LAUNCH;
                 break;
 
@@ -285,8 +279,8 @@ public class StarterBotAuto extends OpMode {
                 }
                 break;
             case PREPARE:
-                Robot.launcher.setVelocity(Constants.LAUNCHER_MAX_VELOCITY);
-                if (Robot.launcher.getVelocity() >= Constants.LAUNCHER_MAX_VELOCITY - Constants.LAUNCHER_VELOCITY_TOLERANCE) {
+                Robot.launcher.setVelocity(Constants.LAUNCHER_FAR_VELOCITY);
+                if (Robot.launcher.getVelocity() >= Constants.LAUNCHER_FAR_VELOCITY - Constants.LAUNCHER_VELOCITY_TOLERANCE) {
                     launchState = LaunchState.LAUNCH;
                     Robot.leftFeeder.setPower(1);
                     Robot.rightFeeder.setPower(1);

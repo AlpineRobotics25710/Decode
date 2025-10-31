@@ -7,7 +7,7 @@ public class Constants {
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
-    public static long FEED_TIME_MS = 77; // TODO: Needs to be tuned
+    public static long FEED_TIME_MS = 170; // TODO: Needs to be tuned
     // How long to delay the servos for before they feed the ball into the launcher in milliseconds
     // Waiting for the launcher to reach the target velocity
     public static long LAUNCH_DELAY_MS = 2500; // TODO: Needs to be tuned
@@ -31,7 +31,8 @@ public class Constants {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    public static double LAUNCHER_MAX_VELOCITY = 1950; // Max velocity when shooting the ball
+    public static double LAUNCHER_FAR_VELOCITY = 1900; // Max velocity when shooting the ball from far away
+    public static double LAUNCHER_CLOSE_VELOCITY = 1600; // Max velocity when shooting the ball from close
     public static double LAUNCHER_INTAKE_VELOCITY = -1750; // Velocity to run at when intaking the ball
     public static double CONTINUE_LAUNCH_SEQUENCE = -1; // Constant to continue the launch sequence
     public static double LAUNCHER_VELOCITY_TOLERANCE = 100;
