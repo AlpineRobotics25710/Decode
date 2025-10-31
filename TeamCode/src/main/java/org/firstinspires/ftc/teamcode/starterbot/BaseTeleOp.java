@@ -51,7 +51,11 @@ public abstract class BaseTeleOp extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
-        Robot.arcadeDrive(driver.left_stick_y, -driver.right_stick_x);
+
+        if (driver.right_bumper)
+            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE*-driver.right_stick_x);
+        else
+            Robot.arcadeDrive(driver.left_stick_y, -driver.right_stick_x);
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls

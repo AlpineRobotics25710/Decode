@@ -4,6 +4,8 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class Constants {
+    public static double TURN_THROTTLE = 0.6;
+
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
