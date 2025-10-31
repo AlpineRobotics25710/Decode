@@ -54,10 +54,10 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.arcadeDrive(driver.left_stick_y, -driver.right_stick_x);
 
         // Launcher controls
-        if (operator.aWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
+        if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+        } else if (operator.aWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchBasedOnVelocity(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
