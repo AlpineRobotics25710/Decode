@@ -18,7 +18,7 @@ public class AprilTagAlignTest extends BaseTeleOp {
     // Adjust these values to tune the alignment
     public static double turnGain = 0.02;
     public static double headingTolerance = 1.0; // degrees
-    public static double goalTagId = 24;
+    public static double goalTagId = 20; // 20 for Blue Alliance goal, 24 for Red Alliance goal
     private AprilTagProcessor aprilTagProcessor;
     private VisionPortal visionPortal;
     private IMU imu;
@@ -39,8 +39,8 @@ public class AprilTagAlignTest extends BaseTeleOp {
 
         // Initialize the IMU
         imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         imu.resetYaw(); // Reset yaw at the start of the OpMode
