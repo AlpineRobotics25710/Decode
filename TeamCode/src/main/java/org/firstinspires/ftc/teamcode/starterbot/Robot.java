@@ -113,7 +113,6 @@ public class Robot {
          * Tell the driver that initialization is complete.
          */
         CommonTelemetry.addData("Status", "Initialized");
-        CommonTelemetry.update();
     }
 
     public static void loop() {
