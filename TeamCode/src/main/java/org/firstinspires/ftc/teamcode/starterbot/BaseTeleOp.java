@@ -52,10 +52,11 @@ public abstract class BaseTeleOp extends OpMode {
          * more complex maneuvers.
          */
 
-        if (driver.right_bumper)
-            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE*-driver.right_stick_x);
-        else
+        if (driver.right_bumper) {
+            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
+        } else {
             Robot.arcadeDrive(driver.left_stick_y, -driver.right_stick_x);
+        }
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
@@ -72,7 +73,7 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY);
             Robot.setIntakePower(-Constants.INTAKE_POWER);
             Robot.setFeederPower(Constants.FEEDER_POWER);
-        } else if (!operator.right_bumper &&  !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+        } else if (!operator.right_bumper && !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.launcher.setVelocity(Constants.ZERO);
             Robot.setIntakePower(Constants.ZERO);
             Robot.setFeederPower(Constants.ZERO);
