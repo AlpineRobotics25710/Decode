@@ -26,7 +26,7 @@ public class PreloadAuto extends OpMode {
 
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
-
+        Robot.switchRampState();
 
         // Tell the driver that initialization is complete.
         CommonTelemetry.addData("Status", "Initialized");
