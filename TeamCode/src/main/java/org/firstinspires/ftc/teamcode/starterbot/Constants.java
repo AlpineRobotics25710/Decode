@@ -66,3 +66,8 @@ enum LaunchSequenceState {
     FEEDING,
     SHOOTING
 }
+
+enum Alliance {
+    RED,
+    BLUE;
+}

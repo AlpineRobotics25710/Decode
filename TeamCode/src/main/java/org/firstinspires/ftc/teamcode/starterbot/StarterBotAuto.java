@@ -140,8 +140,8 @@ public class StarterBotAuto extends OpMode {
             alliance = Alliance.BLUE;
         }
 
-        CommonTelemetry.addData("Press X", "for BLUE");
-        CommonTelemetry.addData("Press B", "for RED");
+        CommonTelemetry.addData("Press O", "for BLUE");
+        CommonTelemetry.addData("Press X", "for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
     }
 
@@ -176,7 +176,7 @@ public class StarterBotAuto extends OpMode {
              * allowing it to cycle through and continue the process of launching the first ball.
              */
             case LAUNCH:
-                Robot.launchTimeDelay(Constants.LAUNCHER_FAR_VELOCITY);
+                Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY);
                 autonomousState = AutonomousState.WAIT_FOR_LAUNCH;
                 break;
 
