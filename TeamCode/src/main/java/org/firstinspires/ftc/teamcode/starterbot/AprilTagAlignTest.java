@@ -85,10 +85,6 @@ public class AprilTagAlignTest extends BaseTeleOp {
 
         setManualExposure(Constants.EXPOSURE_MS, Constants.GAIN);
 
-        if (alignRequested) {
-            alignToAprilTag();
-        }
-
         telemetryAprilTag();
 
         for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
@@ -100,7 +96,12 @@ public class AprilTagAlignTest extends BaseTeleOp {
 
         CommonTelemetry.addData("Target tag", goalTagId);
         CommonTelemetry.addData("Align requested", alignRequested);
-        super.loop();
+
+        if (alignRequested) {
+            alignToAprilTag();
+        } else {
+            super.loop();
+        }
     }
 
     private void alignToAprilTag() {
@@ -113,7 +114,7 @@ public class AprilTagAlignTest extends BaseTeleOp {
         }
 
         if (targetTag == null) {
-            Robot.arcadeDrive(0, 0);
+            //Robot.arcadeDrive(0, 0);
             return;
         }
 
