@@ -3,93 +3,124 @@ package org.firstinspires.ftc.teamcode.starterbot;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Configurable
-@Autonomous
+@Autonomous(name = "PreloadAuto")
 public class PreloadAuto extends OpMode {
     public static int TOTAL_SHOTS = 3;
-    public static long DRIVE_TIME_MS = 2000;
-    private int shotsFired = 0;
-    private boolean shootingComplete = false;
-    private Alliance alliance = Alliance.RED;
+    public static long DRIVE_TIME_MS = 500;
+    public static long SHOT_COOLDOWN_MS = 250; // small debounce between shots
 
-    /*
-     * This code runs ONCE when the driver hits INIT.
-     */
+    private enum AutoState {SHOOTING, DRIVING, DONE}
+
+    private AutoState state;
+
+    private int shotsFired;
+    private boolean shotInFlight;          // true after we command a shot, until launcher returns to IDLE
+    private LaunchSequenceState prevLaunchState;
+
+    private final ElapsedTime driveTimer = new ElapsedTime();
+    private final ElapsedTime shotCooldown = new ElapsedTime();
+
+    private Alliance alliance = Alliance.RED;
+    private boolean prevA = false, prevB = false;
+
     @Override
     public void init() {
-        /*
-         * Here we set the first step of our autonomous state machine by setting autoStep = AutoStep.LAUNCH.
-         * Later in our code, we will progress through the state machine by moving to other enum members.
-         * We do the same for our launcher state machine, setting it to IDLE before we use it later.
-         */
-
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
         Robot.switchRampState();
 
-        // Tell the driver that initialization is complete.
+        state = AutoState.SHOOTING;
+        shotsFired = 0;
+        shotInFlight = false;
+        prevLaunchState = LaunchSequenceState.IDLE;
+        shotCooldown.reset();
+
         CommonTelemetry.addData("Status", "Initialized");
     }
 
-    /*
-     * This code runs REPEATEDLY after the driver hits INIT, but before they hit START.
-     */
     @Override
     public void init_loop() {
-        /*
-         * Here we allow the driver to select which alliance we are on using the gamepad.
-         */
-        if (gamepad1.aWasPressed()) {
-            alliance = Alliance.RED;
-        } else if (gamepad1.bWasPressed()) {
-            alliance = Alliance.BLUE;
-        }
+        // Edge-detect if you don't have aWasPressed/bWasPressed helpers
+        boolean a = gamepad1.a;
+        boolean b = gamepad1.b;
+        if (a && !prevA) alliance = Alliance.RED;
+        if (b && !prevB) alliance = Alliance.BLUE;
+        prevA = a;
+        prevB = b;
 
-        CommonTelemetry.addData("Press O", "for BLUE");
-        CommonTelemetry.addData("Press X", "for RED");
+        CommonTelemetry.addData("Press B/O", "for BLUE");
+        CommonTelemetry.addData("Press A/X", "for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
     }
 
-    /*
-     * This code runs ONCE when the driver hits START.
-     */
     @Override
     public void start() {
+        driveTimer.reset();
+        shotCooldown.reset();
     }
 
     @Override
     public void loop() {
-
-        // Always advance the internal launcher state machine
+        // Always tick the launcher state machine
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
 
-        while (!shootingComplete) {
-            if (Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-                if (shotsFired < TOTAL_SHOTS) {
+        LaunchSequenceState ls = Robot.launchSequenceState;
+
+        switch (state) {
+            case SHOOTING: {
+                // If no shot is currently in flight and we have more to shoot, command the next one
+                if (!shotInFlight && shotsFired < TOTAL_SHOTS && ls == LaunchSequenceState.IDLE
+                        && shotCooldown.milliseconds() >= SHOT_COOLDOWN_MS) {
                     Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY);
-                    shotsFired++;
-                } else {
-                    shootingComplete = true;
-                    Robot.launcher.setVelocity(Constants.ZERO);
+                    shotInFlight = true;          // wait for cycle to complete
+                    shotCooldown.reset();
                 }
+
+                // Detect end of a shot cycle by seeing the launcher return to IDLE
+                // (falling back to IDLE after SHOOTING in your Robot state machine)
+                if (shotInFlight && ls == LaunchSequenceState.IDLE && prevLaunchState != LaunchSequenceState.IDLE) {
+                    shotsFired++;
+                    shotInFlight = false;
+                }
+
+                // When all shots are completed and launcher is idle, transition to driving
+                if (shotsFired >= TOTAL_SHOTS && ls == LaunchSequenceState.IDLE) {
+                    Robot.launcher.setVelocity(Constants.ZERO);
+                    state = AutoState.DRIVING;
+                    driveTimer.reset();
+                }
+                break;
+            }
+
+            case DRIVING: {
+                if (driveTimer.milliseconds() <= DRIVE_TIME_MS) {
+                    Robot.arcadeDrive(-0.75, 0.0);
+                } else {
+                    Robot.arcadeDrive(0.0, 0.0);
+                    state = AutoState.DONE;
+                }
+                break;
+            }
+
+            case DONE: {
+                Robot.arcadeDrive(0.0, 0.0);
+                Robot.launcher.setVelocity(Constants.ZERO);
+                break;
             }
         }
 
-        long driveStartTime = System.currentTimeMillis();
-
-        // Start driving after shots are done
-        // Continue driving until time elapsed
-        while (System.currentTimeMillis() - driveStartTime <= DRIVE_TIME_MS) {
-            Robot.arcadeDrive(0.75, 0.0);
-        }
-
-        Robot.arcadeDrive(0, 0.0);
+        prevLaunchState = ls;
 
         // ----- TELEMETRY -----
-        telemetry.addData("Shots Fired", shotsFired);
-        telemetry.addData("Launcher State", Robot.launchSequenceState);
-        telemetry.addData("Shooting Complete", shootingComplete);
+        telemetry.addData("State", state);
+        telemetry.addData("Alliance", alliance);
+        telemetry.addData("Shots", "%d / %d", shotsFired, TOTAL_SHOTS);
+        telemetry.addData("Shot In Flight", shotInFlight);
+        telemetry.addData("Launcher State", ls);
+        telemetry.addData("Drive Timer (ms)", (int) driveTimer.milliseconds());
         telemetry.update();
     }
 }
