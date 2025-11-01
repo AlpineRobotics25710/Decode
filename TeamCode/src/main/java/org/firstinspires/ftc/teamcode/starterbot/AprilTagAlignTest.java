@@ -135,6 +135,7 @@ public class AprilTagAlignTest extends BaseTeleOp {
             turn = headingError * turnGain;
         } else {
             alignRequested = false;
+            Robot.arcadeDrive(0, 0);
         }
 
         // No forward movement, only turning.
