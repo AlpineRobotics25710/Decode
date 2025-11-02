@@ -4,8 +4,8 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class Constants {
-    public static double TURN_THROTTLE = 0.6;
-
+    public static double TURN_THROTTLE = 0.8;
+    public static double TURTLE = 0.65;
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
@@ -23,7 +23,7 @@ public class Constants {
     public static double RAMP_OUTTAKE_POS = 0.46;
 
     public static double BLOCKER_OPEN = 0.0;
-    public static double BLOCKER_CLOSED = 0.36;
+    public static double BLOCKER_CLOSED = 0.3;
 
     public static long SPINUP_TIMEOUT_MS = 5000; // abort if never reaches speed
 
