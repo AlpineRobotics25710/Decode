@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import android.util.Size;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
@@ -24,10 +25,11 @@ import java.util.concurrent.TimeUnit;
 @TeleOp(group = "testers")
 public class AprilTagAlignTest extends BaseTeleOp {
     // Adjust these values to tune the alignment
-    public static double turnGain = 0.095;
-    public static double headingTolerance = 8.5; // degrees
+    public static double turnGain = 0.03;
+    public static double headingTolerance = 2.5; // degrees
     public static double goalTagId = 20; // 20 for Blue Alliance goal, 24 for Red Alliance goal
     public static boolean alignRequested = false;
+    public static double overshoot = 15;
     private AprilTagProcessor aprilTagProcessor;
     private VisionPortal visionPortal;
     private Position cameraPosition = new Position(DistanceUnit.INCH, 3, 0, 12, 0);
@@ -55,7 +57,14 @@ public class AprilTagAlignTest extends BaseTeleOp {
                 .setCameraPose(cameraPosition, cameraOrientation)
                 .build();
 
-        visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
+        visionPortal = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .addProcessor(aprilTagProcessor)
+                .setCameraResolution(new Size(640, 480))
+                .enableLiveView(true)
+                .setAutoStopLiveView(true)
+                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                .build();
     }
 
     @Override
@@ -114,32 +123,39 @@ public class AprilTagAlignTest extends BaseTeleOp {
         }
 
         if (targetTag == null) {
-            //Robot.arcadeDrive(0, 0);
+            CommonTelemetry.addData("Tag", "Not visible");
+            Robot.arcadeDrive(0, 0);
+            alignRequested = false;
             return;
         }
 
-        // Error in degrees
+        // FTC bearing: + = tag left, - = tag right
         double headingError = targetTag.ftcPose.bearing;
-        CommonTelemetry.addData("heading error", headingError);
+        CommonTelemetry.addData("Raw heading error", headingError);
 
+        // Optional overshoot compensation (slightly over-rotate)
         if (headingError > 0) {
-            headingError += 5;
-        } else {
-            headingError -= 5;
+            headingError -= overshoot;
+        } else if (headingError < 0) {
+            headingError += overshoot;
         }
 
-        double turn = 0;
+        // Invert sign so robot turns toward tag
+        double turn = -headingError * turnGain;
 
-        if (Math.abs(headingError) > headingTolerance) {
-            // Use a proportional controller to calculate the turn power.
-            turn = headingError * turnGain;
-        } else {
-            alignRequested = false;
+        // Clamp for stability
+        turn = Math.max(-0.5, Math.min(0.5, turn));
+
+        // Ignore tiny angles below tolerance
+        if (Math.abs(headingError) <= headingTolerance) {
+            CommonTelemetry.addData("Aligned!", true);
             Robot.arcadeDrive(0, 0);
+            alignRequested = false;
+        } else {
+            CommonTelemetry.addData("Turning power", turn);
+            // No forward motion, only turning
+            Robot.arcadeDrive(0, turn);
         }
-
-        // No forward movement, only turning.
-        Robot.arcadeDrive(0, turn);
     }
 
     private void setManualExposure(double exposureMS, int gain) {
@@ -151,11 +167,11 @@ public class AprilTagAlignTest extends BaseTeleOp {
 
         // Make sure camera is streaming before we try to set the exposure controls
         if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            telemetry.addData("Camera", "Waiting");
+            //telemetry.addData("Camera", "Waiting");
             while ((visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
                 //Thread.sleep(20);
             }
-            telemetry.addData("Camera", "Ready");
+            //telemetry.addData("Camera", "Ready");
         }
         ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
         if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
@@ -167,7 +183,7 @@ public class AprilTagAlignTest extends BaseTeleOp {
         GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
         gainControl.setGain(gain);
         //Thread.sleep(20);
-        telemetry.addData("Camera", "Ready");
+        //telemetry.addData("Camera", "Ready");
     }
 
     /**

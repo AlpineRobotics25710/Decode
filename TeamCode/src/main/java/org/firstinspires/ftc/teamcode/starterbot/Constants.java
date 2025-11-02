@@ -50,7 +50,7 @@ public class Constants {
 
     // Camera Constants
     public static double EXPOSURE_MS = 2;
-    public static int GAIN = 1000;
+    public static int GAIN = 300;
 }
 
 enum RampState {
