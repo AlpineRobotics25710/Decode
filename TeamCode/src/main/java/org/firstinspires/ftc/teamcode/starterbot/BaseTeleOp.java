@@ -53,9 +53,9 @@ public abstract class BaseTeleOp extends OpMode {
          */
 
         if (driver.right_bumper) {
-            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
+            Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
         } else {
-            Robot.arcadeDrive(driver.left_stick_y, -driver.right_stick_x);
+            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
         }
 
         // Launcher controls

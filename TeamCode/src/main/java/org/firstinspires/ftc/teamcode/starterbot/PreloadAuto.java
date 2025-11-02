@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Configurable
-@Autonomous(name = "PreloadAuto")
+@Autonomous(name = "Preload Auto")
 public class PreloadAuto extends OpMode {
     public static int TOTAL_SHOTS = 3;
     public static long DRIVE_TIME_MS = 500;
