@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 import android.util.Size;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -115,8 +116,9 @@ public class AprilTagAlignTest extends BaseTeleOp {
 
     private void alignToAprilTag() {
         AprilTagDetection targetTag = null;
-        for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
-            if (detection.id == goalTagId) {
+        List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+        for (AprilTagDetection detection : detections) {
+            if (detection.id == (int) goalTagId && detection.ftcPose != null) {
                 targetTag = detection;
                 break;
             }
@@ -129,32 +131,28 @@ public class AprilTagAlignTest extends BaseTeleOp {
             return;
         }
 
-        // FTC bearing: + = tag left, - = tag right
-        double headingError = targetTag.ftcPose.bearing;
+        double headingError = targetTag.ftcPose.bearing; // + = tag is left, - = tag is right
         CommonTelemetry.addData("Raw heading error", headingError);
 
-        // Optional overshoot compensation (slightly over-rotate)
-        if (headingError > 0) {
-            headingError -= overshoot;
-        } else if (headingError < 0) {
-            headingError += overshoot;
+        // Optional small overshoot (applied in sign-preserving way)
+        if (overshoot != 0.0) {
+            if (headingError > 0) headingError += Math.abs(overshoot);
+            else if (headingError < 0) headingError -= Math.abs(overshoot);
         }
 
-        // Invert sign so robot turns toward tag
-        double turn = -headingError * turnGain;
+        // Compute turn (negative because we want sign such that positive turn is CCW motor command)
+        double turn = headingError * turnGain;
 
-        // Clamp for stability
-        turn = Math.max(-0.5, Math.min(0.5, turn));
+        // Clamp to reasonable values for stability
+        turn = Range.clip(turn, -0.5, 0.5);
 
-        // Ignore tiny angles below tolerance
         if (Math.abs(headingError) <= headingTolerance) {
             CommonTelemetry.addData("Aligned!", true);
             Robot.arcadeDrive(0, 0);
-            alignRequested = false;
+            alignRequested = false; // alignment complete; toggle off
         } else {
             CommonTelemetry.addData("Turning power", turn);
-            // No forward motion, only turning
-            Robot.arcadeDrive(0, turn);
+            Robot.arcadeDrive(0, turn); // rotation-only motion
         }
     }
 
