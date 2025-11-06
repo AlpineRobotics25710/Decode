@@ -14,8 +14,12 @@ import java.util.Locale;
 
 public class Robot {
     // Drivetrain motors
-    public static DcMotor leftDrive;
-    public static DcMotor rightDrive;
+    public static DcMotor leftDrive; // Used for 2 wheel drive (omni wheels)
+    public static DcMotor rightDrive; // Used for 2 wheel drive (omni wheels)
+    public static DcMotor FLDrive; // Used for 4 wheel mecanum drive
+    public static DcMotor FRDrive; // Used for 4 wheel mecanum drive
+    public static DcMotor BLDrive; // Used for 4 wheel mecanum drive
+    public static DcMotor BRDrive; // Used for 4 wheel mecanum drive
 
     // Launch motors
     public static DcMotorEx launcher;
@@ -47,8 +51,9 @@ public class Robot {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step.
          */
-        leftDrive = hardwareMap.get(DcMotor.class, "LD");
-        rightDrive = hardwareMap.get(DcMotor.class, "RD");
+        init2WheelDrive(hardwareMap); // robot is currently using 2 wheel arcade drive
+        // initMecanumDrive(hardwareMap); // TODO: Uncomment when drivetrain is switched to mecanum wheels
+
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "LF");
         rightFeeder = hardwareMap.get(CRServo.class, "RF");
@@ -115,6 +120,20 @@ public class Robot {
         CommonTelemetry.addData("Status", "Initialized");
     }
 
+    private static void init2WheelDrive(HardwareMap hardwareMap) {
+        // use this method ONLY if drivetrain uses 2 powered non-mecanum wheels
+        leftDrive = hardwareMap.get(DcMotor.class, "LD");
+        rightDrive = hardwareMap.get(DcMotor.class, "RD");
+    }
+
+    public static void initMecanumDrive(HardwareMap hardwareMap) {
+        // use this method ONLY if drivetrain uses 4 powered mecanum wheels
+        FRDrive = hardwareMap.get(DcMotor.class, "FR");
+        FLDrive = hardwareMap.get(DcMotor.class, "FL");
+        BRDrive = hardwareMap.get(DcMotor.class, "BR");
+        BLDrive = hardwareMap.get(DcMotor.class, "BL");
+    }
+
     public static void loop() {
         CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
         CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
@@ -145,6 +164,7 @@ public class Robot {
     }
 
     public static void arcadeDrive(double forward, double rotate) {
+        // use this method ONLY if drivetrain uses 2 powered non-mecanum wheels
         double leftPower = forward + rotate;
         double rightPower = forward - rotate;
 
@@ -154,6 +174,21 @@ public class Robot {
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
     }
+
+    // Full mecanumDrive method
+    public static void mecanumDrive(double forward, double strafe, double rotate) {
+        // use this method ONLY if drivetrain uses 4 powered mecanum wheels
+        double fl = forward + strafe + rotate;  // Front Left
+        double fr = forward - strafe - rotate;  // Front Right
+        double bl = forward - strafe + rotate;  // Back Left
+        double br = forward + strafe - rotate;  // Back Right
+
+        FLDrive.setPower(fl);
+        FRDrive.setPower(fr);
+        BLDrive.setPower(bl);
+        BRDrive.setPower(br);
+    }
+
 
     public static void switchRampState() {
         // State Machine for Hinge/Ramp state
