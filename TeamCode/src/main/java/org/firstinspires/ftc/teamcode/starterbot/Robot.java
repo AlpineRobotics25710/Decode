@@ -10,6 +10,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
+import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
+
 import java.util.Locale;
 
 public class Robot {
@@ -35,7 +39,7 @@ public class Robot {
     // States(Enums)
     static RampState rampState;
     static BlockerState blockerState;
-    static LaunchSequenceState launchSequenceState;
+    public static LaunchSequenceState launchSequenceState;
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
     private static long readySinceMs = 0L;  // when we first hit "at speed"
 

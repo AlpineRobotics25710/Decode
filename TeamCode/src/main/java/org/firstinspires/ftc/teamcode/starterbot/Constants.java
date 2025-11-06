@@ -53,25 +53,3 @@ public class Constants {
     public static int GAIN = 300;
 }
 
-enum RampState {
-    // Add more states if necessary
-    INTAKE,
-    OUTTAKE
-}
-
-enum BlockerState {
-    OPEN,
-    CLOSED
-}
-
-enum LaunchSequenceState {
-    IDLE,
-    SPINNING_UP,
-    FEEDING,
-    SHOOTING
-}
-
-enum Alliance {
-    RED,
-    BLUE;
-}
