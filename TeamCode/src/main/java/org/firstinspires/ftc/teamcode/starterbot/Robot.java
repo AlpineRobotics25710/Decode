@@ -175,7 +175,13 @@ public class Robot {
         rightDrive.setPower(rightPower);
     }
 
-    // Full mecanumDrive method
+    /**
+     * Full mecanum drive (robot-centric).
+     *
+     * @param forward +forward drives toward robot front, -backward
+     * @param strafe  +right strafes right, -left
+     * @param rotate  +right turns clockwise, -left
+     */
     public static void mecanumDrive(double forward, double strafe, double rotate) {
         // use this method ONLY if drivetrain uses 4 powered mecanum wheels
         double fl = forward + strafe + rotate;  // Front Left
@@ -189,6 +195,30 @@ public class Robot {
         BRDrive.setPower(br);
     }
 
+    // Helpers for Auto
+    public static void stopDrive() {
+        mecanumDrive(0, 0, 0);
+    }
+
+    public static void driveForward(double p) {
+        mecanumDrive(p, 0, 0);
+    }
+
+    public static void strafeRight(double p) {
+        mecanumDrive(0, p, 0);
+    }
+
+    public static void rotateRight(double p) {
+        mecanumDrive(0, 0, p);
+    }
+
+    public static void strafeLeft(double p) {
+        mecanumDrive(0, -p, 0);
+    }
+
+    public static void rotateLeft(double p) {
+        mecanumDrive(0, 0, -p);
+    }
 
     public static void switchRampState() {
         // State Machine for Hinge/Ramp state
