@@ -61,7 +61,7 @@ public class AprilTagAlignTest extends BaseTeleOp {
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .addProcessor(aprilTagProcessor)
-                .setCameraResolution(new Size(640, 480))
+                .setCameraResolution(new Size(1920, 1080)) // Might not work, maybe check teamwebcamcalibrations.xml might need to uncomment from there
                 .enableLiveView(true)
                 .setAutoStopLiveView(true)
                 .setStreamFormat(VisionPortal.StreamFormat.YUY2)
