@@ -19,11 +19,11 @@ public class Constants {
             .mass(0.0)// input robot mass
             .forwardZeroPowerAcceleration(0.0)// need to test
             .lateralZeroPowerAcceleration(0.0)// need to test
-            .translationalPIDFCoefficients(new PIDFCoefficients(0,0,0,0))// need to tune
-            .headingPIDFCoefficients(new PIDFCoefficients(0,0,0,0))//need to tune
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0,0,0,0,0))// need to tune
-            .centripetalScaling(0.0)// need to test
-    ;
+            .translationalPIDFCoefficients(new PIDFCoefficients(0, 0, 0, 0))// need to tune
+            .headingPIDFCoefficients(new PIDFCoefficients(0, 0, 0, 0))//need to tune
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0, 0, 0, 0, 0))// need to tune
+            .centripetalScaling(0.0); // need to test
+
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             .rightFrontMotorName("rf")
@@ -34,22 +34,17 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(0.0)// need to test
-            .yVelocity(0.0);// need to test
-
+            .xVelocity(0.0) // need to test
+            .yVelocity(0.0); // need to test
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-5)// values not accurate- still need to measure
-            .strafePodX(0.5)// value no accurate- still need to measure
+            .forwardPodY(-5) // values not accurate- still need to measure
+            .strafePodX(0.5) // value no accurate- still need to measure
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);// need to test for reversed
-
-
-
-
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD); // need to test for reversed
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
@@ -59,7 +54,5 @@ public class Constants {
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();
-
-
     }
 }
