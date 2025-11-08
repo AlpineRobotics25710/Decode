@@ -9,11 +9,11 @@ public class Constants {
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
-    public static long FEED_TIME_MS = 170; // TODO: Needs to be tuned
+    public static long FEED_TIME_MS = 170;
     // How long to delay the servos for before they feed the ball into the launcher in milliseconds
     // Waiting for the launcher to reach the target velocity
-    public static long LAUNCH_DELAY_MS = 2500; // TODO: Needs to be tuned
-    public static long LAUNCH_TIME_MS = 500; // TODO: Needs to be tuned
+    public static long LAUNCH_DELAY_MS = 2500;
+    public static long LAUNCH_TIME_MS = 500;
 
     public static double FEEDER_POWER = 1.0;
 
@@ -53,25 +53,3 @@ public class Constants {
     public static int GAIN = 300;
 }
 
-enum RampState {
-    // Add more states if necessary
-    INTAKE,
-    OUTTAKE
-}
-
-enum BlockerState {
-    OPEN,
-    CLOSED
-}
-
-enum LaunchSequenceState {
-    IDLE,
-    SPINNING_UP,
-    FEEDING,
-    SHOOTING
-}
-
-enum Alliance {
-    RED,
-    BLUE;
-}

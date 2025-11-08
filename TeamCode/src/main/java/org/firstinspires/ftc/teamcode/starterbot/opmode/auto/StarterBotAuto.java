@@ -30,7 +30,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.starterbot;
+package org.firstinspires.ftc.teamcode.starterbot.opmode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -39,6 +39,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
+import org.firstinspires.ftc.teamcode.starterbot.Constants;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
+import org.firstinspires.ftc.teamcode.starterbot.Robot;
 
 
 /*

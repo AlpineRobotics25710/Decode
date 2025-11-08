@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.starterbot;
+package org.firstinspires.ftc.teamcode.starterbot.opmode.teleop;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
 @Configurable
 @TeleOp(group = "testers")

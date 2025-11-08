@@ -1,9 +1,15 @@
-package org.firstinspires.ftc.teamcode.starterbot;
+package org.firstinspires.ftc.teamcode.starterbot.opmode.auto;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
+import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
+import org.firstinspires.ftc.teamcode.starterbot.Constants;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
+import org.firstinspires.ftc.teamcode.starterbot.Robot;
 
 @Configurable
 @Autonomous(name = "Goal Side Auto")

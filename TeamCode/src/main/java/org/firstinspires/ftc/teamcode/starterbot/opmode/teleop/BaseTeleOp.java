@@ -1,7 +1,12 @@
-package org.firstinspires.ftc.teamcode.starterbot;
+package org.firstinspires.ftc.teamcode.starterbot.opmode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+
+import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
+import org.firstinspires.ftc.teamcode.starterbot.Constants;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
+import org.firstinspires.ftc.teamcode.starterbot.Robot;
 
 public abstract class BaseTeleOp extends OpMode {
     protected Gamepad driver;
@@ -52,11 +57,8 @@ public abstract class BaseTeleOp extends OpMode {
          * more complex maneuvers.
          */
 
-        if (driver.right_bumper) {
-            Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
-        } else {
-            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
-        }
+        twoWheel(driver); // robot currently uses 2 wheel arcade drive
+        // mecanum(driver); // TODO: Uncomment when drivetrain is switched to mecanum wheels
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
@@ -116,6 +118,22 @@ public abstract class BaseTeleOp extends OpMode {
         // Set this value to something new to see if the code is updating on the control hub
         CommonTelemetry.addData("code", "updated");
         CommonTelemetry.update();
+    }
+
+    public void mecanum(Gamepad driver) {
+        double f = driver.left_stick_y; // forward/back
+        double s = driver.left_stick_x; // strafe
+        double r = -driver.right_stick_x * (driver.right_bumper ? Constants.TURTLE : Constants.TURN_THROTTLE);
+
+        Robot.mecanumDrive(f, s, r);
+    }
+
+    public void twoWheel(Gamepad driver) {
+        if (driver.right_bumper) {
+            Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
+        } else {
+            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
+        }
     }
 
     /*
