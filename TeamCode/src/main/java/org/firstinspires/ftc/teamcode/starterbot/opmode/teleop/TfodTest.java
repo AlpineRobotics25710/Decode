@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.starterbot;
+package org.firstinspires.ftc.teamcode.starterbot.opmode.teleop;
 
 import android.annotation.SuppressLint;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,9 +10,10 @@ import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.starterbot.opmode.teleop.BaseTeleOp;
+import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.android.Utils;
@@ -20,22 +22,35 @@ import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.common.FileUtil;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @TeleOp(group = "testers")
 public class TfodTest extends BaseTeleOp {
     private VisionPortal visionPortal;
     private TfodProcessor tfodProcessor;
+    public static String appContext = "org.firstinspires.ftc.teamcode";
 
     @Override
     public void initGamepads() {
         driver = gamepad1;
-        operator = gamepad2;
+        operator = gamepad1;
+
+        turtleMode = () -> gamepad1.right_trigger > 0.05;
     }
 
     @Override
     public void init() {
-        super.init();
+        //super.init();
+        CommonTelemetry.init(telemetry);
+
+        try {
+            AssetManager am = hardwareMap.appContext.getAssets();
+            String[] files = am.list("");
+            CommonTelemetry.debug("Assets: " + Arrays.toString(files));
+        } catch (IOException e) {
+            CommonTelemetry.debug("Error listing assets: " + e.getMessage());
+        }
 
         try {
             // Load model and labels from assets
@@ -49,7 +64,8 @@ public class TfodTest extends BaseTeleOp {
 
             // Build VisionPortal and attach our processor
             visionPortal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                    .setCamera(BuiltinCameraDirection.BACK)
+                    //.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .addProcessor(tfodProcessor)
                     .setCameraResolution(new Size(640, 480))
                     .enableLiveView(true)
@@ -62,6 +78,34 @@ public class TfodTest extends BaseTeleOp {
             CommonTelemetry.debug("Failed to load model or labels: " + e.getMessage());
         }
 
+        CommonTelemetry.update();
+    }
+
+    @Override
+    public void init_loop() {
+        if (visionPortal == null) {
+            try {
+                Interpreter tflite = new Interpreter(FileUtil.loadMappedFile(hardwareMap.appContext, "model.tflite"));
+                List<String> labels = FileUtil.loadLabels(hardwareMap.appContext, "labels.txt");
+
+                tfodProcessor = new TfodProcessor(tflite, labels, 224);
+
+                visionPortal = new VisionPortal.Builder()
+                        .setCamera(BuiltinCameraDirection.BACK)
+                        .addProcessor(tfodProcessor)
+                        .enableLiveView(true)
+                        .setCameraResolution(new Size(640, 480))
+                        .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                        .setAutoStopLiveView(false)
+                        .build();
+
+                CommonTelemetry.debug("VisionPortal started in init_loop.");
+            } catch (Exception e) {
+                CommonTelemetry.debug("Error: " + e.getMessage());
+            }
+        }
+
+        CommonTelemetry.addData("app context", hardwareMap.appContext);
         CommonTelemetry.update();
     }
 
