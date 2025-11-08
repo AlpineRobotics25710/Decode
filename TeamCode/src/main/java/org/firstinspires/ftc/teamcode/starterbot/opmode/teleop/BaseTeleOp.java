@@ -8,9 +8,13 @@ import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 
+import java.util.function.Supplier;
+
 public abstract class BaseTeleOp extends OpMode {
     protected Gamepad driver;
     protected Gamepad operator;
+
+    protected Supplier<Boolean> turtleMode;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -57,8 +61,8 @@ public abstract class BaseTeleOp extends OpMode {
          * more complex maneuvers.
          */
 
-        twoWheel(driver); // robot currently uses 2 wheel arcade drive
-        // mecanum(driver); // TODO: Uncomment when drivetrain is switched to mecanum wheels
+        // twoWheel(); // robot currently uses 2 wheel arcade drive
+        mecanum();
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
@@ -120,16 +124,21 @@ public abstract class BaseTeleOp extends OpMode {
         CommonTelemetry.update();
     }
 
-    public void mecanum(Gamepad driver) {
-        double f = driver.left_stick_y; // forward/back
-        double s = driver.left_stick_x; // strafe
-        double r = -driver.right_stick_x * (driver.right_bumper ? Constants.TURTLE : Constants.TURN_THROTTLE);
+    public void mecanum() {
+        double y = -driver.left_stick_y; // Remember, Y stick value is reversed
+        double x = driver.left_stick_x * 1.1; // Counteract imperfect strafing
+        double rx = driver.right_stick_x;
 
-        Robot.mecanumDrive(f, s, r);
+        double dampeningFactor = turtleMode.get() ? Constants.TURTLE : 1.0;
+        y *= dampeningFactor;
+        x *= dampeningFactor;
+        rx *= dampeningFactor;
+
+        Robot.mecanumDrive(y, x, rx);
     }
 
     public void twoWheel(Gamepad driver) {
-        if (driver.right_bumper) {
+        if (turtleMode.get()) {
             Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
         } else {
             Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);

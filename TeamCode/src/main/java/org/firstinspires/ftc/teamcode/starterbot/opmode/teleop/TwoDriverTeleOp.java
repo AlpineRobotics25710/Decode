@@ -56,5 +56,8 @@ public class TwoDriverTeleOp extends BaseTeleOp {
     public void initGamepads() {
         driver = gamepad1;
         operator = gamepad2;
+
+        // Mapping common controls
+        turtleMode = () -> driver.right_bumper;
     }
 }
