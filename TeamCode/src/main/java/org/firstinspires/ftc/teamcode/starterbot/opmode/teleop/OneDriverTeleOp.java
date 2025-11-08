@@ -56,5 +56,8 @@ public class OneDriverTeleOp extends BaseTeleOp {
     public void initGamepads() {
         driver = gamepad1;
         operator = gamepad1;
+
+        // Mapping common controls
+        turtleMode = () -> gamepad1.right_trigger > 0.05;
     }
 }

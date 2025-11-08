@@ -20,10 +20,11 @@ public class Robot {
     // Drivetrain motors
     public static DcMotor leftDrive; // Used for 2 wheel drive (omni wheels)
     public static DcMotor rightDrive; // Used for 2 wheel drive (omni wheels)
-    public static DcMotor FLDrive; // Used for 4 wheel mecanum drive
-    public static DcMotor FRDrive; // Used for 4 wheel mecanum drive
-    public static DcMotor BLDrive; // Used for 4 wheel mecanum drive
-    public static DcMotor BRDrive; // Used for 4 wheel mecanum drive
+
+    public static DcMotor frontLeftDrive; // Used for 4 wheel mecanum drive
+    public static DcMotor frontRightDrive; // Used for 4 wheel mecanum drive
+    public static DcMotor backLeftDrive; // Used for 4 wheel mecanum drive
+    public static DcMotor backRightDrive; // Used for 4 wheel mecanum drive
 
     // Launch motors
     public static DcMotorEx launcher;
@@ -41,7 +42,6 @@ public class Robot {
     static BlockerState blockerState;
     public static LaunchSequenceState launchSequenceState;
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
-    private static long readySinceMs = 0L;  // when we first hit "at speed"
 
     private static long stateStartTime;
 
@@ -55,8 +55,8 @@ public class Robot {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step.
          */
-        init2WheelDrive(hardwareMap); // robot is currently using 2 wheel arcade drive
-        // initMecanumDrive(hardwareMap); // TODO: Uncomment when drivetrain is switched to mecanum wheels
+        //init2WheelDrive(hardwareMap); // robot is currently using 2 wheel arcade drive
+        initMecanumDrive(hardwareMap); // TODO: Uncomment when drivetrain is switched to mecanum wheels
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "LF");
@@ -65,17 +65,6 @@ public class Robot {
         rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
         ramp = hardwareMap.get(Servo.class, "ramp");
         blocker = hardwareMap.get(Servo.class, "blocker");
-
-
-        /*
-         * To drive forward, most robots need the motor on one side to be reversed,
-         * because the axles point in opposite directions. Pushing the left stick forward
-         * MUST make robot go forward. So adjust these two lines based on your first test drive.
-         * Note: The settings here assume direct drive on left and right wheels. Gear
-         * Reduction or 90 Deg drives may require direction flips
-         */
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
         leftIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
         rightIntake.setDirection(DcMotorEx.Direction.FORWARD); // Might need to switch this
@@ -128,14 +117,29 @@ public class Robot {
         // use this method ONLY if drivetrain uses 2 powered non-mecanum wheels
         leftDrive = hardwareMap.get(DcMotor.class, "LD");
         rightDrive = hardwareMap.get(DcMotor.class, "RD");
+
+        /*
+         * To drive forward, most robots need the motor on one side to be reversed,
+         * because the axles point in opposite directions. Pushing the left stick forward
+         * MUST make robot go forward. So adjust these two lines based on your first test drive.
+         * Note: The settings here assume direct drive on left and right wheels. Gear
+         * Reduction or 90 Deg drives may require direction flips
+         */
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public static void initMecanumDrive(HardwareMap hardwareMap) {
         // use this method ONLY if drivetrain uses 4 powered mecanum wheels
-        FRDrive = hardwareMap.get(DcMotor.class, "FR");
-        FLDrive = hardwareMap.get(DcMotor.class, "FL");
-        BRDrive = hardwareMap.get(DcMotor.class, "BR");
-        BLDrive = hardwareMap.get(DcMotor.class, "BL");
+        frontRightDrive = hardwareMap.get(DcMotor.class, "FR");
+        frontLeftDrive = hardwareMap.get(DcMotor.class, "FL");
+        backRightDrive = hardwareMap.get(DcMotor.class, "BR");
+        backLeftDrive = hardwareMap.get(DcMotor.class, "BL");
+
+        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+        backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
+        backRightDrive.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public static void loop() {
@@ -143,11 +147,8 @@ public class Robot {
         CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
 
         // launcher telemetry
-        long now = System.currentTimeMillis();
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
         CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.0f / %.0f", curTps, targetVelocityTps));
-
-        CommonTelemetry.addData("SpinUp timers ms", String.format(Locale.US, "sinceStart:%d sinceReady:%d", (launchSequenceState == LaunchSequenceState.SPINNING_UP) ? (now - stateStartTime) : 0L, (readySinceMs == 0L) ? 0L : (now - readySinceMs)));
 
         // estimated RPM (5203 @ ~537.7 ticks/rev)
         CommonTelemetry.addData("Launcher rpm (est)", String.format(Locale.US, "%.0f", curTps * 60.0 / 537.7));
@@ -181,22 +182,22 @@ public class Robot {
 
     /**
      * Full mecanum drive (robot-centric).
-     *
-     * @param forward +forward drives toward robot front, -backward
-     * @param strafe  +right strafes right, -left
-     * @param rotate  +right turns clockwise, -left
      */
-    public static void mecanumDrive(double forward, double strafe, double rotate) {
-        // use this method ONLY if drivetrain uses 4 powered mecanum wheels
-        double fl = forward + strafe + rotate;  // Front Left
-        double fr = forward - strafe - rotate;  // Front Right
-        double bl = forward - strafe + rotate;  // Back Left
-        double br = forward + strafe - rotate;  // Back Right
+    public static void mecanumDrive(double y, double x, double rx) {
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all the powers maintain the same ratio,
+        // but only if at least one is out of the range [-1, 1]
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = (y + x - rx) / denominator;
 
-        FLDrive.setPower(fl);
-        FRDrive.setPower(fr);
-        BLDrive.setPower(bl);
-        BRDrive.setPower(br);
+        // Send powers to the wheels.
+        frontLeftDrive.setPower(frontLeftPower);
+        frontRightDrive.setPower(frontRightPower);
+        backLeftDrive.setPower(backLeftPower);
+        backRightDrive.setPower(backRightPower);
     }
 
     // Helpers for Auto
