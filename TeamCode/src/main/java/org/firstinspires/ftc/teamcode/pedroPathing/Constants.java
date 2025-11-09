@@ -33,9 +33,9 @@ public class Constants {
             .leftRearMotorName("BL")
             .leftFrontMotorName("FL")
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .xVelocity(0.0) // need to test
             .yVelocity(0.0); // need to test
 
