@@ -55,8 +55,8 @@ public class Robot {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step.
          */
-        //init2WheelDrive(hardwareMap); // robot is currently using 2 wheel arcade drive
-        initMecanumDrive(hardwareMap); // TODO: Uncomment when drivetrain is switched to mecanum wheels
+        //init2WheelDrive(hardwareMap); // Uncomment when drivetrain is using 2 wheel arcade drive
+        initMecanumDrive(hardwareMap); // Robot is currently using mecanum drive
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "LF");
