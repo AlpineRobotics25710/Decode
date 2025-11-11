@@ -30,7 +30,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.starterbot.opmode.teleop;
+package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.starterbot.opmode.auto;
+package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;

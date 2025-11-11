@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.starterbot.opmode.teleop;
+package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;

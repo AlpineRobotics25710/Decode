@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.starterbot.opmode.teleop;
+package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
 import android.annotation.SuppressLint;
 
