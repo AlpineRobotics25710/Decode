@@ -30,7 +30,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
+package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.prod;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -51,13 +51,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(group = "prod")
 //@Disabled
-public class TwoDriverTeleOp extends BaseTeleOp {
+public class OneDriverTeleOp extends BaseTeleOp {
     @Override
     public void initGamepads() {
         driver = gamepad1;
-        operator = gamepad2;
+        operator = gamepad1;
 
         // Mapping common controls
-        turtleMode = () -> driver.right_bumper;
+        turtleMode = () -> gamepad1.right_trigger > 0.05;
     }
 }
