@@ -121,18 +121,37 @@ public abstract class BaseTeleOp extends OpMode {
          */
         // Set this value to something new to see if the code is updating on the control hub
         CommonTelemetry.addData("code", "updated");
+        CommonTelemetry.addData("Driver Left Stick X value: ", driver.left_stick_x);
+        CommonTelemetry.addData("Driver Left Stick Y value: ", driver.left_stick_y);
+        CommonTelemetry.addData("Driver Right Stick X value: ", driver.right_stick_x);
+
         CommonTelemetry.update();
     }
 
     public void mecanum() {
         double y = -driver.left_stick_y; // Remember, Y stick is reversed!
-        double x = -driver.left_stick_x * 1.1; // Counteract imperfect strafing
+        double x = driver.left_stick_x * 1.1; // Counteract imperfect strafing
         double rx = driver.right_stick_x;
 
         double dampeningFactor = turtleMode.get() ? Constants.TURTLE : 1.0;
         y *= dampeningFactor;
         x *= dampeningFactor;
         rx *= dampeningFactor;
+
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all the powers maintain the same ratio,
+        // but only if at least one is out of the range [-1, 1]
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+
+        double frontLeftPower = (y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = (y + x - rx) / denominator;
+
+        CommonTelemetry.addData("Front Left Power: ", frontLeftPower);
+        CommonTelemetry.addData("Back Left Power: ", backLeftPower);
+        CommonTelemetry.addData("Front Right Power: ", frontRightPower);
+        CommonTelemetry.addData("Back Right Power: ", backRightPower);
 
         Robot.mecanumDrive(y, x, rx);
     }
