@@ -126,7 +126,7 @@ public abstract class BaseTeleOp extends OpMode {
 
     public void mecanum() {
         double y = -driver.left_stick_y; // Remember, Y stick is reversed!
-        double x = driver.left_stick_x * 1.1; // Counteract imperfect strafing
+        double x = -driver.left_stick_x * 1.1; // Counteract imperfect strafing
         double rx = driver.right_stick_x;
 
         double dampeningFactor = turtleMode.get() ? Constants.TURTLE : 1.0;
