@@ -75,6 +75,7 @@ public class FarSideBlue extends OpMode {
 
         return currentPathIndex;
     }
+
     public void generatePaths() {
         paths.add(follower.pathBuilder() // Setup empty 1
                 .addPath(

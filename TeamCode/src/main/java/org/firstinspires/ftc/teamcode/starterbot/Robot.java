@@ -138,8 +138,8 @@ public class Robot {
         backLeftDrive = hardwareMap.get(DcMotor.class, "BL");
 
         frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
-        frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
+        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
 
         frontLeftDrive.setZeroPowerBehavior(BRAKE);
@@ -194,6 +194,7 @@ public class Robot {
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+
         double frontLeftPower = (y + x + rx) / denominator;
         double backLeftPower = (y - x + rx) / denominator;
         double frontRightPower = (y - x - rx) / denominator;
@@ -201,8 +202,8 @@ public class Robot {
 
         // Send powers to the wheels.
         frontLeftDrive.setPower(frontLeftPower);
-        frontRightDrive.setPower(frontRightPower);
         backLeftDrive.setPower(backLeftPower);
+        frontRightDrive.setPower(frontRightPower);
         backRightDrive.setPower(backRightPower);
     }
 
