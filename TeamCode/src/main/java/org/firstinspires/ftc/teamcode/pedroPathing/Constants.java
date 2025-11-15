@@ -17,14 +17,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.25119)// input robot mass
-            .forwardZeroPowerAcceleration(-82.7907349059532)// need to test
-            .lateralZeroPowerAcceleration(-67.52778154180542)// need to test
+            .forwardZeroPowerAcceleration(-30.499437451291932)// need to test
+            .lateralZeroPowerAcceleration(-59.74626160865985)// need to test
             .translationalPIDFCoefficients(new PIDFCoefficients(0.045, 0, 0.002, 0.005))// need to tune
-            .headingPIDFCoefficients(new PIDFCoefficients(0, 0, 0, 0))//need to tune
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0, 0, 0, 0, 0))// need to tune
-            .centripetalScaling(0.0); // need to test
+            .headingPIDFCoefficients(new PIDFCoefficients(0.55, 0, 0, 0.02))//need to tune
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.25, 0, 0, 0, 0.022))// need to tune
+            .centripetalScaling(0.0005); // need to test
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.97, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.97, 100, 1.35, 1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -36,12 +36,12 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(56.08802807424952) // need to test
-            .yVelocity(42.52493646576649); // need to test
+            .xVelocity(65.69173016886073) // need to test
+            .yVelocity(53.80969959168923); // need to test
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(60) // values have been updated
-            .strafePodX(-120) // values have been updated
+            .forwardPodY(-33.3) // values have been updated
+            .strafePodX(-111.7) // values have been updated
             .distanceUnit(DistanceUnit.MM)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
