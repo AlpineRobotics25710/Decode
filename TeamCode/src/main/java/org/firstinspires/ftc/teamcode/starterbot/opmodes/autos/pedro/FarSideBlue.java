@@ -91,7 +91,7 @@ public class FarSideBlue extends OpMode {
 
         paths.add(follower.pathBuilder() // Empty 1
                 .addPath(
-                        new BezierLine(new Pose(48.000, 70.000), new Pose(16.500, 70.000))
+                        new BezierLine(new Pose(48.000, 70.000), new Pose(20.00, 70.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build()
@@ -99,7 +99,7 @@ public class FarSideBlue extends OpMode {
 
         paths.add(follower.pathBuilder() // Setup pickup 1
                 .addPath(
-                        new BezierLine(new Pose(16.500, 70.000), new Pose(48.000, 70.000))
+                        new BezierLine(new Pose(20.00, 70.000), new Pose(48.000, 70.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build()
@@ -116,7 +116,7 @@ public class FarSideBlue extends OpMode {
         paths.add(follower // Pickup 1
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(48.000, 84.000), new Pose(16.500, 84.000))
+                        new BezierLine(new Pose(48.000, 84.000), new Pose(20.000, 84.000))
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build());
@@ -124,7 +124,7 @@ public class FarSideBlue extends OpMode {
         paths.add(follower // Shoot 1
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(16.500, 84.000), new Pose(60.000, 84.000))
+                        new BezierLine(new Pose(20.00, 84.000), new Pose(60.000, 84.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                 .build());
