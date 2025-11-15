@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.starterbot;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -38,12 +39,13 @@ public class Robot {
     public static Servo blocker;
 
     // States(Enums)
-    static RampState rampState;
-    static BlockerState blockerState;
+    public static RampState rampState;
+    public static BlockerState blockerState;
     public static LaunchSequenceState launchSequenceState;
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
-
     private static long stateStartTime;
+    // Pedro
+    public static Follower follower;
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -105,6 +107,9 @@ public class Robot {
          */
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        // Init follower
+        follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
+
         /*
          * Tell the driver that initialization is complete.
          */
@@ -151,6 +156,9 @@ public class Robot {
     public static void loop() {
         //CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
         //CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
+
+        // Follower
+        follower.update();
 
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder

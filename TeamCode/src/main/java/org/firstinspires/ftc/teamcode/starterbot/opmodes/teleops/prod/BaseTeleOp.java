@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.prod;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
-import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 import java.util.function.Supplier;
 
@@ -15,6 +16,8 @@ public abstract class BaseTeleOp extends OpMode {
     protected Gamepad operator;
 
     protected Supplier<Boolean> turtleMode;
+    protected boolean robotCentric = true;
+    protected boolean useBrakeMode = true;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -23,6 +26,8 @@ public abstract class BaseTeleOp extends OpMode {
     public void init() {
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
+        Robot.follower.setStartingPose(new Pose());
+        Robot.follower.update();
         initGamepads();
     }
 
@@ -47,6 +52,7 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void start() {
+        Robot.follower.startTeleopDrive(useBrakeMode);
     }
 
     @Override
@@ -62,7 +68,8 @@ public abstract class BaseTeleOp extends OpMode {
          */
 
         // twoWheel(); // robot currently uses 2 wheel arcade drive
-        mecanum();
+        // mecanum();
+        pedroTeleop();
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
@@ -156,11 +163,29 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.mecanumDrive(y, x, rx);
     }
 
-    public void twoWheel(Gamepad driver) {
+    public void twoWheel() {
         if (turtleMode.get()) {
             Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
         } else {
             Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
+        }
+    }
+
+    public void pedroTeleop() {
+        if (turtleMode.get()) {
+            Robot.follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y * (Constants.TURTLE),
+                    -gamepad1.left_stick_x * (Constants.TURTLE),
+                    -gamepad1.right_stick_x * (Constants.TURTLE),
+                    robotCentric // Robot Centric
+            );
+        } else {
+            Robot.follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x,
+                    robotCentric // Robot Centric
+            );
         }
     }
 
