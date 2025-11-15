@@ -68,8 +68,8 @@ public abstract class BaseTeleOp extends OpMode {
          */
 
         // twoWheel(); // robot currently uses 2 wheel arcade drive
-        // mecanum();
-        pedroTeleop();
+        mecanum();
+        // pedroTeleop(); // really jittery right now, probably needs to be tuned
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
