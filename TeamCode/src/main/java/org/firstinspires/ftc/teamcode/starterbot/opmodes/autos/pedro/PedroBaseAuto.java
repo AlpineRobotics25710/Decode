@@ -34,8 +34,8 @@ public abstract class PedroBaseAuto extends OpMode {
     protected int shotsFired = 0;
     protected boolean shootingActive = false;
 
-    public static double FAR_SHOOTING_ANGLE = Math.toRadians(113.25);
-    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(135);
+    public static double FAR_SHOOTING_ANGLE = Math.toRadians(115.25);
+    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(138);
 
     /** Child must supply the starting pose for this auto (already alliance-mirrored if needed). */
     protected abstract Pose getStartPose();
@@ -133,6 +133,12 @@ public abstract class PedroBaseAuto extends OpMode {
         if (b && !prevB) alliance = Alliance.BLUE;
         prevA = a;
         prevB = b;
+
+
+        if (alliance == Alliance.RED) {
+            FAR_SHOOTING_ANGLE += Math.toRadians(3.5);
+            CLOSE_SHOOTING_ANGLE += Math.toRadians(3.5);
+        }
 
         CommonTelemetry.addData("Press B/O", "for BLUE");
         CommonTelemetry.addData("Press A/X", "for RED");
