@@ -1,29 +1,18 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
-import org.firstinspires.ftc.teamcode.starterbot.Robot;
+@Autonomous(name = "Blue Side Close Auto", group = "Pedro Autos")
+public class BlueSideCloseAuto extends PedroAutoBase {
 
-@Autonomous(name = "Blue Side Close Auto (Pedro, Mixed Paths)", group = "Autos")
-public class BlueSideCloseAuto extends OpMode {
+    // poses
 
-    private Follower follower;
-    private Timer pathTimer, opmodeTimer;
-
-    private int pathState;
-
-    // Poses
-
-    // We use heading 323.5 to match first segment's start heading
+    // Heading 323.5° to match first real segment
     private final Pose startPose          = new Pose(21,   122,  Math.toRadians(323.5));
 
     private final Pose shootPreloadPose   = new Pose(60,   83.5, Math.toRadians(131)); // line 1
@@ -51,8 +40,6 @@ public class BlueSideCloseAuto extends OpMode {
     private final Pose cpPark1           = new Pose(54.5,  69,     0); // line 12
 
     // Paths/PathChains
-    // Only pick-up paths are PathChains, everything else is a Path
-
     private Path      shootPreloadPath;
     private PathChain pickUpMiddleChain;
     private Path      intakeMiddlePath;
@@ -66,8 +53,13 @@ public class BlueSideCloseAuto extends OpMode {
     private Path      shootBottomPath;
     private Path      parkPath;
 
-    // build paths
-    public void buildPaths() {
+    @Override
+    protected Pose getStartPose() {
+        return startPose;
+    }
+
+    @Override
+    protected void buildPaths() {
         // Line 1: Shoot preload (startPose -> shootPreloadPose), curve, Path
         shootPreloadPath = new Path(
                 new BezierCurve(
@@ -189,11 +181,11 @@ public class BlueSideCloseAuto extends OpMode {
                 Math.toRadians(0));
     }
 
-    // state machine
-    public void autonomousPathUpdate() {
+    @Override
+    protected void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                // Shoot preload
+                // Move to shoot preload
                 follower.followPath(shootPreloadPath);
                 setPathState(1);
                 break;
@@ -207,9 +199,17 @@ public class BlueSideCloseAuto extends OpMode {
                 break;
 
             case 2:
-                // Intake middle
+                // Start intake + move to intake middle
                 if (!follower.isBusy()) {
+                    startIntake();
                     follower.followPath(intakeMiddlePath);
+                    setPathState(20); // intake middle cleanup
+                }
+                break;
+
+            case 20:
+                if (!follower.isBusy()) {
+                    stopIntake();
                     setPathState(3);
                 }
                 break;
@@ -223,10 +223,21 @@ public class BlueSideCloseAuto extends OpMode {
                 break;
 
             case 4:
-                // Shoot middle
+                // Move to shoot middle pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootMiddlePath);
-                    setPathState(5);
+                    setPathState(40); // shooting burst at middle
+                }
+                break;
+
+            case 40:
+                // Shoot 3 balls at middle
+                if (!shootingActive) {
+                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                } else {
+                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                        setPathState(5);
+                    }
                 }
                 break;
 
@@ -239,18 +250,37 @@ public class BlueSideCloseAuto extends OpMode {
                 break;
 
             case 6:
-                // Intake top
+                // Start intake + move to intake top
                 if (!follower.isBusy()) {
+                    startIntake();
                     follower.followPath(intakeTopPath);
+                    setPathState(60); // intake top cleanup
+                }
+                break;
+
+            case 60:
+                if (!follower.isBusy()) {
+                    stopIntake();
                     setPathState(7);
                 }
                 break;
 
             case 7:
-                // Shoot top
+                // Move to shoot top pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootTopPath);
-                    setPathState(8);
+                    setPathState(70); // shooting burst at top
+                }
+                break;
+
+            case 70:
+                // Shoot 3 balls at top
+                if (!shootingActive) {
+                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                } else {
+                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                        setPathState(8);
+                    }
                 }
                 break;
 
@@ -263,18 +293,37 @@ public class BlueSideCloseAuto extends OpMode {
                 break;
 
             case 9:
-                // Intake bottom
+                // Start intake + move to intake bottom
                 if (!follower.isBusy()) {
+                    startIntake();
                     follower.followPath(intakeBottomPath);
+                    setPathState(90); // intake bottom cleanup
+                }
+                break;
+
+            case 90:
+                if (!follower.isBusy()) {
+                    stopIntake();
                     setPathState(10);
                 }
                 break;
 
             case 10:
-                // Shoot bottom
+                // Move to shoot bottom pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootBottomPath);
-                    setPathState(11);
+                    setPathState(100); // shooting burst at bottom
+                }
+                break;
+
+            case 100:
+                // Shoot 3 balls at bottom
+                if (!shootingActive) {
+                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                } else {
+                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                        setPathState(11);
+                    }
                 }
                 break;
 
@@ -295,50 +344,5 @@ public class BlueSideCloseAuto extends OpMode {
             default:
                 break;
         }
-    }
-
-    // helper(s)
-    public void setPathState(int newState) {
-        pathState = newState;
-        pathTimer.resetTimer();
-    }
-
-    @Override
-    public void init() {
-        CommonTelemetry.init(telemetry);
-        Robot.init(hardwareMap);
-        follower = Robot.follower;
-
-        pathTimer = new Timer();
-        opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
-
-        buildPaths();
-        follower.setStartingPose(startPose);
-    }
-
-    @Override
-    public void init_loop() {}
-
-    @Override
-    public void start() {
-        opmodeTimer.resetTimer();
-        setPathState(0);
-    }
-
-    @Override
-    public void loop() {
-        follower.update();
-        autonomousPathUpdate();
-
-        telemetry.addData("pathState", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.update();
-    }
-
-    @Override
-    public void stop() {
     }
 }

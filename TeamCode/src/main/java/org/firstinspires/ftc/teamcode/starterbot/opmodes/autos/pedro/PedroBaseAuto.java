@@ -6,21 +6,32 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
+import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 /**
  * Base class for all Pedro autos using the centralized Robot + Follower setup.
- * Child classes only need to implement:
+ * Child classes must implement:
  *  - getStartPose()
  *  - buildPaths()
  *  - autonomousPathUpdate()
  */
-public abstract class PedroBaseAuto extends OpMode {
+public abstract class PedroAutoBase extends OpMode {
 
     protected Follower follower;
     protected Timer pathTimer;
     protected Timer opmodeTimer;
     protected int pathState;
+
+    // Shooting helper state
+    protected int shotsToFire = 0;
+    protected int shotsFired = 0;
+    protected boolean shootingActive = false;
+
+    // Tune these if needed
+    protected static final double AUTO_LAUNCH_VELOCITY_TPS = 3000.0; // guess, tune on bot
+    protected static final double AUTO_INTAKE_POWER = 1.0;
 
     /** Child must supply the starting pose for this auto. */
     protected abstract Pose getStartPose();
@@ -38,6 +49,55 @@ public abstract class PedroBaseAuto extends OpMode {
             pathTimer.resetTimer();
         }
     }
+
+    // ==== Intake helpers ====
+    protected void startIntake() {
+        Robot.setIntakePower(AUTO_INTAKE_POWER);
+    }
+
+    protected void stopIntake() {
+        Robot.setIntakePower(0.0); // or Constants.ZERO if you prefer
+    }
+
+    // ==== Shooting helpers ====
+
+    /**
+     * Start a burst of N shots using Robot.launchBasedOnVelocity().
+     * Call only when Robot.launchSequenceState == IDLE.
+     */
+    protected void startShootingBurst(int numShots, double launchVelocityTps) {
+        shotsToFire = numShots;
+        shotsFired = 0;
+        shootingActive = true;
+        Robot.launchBasedOnVelocity(launchVelocityTps);
+    }
+
+    /**
+     * Call this every loop while in a "shooting" state.
+     * Returns true when the burst is completely done.
+     */
+    protected boolean updateShootingBurst(double launchVelocityTps) {
+        // Keep the current launch sequence progressing
+        Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
+
+        if (!shootingActive) {
+            return true;
+        }
+
+        if (Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+            shotsFired++;
+            if (shotsFired >= shotsToFire) {
+                shootingActive = false;
+                return true;
+            } else {
+                // Start next shot in the burst
+                Robot.launchBasedOnVelocity(launchVelocityTps);
+            }
+        }
+        return false;
+    }
+
+    // ==== OpMode lifecycle ====
 
     @Override
     public void init() {

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 
-import static org.firstinspires.ftc.teamcode.starterbot.Robot.follower;
-
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -9,8 +7,8 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "Blue Side Far Auto (Pedro, Mixed Paths)", group = "Autos")
-public class BlueSideFarAuto extends PedroBaseAuto {
+@Autonomous(name = "Blue Side Far Auto (Pedro, Mixed + Mechs)", group = "Pedro Autos")
+public class BlueSideFarAuto extends PedroAutoBase {
 
     // poses
 
@@ -20,7 +18,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
     private final Pose shootPreloadPose   = new Pose(60,   24,   Math.toRadians(118)); // line 0
     private final Pose pickUpMiddlePose   = new Pose(45,   60,   Math.toRadians(180)); // line 1
     private final Pose intakeMiddlePose   = new Pose(17.5, 60,   Math.toRadians(180)); // line 2
-    private final Pose openGatePose       = new Pose(15, 70.5,   Math.toRadians(0));   // line 3
+    private final Pose openGatePose       = new Pose(16.5, 70.5, Math.toRadians(0));   // line 3
     private final Pose shootMiddlePose    = new Pose(60,   84,   Math.toRadians(131)); // line 4
     private final Pose pickUpTopPose      = new Pose(45,   84,   Math.toRadians(180)); // line 5
     private final Pose intakeTopPose      = new Pose(17.5, 84,   Math.toRadians(180)); // line 6
@@ -55,8 +53,6 @@ public class BlueSideFarAuto extends PedroBaseAuto {
     private Path      intakeBottomPath;
     private Path      shootBottomPath;
     private Path      parkPath;
-
-    // abstract class requires override
 
     @Override
     protected Pose getStartPose() {
@@ -183,7 +179,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
     protected void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                // Shoot preload
+                // Move to shoot preload
                 follower.followPath(shootPreloadPath);
                 setPathState(1);
                 break;
@@ -197,9 +193,18 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 break;
 
             case 2:
-                // Intake middle
+                // Start intake + move to intake middle
                 if (!follower.isBusy()) {
+                    startIntake();
                     follower.followPath(intakeMiddlePath);
+                    setPathState(20); // intake middle cleanup
+                }
+                break;
+
+            case 20:
+                // Stop intake after reaching intake middle
+                if (!follower.isBusy()) {
+                    stopIntake();
                     setPathState(3);
                 }
                 break;
@@ -213,10 +218,21 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 break;
 
             case 4:
-                // Shoot middle
+                // Move to shoot middle pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootMiddlePath);
-                    setPathState(5);
+                    setPathState(40); // shooting burst at middle
+                }
+                break;
+
+            case 40:
+                // Shoot 3 balls at middle
+                if (!shootingActive) {
+                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                } else {
+                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                        setPathState(5);
+                    }
                 }
                 break;
 
@@ -229,18 +245,38 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 break;
 
             case 6:
-                // Intake top
+                // Start intake + move to intake top
                 if (!follower.isBusy()) {
+                    startIntake();
                     follower.followPath(intakeTopPath);
+                    setPathState(60); // intake top cleanup
+                }
+                break;
+
+            case 60:
+                // Stop intake after reaching intake top
+                if (!follower.isBusy()) {
+                    stopIntake();
                     setPathState(7);
                 }
                 break;
 
             case 7:
-                // Shoot top
+                // Move to shoot top pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootTopPath);
-                    setPathState(8);
+                    setPathState(70); // shooting burst at top
+                }
+                break;
+
+            case 70:
+                // Shoot 3 balls at top
+                if (!shootingActive) {
+                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                } else {
+                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                        setPathState(8);
+                    }
                 }
                 break;
 
@@ -253,18 +289,38 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 break;
 
             case 9:
-                // Intake bottom
+                // Start intake + move to intake bottom
                 if (!follower.isBusy()) {
+                    startIntake();
                     follower.followPath(intakeBottomPath);
+                    setPathState(90); // intake bottom cleanup
+                }
+                break;
+
+            case 90:
+                // Stop intake after reaching intake bottom
+                if (!follower.isBusy()) {
+                    stopIntake();
                     setPathState(10);
                 }
                 break;
 
             case 10:
-                // Shoot bottom
+                // Move to shoot bottom pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootBottomPath);
-                    setPathState(11);
+                    setPathState(100); // shooting burst at bottom
+                }
+                break;
+
+            case 100:
+                // Shoot 3 balls at bottom
+                if (!shootingActive) {
+                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                } else {
+                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                        setPathState(11);
+                    }
                 }
                 break;
 
