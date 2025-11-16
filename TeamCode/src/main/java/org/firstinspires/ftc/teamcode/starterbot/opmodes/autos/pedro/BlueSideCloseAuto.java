@@ -18,7 +18,7 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
     private final Pose shootPreloadPose   = new Pose(60,   83.5, Math.toRadians(131)); // line 1
     private final Pose pickUpMiddlePose   = new Pose(45,   60,   Math.toRadians(180)); // line 2
     private final Pose intakeMiddlePose   = new Pose(17.5, 60,   Math.toRadians(180)); // line 3
-    private final Pose openGatePose       = new Pose(16.5, 70.5, Math.toRadians(0));   // line 4
+    private final Pose openGatePose       = new Pose(15, 70.5, Math.toRadians(0));   // line 4
     private final Pose shootMiddlePose    = new Pose(60,   84,   Math.toRadians(131)); // line 5
     private final Pose pickUpTopPose      = new Pose(45,   84,   Math.toRadians(180)); // line 6
     private final Pose intakeTopPose      = new Pose(17.5, 84,   Math.toRadians(180)); // line 7
@@ -86,9 +86,7 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpMiddlePose,
                         intakeMiddlePose));
-        intakeMiddlePath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(180));
+        intakeMiddlePath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 4: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         openGatePath = new Path(
@@ -126,9 +124,7 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpTopPose,
                         intakeTopPose));
-        intakeTopPath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(180));
+        intakeTopPath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 8: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         shootTopPath = new Path(
@@ -156,9 +152,7 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpBottomPose,
                         intakeBottomPose));
-        intakeBottomPath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(180));
+        intakeBottomPath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 11: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         shootBottomPath = new Path(

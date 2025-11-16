@@ -18,7 +18,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
     private final Pose shootPreloadPose   = new Pose(60,   24,   Math.toRadians(118)); // line 0
     private final Pose pickUpMiddlePose   = new Pose(45,   60,   Math.toRadians(180)); // line 1
     private final Pose intakeMiddlePose   = new Pose(17.5, 60,   Math.toRadians(180)); // line 2
-    private final Pose openGatePose       = new Pose(16.5, 70.5, Math.toRadians(0));   // line 3
+    private final Pose openGatePose       = new Pose(15, 70.5, Math.toRadians(0));   // line 3
     private final Pose shootMiddlePose    = new Pose(60,   84,   Math.toRadians(131)); // line 4
     private final Pose pickUpTopPose      = new Pose(45,   84,   Math.toRadians(180)); // line 5
     private final Pose intakeTopPose      = new Pose(17.5, 84,   Math.toRadians(180)); // line 6
@@ -66,7 +66,8 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 new BezierLine(startPose, shootPreloadPose));
         shootPreloadPath.setLinearHeadingInterpolation(
                 Math.toRadians(90),
-                Math.toRadians(118));
+                Math.toRadians(118),
+                0.65);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         pickUpMiddleChain = follower.pathBuilder()
@@ -76,15 +77,14 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
                         Math.toRadians(118),
-                        Math.toRadians(180))
+                        Math.toRadians(180),
+                        0.65)
                 .build();
 
         // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
         intakeMiddlePath = new Path(
                 new BezierLine(pickUpMiddlePose, intakeMiddlePose));
-        intakeMiddlePath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(180));
+        intakeMiddlePath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         openGatePath = new Path(
@@ -95,7 +95,8 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         openGatePose));
         openGatePath.setLinearHeadingInterpolation(
                 Math.toRadians(180),
-                Math.toRadians(0));
+                Math.toRadians(0),
+                0.8);
 
         // Line 4: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
         shootMiddlePath = new Path(
@@ -105,7 +106,8 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         shootMiddlePose));
         shootMiddlePath.setLinearHeadingInterpolation(
                 Math.toRadians(0),
-                Math.toRadians(131));
+                Math.toRadians(131),
+                0.65);
 
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         pickUpTopChain = follower.pathBuilder()
@@ -114,15 +116,14 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         pickUpTopPose))
                 .setLinearHeadingInterpolation(
                         Math.toRadians(131),
-                        Math.toRadians(180))
+                        Math.toRadians(180),
+                        0.65)
                 .build();
 
         // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
         intakeTopPath = new Path(
                 new BezierLine(pickUpTopPose, intakeTopPose));
-        intakeTopPath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(180));
+        intakeTopPath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         shootTopPath = new Path(
@@ -132,7 +133,8 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         shootTopPose));
         shootTopPath.setLinearHeadingInterpolation(
                 Math.toRadians(180),
-                Math.toRadians(131));
+                Math.toRadians(131),
+                0.65);
 
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
         pickUpBottomChain = follower.pathBuilder()
@@ -142,7 +144,8 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         pickUpBottomPose))
                 .setLinearHeadingInterpolation(
                         Math.toRadians(131),
-                        Math.toRadians(180))
+                        Math.toRadians(180),
+                        0.65)
                 .build();
 
         // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
@@ -150,9 +153,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpBottomPose,
                         intakeBottomPose));
-        intakeBottomPath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(180));
+        intakeBottomPath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         shootBottomPath = new Path(
@@ -162,7 +163,8 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         shootBottomPose));
         shootBottomPath.setLinearHeadingInterpolation(
                 Math.toRadians(180),
-                Math.toRadians(118));
+                Math.toRadians(118),
+                0.65);
 
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
         parkPath = new Path(
