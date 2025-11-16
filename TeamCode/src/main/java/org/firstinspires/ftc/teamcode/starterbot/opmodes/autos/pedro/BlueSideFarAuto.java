@@ -195,7 +195,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 break;
 
             case 1001: // WAIT before shooting middle
-                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 0.75 sec
                     setPathState(100);                          // go to real shooting state
                 }
                 break;
@@ -242,7 +242,14 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 // Open gate
                 if (!follower.isBusy()) {
                     follower.followPath(openGatePath);
-                    setPathState(4);
+                    pathTimer.resetTimer();
+                    setPathState(31);
+                }
+                break;
+
+            case 31: // WAIT before shooting middle
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {   // wait 0.3 sec
+                    setPathState(4);                          // go to real shooting state
                 }
                 break;
 
