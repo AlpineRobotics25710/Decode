@@ -9,60 +9,36 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
-@Autonomous(name = "DO NOT RUN, STILL IN BETA TESTING - Far Side Auto (Alliance Select)", group = "Pedro Autos")
-public class FarSideAuto extends PedroBaseAuto {
+@Autonomous(name = "Red Side Far Auto", group = "Pedro Autos")
+public class FarSideRed extends PedroBaseAuto {
 
-    // BLUE-SIDE TEMPLATE POSES
+    // POSES (RED)
 
-    // Global start pose (BLUE coordinates)
-    private final Pose startPoseBlue        = new Pose(51.75, 8.75, Math.toRadians(90));
+    // Global start pose
+    private final Pose startPose          = new Pose(87.5, 8.75, Math.toRadians(90));
 
-    private final Pose shootPreloadPoseBlue = new Pose(60,   12, FAR_SHOOTING_ANGLE_BLUE);                         // line 0
-    private final Pose pickUpMiddlePoseBlue = new Pose(50,   58.5, Math.toRadians(180));                        // line 1
-    private final Pose intakeMiddlePoseBlue = new Pose(16,   58.5, Math.toRadians(180));                        // line 2
-    private final Pose openGatePoseBlue     = new Pose(15,   70.5, Math.toRadians(0));                          // line 3
-    private final Pose shootMiddlePoseBlue  = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE_BLUE + Math.toRadians(3)); // line 4
-    private final Pose pickUpTopPoseBlue    = new Pose(50,   83,   Math.toRadians(180));                        // line 5
-    private final Pose intakeTopPoseBlue    = new Pose(15.5, 83,   Math.toRadians(180));                        // line 6
-    private final Pose shootTopPoseBlue     = new Pose(58.5, 84, CLOSE_SHOOTING_ANGLE_BLUE);                       // line 7
-    private final Pose pickUpBottomPoseBlue = new Pose(50,   35,   Math.toRadians(180));                        // line 8
-    private final Pose intakeBottomPoseBlue = new Pose(14.5, 35,   Math.toRadians(180));                        // line 9
-    private final Pose shootBottomPoseBlue  = new Pose(60,   12, FAR_SHOOTING_ANGLE_BLUE);                         // line 10
-    private final Pose parkPoseBlue         = new Pose(20,   70.5, Math.toRadians(0));                          // line 11
+    private final Pose shootPreloadPose   = new Pose(90,   12.5, FAR_SHOOTING_ANGLE_RED);   // line 0: Shoot preload
+    private final Pose pickUpMiddlePose   = new Pose(94,   58.5, Math.toRadians(0));    // line 1: Pick up middle
+    private final Pose intakeMiddlePose   = new Pose(126.5,58.5, Math.toRadians(180));  // line 2: Intake middle
+    private final Pose openGatePose       = new Pose(129,  70.5, Math.toRadians(180));  // line 3: Open gate
+    private final Pose shootMiddlePose    = new Pose(88,   88,   CLOSE_SHOOTING_ANGLE_RED);   // line 4: Shoot middle
+    private final Pose pickUpTopPose      = new Pose(94,   83,   Math.toRadians(0));    // line 5: Pick up top
+    private final Pose intakeTopPose      = new Pose(128,  83,   Math.toRadians(180));  // line 6: Intake top
+    private final Pose shootTopPose       = new Pose(88,   88,   CLOSE_SHOOTING_ANGLE_RED);   // line 7: Shoot top
+    private final Pose pickUpBottomPose   = new Pose(94,   35,   Math.toRadians(0));    // line 8: Pick up bottom
+    private final Pose intakeBottomPose   = new Pose(128,  35,   Math.toRadians(180));  // line 9: Intake bottom
+    private final Pose shootBottomPose    = new Pose(90,   12.5, FAR_SHOOTING_ANGLE_RED);   // line 10: Shoot bottom
+    private final Pose parkPose           = new Pose(124,  70.5, Math.toRadians(180));  // line 11: Park
 
-    // Control points (BLUE coordinates)
-    private final Pose cpPickUpMiddle1Blue  = new Pose(53.25, 56,    0); // line 1
-    private final Pose cpOpenGate1Blue      = new Pose(51,    58,    0); // line 3
-    private final Pose cpOpenGate2Blue      = new Pose(58.5,  64,    0); // line 3
-    private final Pose cpShootMiddle1Blue   = new Pose(60,    67.25, 0); // line 4
-    private final Pose cpShootTop1Blue      = new Pose(49,    92,    0); // line 7
-    private final Pose cpPickUpBottom1Blue  = new Pose(60,    34,    0); // line 8
-    private final Pose cpShootBottom1Blue   = new Pose(42,    26,    0); // line 10
-    private final Pose cpPark1Blue          = new Pose(46,    60,    0); // line 11
-
-    // EFFECTIVE POSES (MIRRORED IF RED)
-    private Pose startPose;
-    private Pose shootPreloadPose;
-    private Pose pickUpMiddlePose;
-    private Pose intakeMiddlePose;
-    private Pose openGatePose;
-    private Pose shootMiddlePose;
-    private Pose pickUpTopPose;
-    private Pose intakeTopPose;
-    private Pose shootTopPose;
-    private Pose pickUpBottomPose;
-    private Pose intakeBottomPose;
-    private Pose shootBottomPose;
-    private Pose parkPose;
-
-    private Pose cpPickUpMiddle1;
-    private Pose cpOpenGate1;
-    private Pose cpOpenGate2;
-    private Pose cpShootMiddle1;
-    private Pose cpShootTop1;
-    private Pose cpPickUpBottom1;
-    private Pose cpShootBottom1;
-    private Pose cpPark1;
+    // Control points from RedSideFarAuto-Decode.pp
+    private final Pose cpPickUpMiddle1  = new Pose(90.75, 56,   0);   // line 1
+    private final Pose cpOpenGate1      = new Pose(93,    58,   0);   // line 3
+    private final Pose cpOpenGate2      = new Pose(85.5,  64,   0);   // line 3
+    private final Pose cpShootMiddle1   = new Pose(84,    67.25,0);   // line 4
+    private final Pose cpShootTop1      = new Pose(95,    92,   0);   // line 7
+    private final Pose cpPickUpBottom1  = new Pose(86,    35.5,   0);   // line 8
+    private final Pose cpShootBottom1   = new Pose(107.25,17.5, 0);   // line 10
+    private final Pose cpPark1          = new Pose(98,    60,   0);   // line 11
 
     // Paths/PathChains
     // Only pick-up paths are PathChains, everything else is a Path
@@ -80,58 +56,19 @@ public class FarSideAuto extends PedroBaseAuto {
     private Path      shootBottomPath;
     private Path      parkPath;
 
-    // Alliance / mirroring helpers
-
-    /** Mirror a BLUE-side pose to RED if needed, based on PedroBaseAuto's alliance detection. */
-    private Pose mirrorIfRed(Pose bluePose) {
-        return isRedAlliance() ? bluePose.mirror() : bluePose;
-    }
-
-    /** Build effective poses/control points from the BLUE templates, mirroring if we're Red. */
-    private void buildEffectivePoses() {
-        // Main poses
-        startPose        = mirrorIfRed(startPoseBlue);
-        shootPreloadPose = mirrorIfRed(shootPreloadPoseBlue);
-        pickUpMiddlePose = mirrorIfRed(pickUpMiddlePoseBlue);
-        intakeMiddlePose = mirrorIfRed(intakeMiddlePoseBlue);
-        openGatePose     = mirrorIfRed(openGatePoseBlue);
-        shootMiddlePose  = mirrorIfRed(shootMiddlePoseBlue);
-        pickUpTopPose    = mirrorIfRed(pickUpTopPoseBlue);
-        intakeTopPose    = mirrorIfRed(intakeTopPoseBlue);
-        shootTopPose     = mirrorIfRed(shootTopPoseBlue);
-        pickUpBottomPose = mirrorIfRed(pickUpBottomPoseBlue);
-        intakeBottomPose = mirrorIfRed(intakeBottomPoseBlue);
-        shootBottomPose  = mirrorIfRed(shootBottomPoseBlue);
-        parkPose         = mirrorIfRed(parkPoseBlue);
-
-        // Control points
-        cpPickUpMiddle1  = mirrorIfRed(cpPickUpMiddle1Blue);
-        cpOpenGate1      = mirrorIfRed(cpOpenGate1Blue);
-        cpOpenGate2      = mirrorIfRed(cpOpenGate2Blue);
-        cpShootMiddle1   = mirrorIfRed(cpShootMiddle1Blue);
-        cpShootTop1      = mirrorIfRed(cpShootTop1Blue);
-        cpPickUpBottom1  = mirrorIfRed(cpPickUpBottom1Blue);
-        cpShootBottom1   = mirrorIfRed(cpShootBottom1Blue);
-        cpPark1          = mirrorIfRed(cpPark1Blue);
-    }
-
     @Override
     protected Pose getStartPose() {
-        // startPose is set in buildEffectivePoses(), called from buildPaths() in start()
         return startPose;
     }
 
     @Override
     protected void buildPaths() {
-        // Build alliance-dependent poses first
-        buildEffectivePoses();
-
         // Line 0: Shoot preload (startPose -> shootPreloadPose), straight line, Path
         shootPreloadPath = new Path(
                 new BezierLine(startPose, shootPreloadPose));
         shootPreloadPath.setLinearHeadingInterpolation(
-                startPose.getHeading(),
-                shootPreloadPose.getHeading(),
+                Math.toRadians(90),           // from startDeg of line 0 / startPose
+                Math.toRadians(66),           // endDeg of line 0
                 0.65);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
@@ -141,16 +78,17 @@ public class FarSideAuto extends PedroBaseAuto {
                         cpPickUpMiddle1,
                         pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        shootPreloadPose.getHeading(),
-                        pickUpMiddlePose.getHeading(),
+                        Math.toRadians(66),     // startDeg line 1
+                        Math.toRadians(0),      // endDeg line 1
                         0.65)
-                .setHeadingConstraint(0.975)
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
         intakeMiddlePath = new Path(
                 new BezierLine(pickUpMiddlePose, intakeMiddlePose));
-        intakeMiddlePath.setConstantHeadingInterpolation(intakeMiddlePose.getHeading());
+        // headingType = constant, startDeg = endDeg = 180
+        intakeMiddlePath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         openGatePath = new Path(
@@ -159,9 +97,10 @@ public class FarSideAuto extends PedroBaseAuto {
                         cpOpenGate1,
                         cpOpenGate2,
                         openGatePose));
+        // headingType = linear, startDeg = 0, endDeg = 180
         openGatePath.setLinearHeadingInterpolation(
-                intakeMiddlePose.getHeading(),
-                openGatePose.getHeading(),
+                Math.toRadians(0),
+                Math.toRadians(180),
                 0.8);
 
         // Line 4: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
@@ -170,9 +109,10 @@ public class FarSideAuto extends PedroBaseAuto {
                         openGatePose,
                         cpShootMiddle1,
                         shootMiddlePose));
+        // headingType = linear, startDeg = 180, endDeg = 45
         shootMiddlePath.setLinearHeadingInterpolation(
-                openGatePose.getHeading(),
-                shootMiddlePose.getHeading(),
+                Math.toRadians(180),
+                Math.toRadians(45),
                 0.65);
         shootMiddlePath.setHeadingConstraint(0.985);
 
@@ -181,17 +121,19 @@ public class FarSideAuto extends PedroBaseAuto {
                 .addPath(new BezierLine(
                         shootMiddlePose,
                         pickUpTopPose))
+                // headingType = linear, startDeg = 45, endDeg = 0
                 .setLinearHeadingInterpolation(
-                        shootMiddlePose.getHeading(),
-                        pickUpTopPose.getHeading(),
+                        Math.toRadians(45),
+                        Math.toRadians(0),
                         0.65)
-                .setHeadingConstraint(0.975)
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
         intakeTopPath = new Path(
                 new BezierLine(pickUpTopPose, intakeTopPose));
-        intakeTopPath.setConstantHeadingInterpolation(intakeTopPose.getHeading());
+        // headingType = constant, 180 deg
+        intakeTopPath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         shootTopPath = new Path(
@@ -199,9 +141,10 @@ public class FarSideAuto extends PedroBaseAuto {
                         intakeTopPose,
                         cpShootTop1,
                         shootTopPose));
+        // headingType = linear, startDeg = 0, endDeg = 45
         shootTopPath.setLinearHeadingInterpolation(
-                intakeTopPose.getHeading(),
-                shootTopPose.getHeading(),
+                Math.toRadians(0),
+                Math.toRadians(45),
                 0.65);
 
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
@@ -210,11 +153,12 @@ public class FarSideAuto extends PedroBaseAuto {
                         shootTopPose,
                         cpPickUpBottom1,
                         pickUpBottomPose))
+                // headingType = linear, startDeg = 45, endDeg = 0
                 .setLinearHeadingInterpolation(
-                        shootTopPose.getHeading(),
-                        pickUpBottomPose.getHeading(),
+                        Math.toRadians(45),
+                        Math.toRadians(0),
                         0.65)
-                .setHeadingConstraint(0.975)
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
@@ -222,7 +166,8 @@ public class FarSideAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpBottomPose,
                         intakeBottomPose));
-        intakeBottomPath.setConstantHeadingInterpolation(intakeBottomPose.getHeading());
+        // headingType = constant, 180 deg
+        intakeBottomPath.setConstantHeadingInterpolation(Math.toRadians(180));
 
         // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         shootBottomPath = new Path(
@@ -230,9 +175,10 @@ public class FarSideAuto extends PedroBaseAuto {
                         intakeBottomPose,
                         cpShootBottom1,
                         shootBottomPose));
+        // headingType = linear, startDeg = 180, endDeg = 66
         shootBottomPath.setLinearHeadingInterpolation(
-                intakeBottomPose.getHeading(),
-                shootBottomPose.getHeading(),
+                Math.toRadians(180),
+                Math.toRadians(66),
                 0.65);
 
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
@@ -241,9 +187,10 @@ public class FarSideAuto extends PedroBaseAuto {
                         shootBottomPose,
                         cpPark1,
                         parkPose));
+        // headingType = linear, startDeg = 66, endDeg = 180
         parkPath.setLinearHeadingInterpolation(
-                shootBottomPose.getHeading(),
-                parkPose.getHeading());
+                Math.toRadians(66),
+                Math.toRadians(180));
     }
 
     @Override
@@ -256,7 +203,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 break;
 
             case 1001: // WAIT before shooting preload
-                if (pathTimer.getElapsedTimeSeconds() > 1.25) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
                     setPathState(100);                          // go to real shooting state
                 }
                 break;
@@ -323,7 +270,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 break;
 
             case 1021: // WAIT before shooting middle
-                if (pathTimer.getElapsedTimeSeconds() > 1.25) {   // wait 1.25 sec
+                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
                     setPathState(102);                          // go to real shooting state
                 }
                 break;
@@ -370,7 +317,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 // Move to shoot top pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootTopPath);
-                    setPathState(104); // shooting burst at top (no extra wait here yet)
+                    setPathState(104); // shooting burst at top
                 }
                 break;
 
@@ -416,7 +363,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 // Move to shoot bottom pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootBottomPath);
-                    setPathState(106); // shooting burst at bottom (no extra wait yet)
+                    setPathState(106); // shooting burst at bottom
                 }
                 break;
 

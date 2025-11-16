@@ -17,17 +17,17 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
     // Heading 323.5° to match first real segment
     private final Pose startPose          = new Pose(21,   122,  Math.toRadians(323.5));
 
-    private final Pose shootPreloadPose   = new Pose(60,   83.5, CLOSE_SHOOTING_ANGLE); // line 1
+    private final Pose shootPreloadPose   = new Pose(60,   83.5, CLOSE_SHOOTING_ANGLE_BLUE); // line 1
     private final Pose pickUpMiddlePose   = new Pose(45,   60,   Math.toRadians(180)); // line 2
     private final Pose intakeMiddlePose   = new Pose(17.5, 60,   Math.toRadians(180)); // line 3
     private final Pose openGatePose       = new Pose(15, 70.5,   Math.toRadians(0));   // line 4
-    private final Pose shootMiddlePose    = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE); // line 5
+    private final Pose shootMiddlePose    = new Pose(60,   84, CLOSE_SHOOTING_ANGLE_BLUE); // line 5
     private final Pose pickUpTopPose      = new Pose(45,   84,   Math.toRadians(180)); // line 6
     private final Pose intakeTopPose      = new Pose(17.5, 84,   Math.toRadians(180)); // line 7
-    private final Pose shootTopPose       = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE); // line 8
+    private final Pose shootTopPose       = new Pose(60,   84, CLOSE_SHOOTING_ANGLE_BLUE); // line 8
     private final Pose pickUpBottomPose   = new Pose(45,   36,   Math.toRadians(180)); // line 9
     private final Pose intakeBottomPose   = new Pose(22,   36,   Math.toRadians(180)); // line 10
-    private final Pose shootBottomPose    = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE); // line 11
+    private final Pose shootBottomPose    = new Pose(60,   84, CLOSE_SHOOTING_ANGLE_BLUE); // line 11
     private final Pose parkPose           = new Pose(20,   70,   Math.toRadians(0));   // line 12
 
     // Control points
