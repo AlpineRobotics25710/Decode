@@ -21,7 +21,7 @@ public class FarSideAuto extends PedroBaseAuto {
     private final Pose pickUpMiddlePoseBlue = new Pose(50,   58.5, Math.toRadians(180));                        // line 1
     private final Pose intakeMiddlePoseBlue = new Pose(16,   58.5, Math.toRadians(180));                        // line 2
     private final Pose openGatePoseBlue     = new Pose(15,   70.5, Math.toRadians(0));                          // line 3
-    private final Pose shootMiddlePoseBlue  = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE + Math.toRadians(2.5)); // line 4
+    private final Pose shootMiddlePoseBlue  = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE + Math.toRadians(3)); // line 4
     private final Pose pickUpTopPoseBlue    = new Pose(50,   83,   Math.toRadians(180));                        // line 5
     private final Pose intakeTopPoseBlue    = new Pose(15.5, 83,   Math.toRadians(180));                        // line 6
     private final Pose shootTopPoseBlue     = new Pose(58.5, 84,   CLOSE_SHOOTING_ANGLE);                       // line 7
