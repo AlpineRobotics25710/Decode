@@ -24,7 +24,7 @@ public class Constants {
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.25, 0, 0, 0, 0.022))// need to tune
             .centripetalScaling(0.0005); // need to test
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.97, 100, 1.35, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1.35, 1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
