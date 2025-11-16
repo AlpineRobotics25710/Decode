@@ -19,14 +19,14 @@ public class BlueSideFarAuto extends PedroBaseAuto {
     private final Pose startPose          = new Pose(51.75, 8.75, Math.toRadians(90));
 
     private final Pose shootPreloadPose   = new Pose(60,   24,   FAR_SHOOTING_ANGLE); // line 0
-    private final Pose pickUpMiddlePose   = new Pose(45,   58.5, Math.toRadians(180)); // line 1
+    private final Pose pickUpMiddlePose   = new Pose(50,   58.5, Math.toRadians(180)); // line 1
     private final Pose intakeMiddlePose   = new Pose(16, 58.5,   Math.toRadians(180)); // line 2
     private final Pose openGatePose       = new Pose(15, 70.5,   Math.toRadians(0));   // line 3
     private final Pose shootMiddlePose    = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE); // line 4
-    private final Pose pickUpTopPose      = new Pose(45,   83,   Math.toRadians(180)); // line 5
+    private final Pose pickUpTopPose      = new Pose(50,   83,   Math.toRadians(180)); // line 5
     private final Pose intakeTopPose      = new Pose(15.5, 83,   Math.toRadians(180)); // line 6
     private final Pose shootTopPose       = new Pose(58.5,   84, CLOSE_SHOOTING_ANGLE); // line 7
-    private final Pose pickUpBottomPose   = new Pose(45,   35,   Math.toRadians(180)); // line 8
+    private final Pose pickUpBottomPose   = new Pose(50,   35,   Math.toRadians(180)); // line 8
     private final Pose intakeBottomPose   = new Pose(14.5,   35, Math.toRadians(180)); // line 9
     private final Pose shootBottomPose    = new Pose(60,   24,   FAR_SHOOTING_ANGLE); // line 10
     private final Pose parkPose           = new Pose(20,   70.5, Math.toRadians(0));   // line 11
