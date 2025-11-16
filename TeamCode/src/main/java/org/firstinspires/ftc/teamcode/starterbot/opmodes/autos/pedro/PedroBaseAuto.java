@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 /**
@@ -26,6 +27,8 @@ public abstract class PedroBaseAuto extends OpMode {
     protected Timer pathTimer;
     protected Timer opmodeTimer;
     protected int pathState;
+    private boolean prevA = false, prevB = false;
+    private Alliance alliance = Alliance.BLUE;
 
     // Shooting helper state
     protected int shotsToFire = 0;
@@ -119,7 +122,17 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void init_loop() {
-        // optional: child can override if needed
+        // Edge-detect if you don't have aWasPressed/bWasPressed helpers
+        boolean a = gamepad1.a;
+        boolean b = gamepad1.b;
+        if (a && !prevA) alliance = Alliance.RED;
+        if (b && !prevB) alliance = Alliance.BLUE;
+        prevA = a;
+        prevB = b;
+
+        CommonTelemetry.addData("Press B/O", "for BLUE");
+        CommonTelemetry.addData("Press A/X", "for RED");
+        CommonTelemetry.addData("Selected Alliance", alliance);
     }
 
     @Override
