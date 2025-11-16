@@ -271,11 +271,12 @@ public class FarSideBlue extends PedroBaseAuto {
             case 0:
                 // Move to shoot preload
                 follower.followPath(shootPreloadPath);
+                pathTimer.resetTimer();
                 setPathState(1001); // go to WAIT-before-preload-shoot state
                 break;
 
             case 1001: // WAIT before shooting preload
-                if (pathTimer.getElapsedTimeSeconds() > 1.25) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 1.25 sec
                     setPathState(100);                          // go to real shooting state
                 }
                 break;
@@ -328,7 +329,7 @@ public class FarSideBlue extends PedroBaseAuto {
                 break;
 
             case 35:
-                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 0.75 sec
                     setPathState(4);                          // go to real shooting state
                 }
                 break;
@@ -337,12 +338,13 @@ public class FarSideBlue extends PedroBaseAuto {
                 // Move to shoot middle pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootMiddlePath);
+                    pathTimer.resetTimer();
                     setPathState(1021); // WAIT-before-middle-shoot
                 }
                 break;
 
             case 1021: // WAIT before shooting middle
-                if (pathTimer.getElapsedTimeSeconds() > 1.25) {   // wait 1.25 sec
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 1 sec
                     setPathState(102);                          // go to real shooting state
                 }
                 break;
@@ -389,7 +391,7 @@ public class FarSideBlue extends PedroBaseAuto {
                 // Move to shoot top pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootTopPath);
-                    setPathState(104); // shooting burst at top (no extra wait here yet)
+                    setPathState(104); // shooting burst at top
                 }
                 break;
 
@@ -435,7 +437,7 @@ public class FarSideBlue extends PedroBaseAuto {
                 // Move to shoot bottom pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootBottomPath);
-                    setPathState(106); // shooting burst at bottom (no extra wait yet)
+                    setPathState(106); // shooting burst at bottom
                 }
                 break;
 
