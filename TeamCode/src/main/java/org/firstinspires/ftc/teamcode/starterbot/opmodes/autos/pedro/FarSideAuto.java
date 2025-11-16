@@ -309,7 +309,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 break;
 
             case 35:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {   // wait 0.75 sec
                     setPathState(4);                          // go to real shooting state
                 }
                 break;
@@ -323,7 +323,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 break;
 
             case 1021: // WAIT before shooting middle
-                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 0.75 sec
                     setPathState(102);                          // go to real shooting state
                 }
                 break;
