@@ -17,7 +17,7 @@ public class Constants {
 
     public static double FEEDER_POWER = 1.0;
 
-    public static double INTAKE_POWER = 0.85; // Intake motors power
+    public static double INTAKE_POWER = 0.9; // Intake motors power
 
     public static double RAMP_INTAKE_POS = 0.05;
     public static double RAMP_OUTTAKE_POS = 0.485;

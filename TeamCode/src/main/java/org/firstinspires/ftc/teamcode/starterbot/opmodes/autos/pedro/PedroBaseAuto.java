@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 
+import static org.firstinspires.ftc.teamcode.starterbot.Robot.switchRampState;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
@@ -30,6 +32,8 @@ public abstract class PedroBaseAuto extends OpMode {
     protected int shotsFired = 0;
     protected boolean shootingActive = false;
 
+    public static double FAR_SHOOTING_ANGLE = Math.toRadians(119);
+    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(135);
 
     /** Child must supply the starting pose for this auto. */
     protected abstract Pose getStartPose();
@@ -67,6 +71,7 @@ public abstract class PedroBaseAuto extends OpMode {
         shotsToFire = numShots;
         shotsFired = 0;
         shootingActive = true;
+        switchRampState();
         Robot.launchBasedOnVelocity(launchVelocityTps);
     }
 
@@ -79,6 +84,7 @@ public abstract class PedroBaseAuto extends OpMode {
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
 
         if (!shootingActive) {
+            switchRampState();
             return true;
         }
 

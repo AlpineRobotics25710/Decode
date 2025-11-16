@@ -69,7 +69,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 new BezierLine(startPose, shootPreloadPose));
         shootPreloadPath.setLinearHeadingInterpolation(
                 Math.toRadians(90),
-                Math.toRadians(118),
+                FAR_SHOOTING_ANGLE,
                 0.65);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
@@ -79,9 +79,10 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         cpPickUpMiddle1,
                         pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(118),
+                        FAR_SHOOTING_ANGLE,
                         Math.toRadians(180),
                         0.65)
+                .setHeadingConstraint(0.975)
                 .build();
 
         // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
@@ -109,7 +110,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         shootMiddlePose));
         shootMiddlePath.setLinearHeadingInterpolation(
                 Math.toRadians(0),
-                Math.toRadians(131),
+                CLOSE_SHOOTING_ANGLE,
                 0.65);
 
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
@@ -118,9 +119,10 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         shootMiddlePose,
                         pickUpTopPose))
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(131),
+                        CLOSE_SHOOTING_ANGLE,
                         Math.toRadians(180),
                         0.65)
+                .setHeadingConstraint(0.975)
                 .build();
 
         // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
@@ -136,7 +138,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         shootTopPose));
         shootTopPath.setLinearHeadingInterpolation(
                 Math.toRadians(180),
-                Math.toRadians(131),
+                CLOSE_SHOOTING_ANGLE,
                 0.65);
 
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
@@ -146,9 +148,10 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         cpPickUpBottom1,
                         pickUpBottomPose))
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(131),
+                        CLOSE_SHOOTING_ANGLE,
                         Math.toRadians(180),
                         0.65)
+                .setHeadingConstraint(0.975)
                 .build();
 
         // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
@@ -166,7 +169,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         shootBottomPose));
         shootBottomPath.setLinearHeadingInterpolation(
                 Math.toRadians(180),
-                Math.toRadians(118),
+                FAR_SHOOTING_ANGLE,
                 0.65);
 
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
@@ -176,7 +179,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                         cpPark1,
                         parkPose));
         parkPath.setLinearHeadingInterpolation(
-                Math.toRadians(118),
+                FAR_SHOOTING_ANGLE,
                 Math.toRadians(0));
     }
 
@@ -186,7 +189,18 @@ public class BlueSideFarAuto extends PedroBaseAuto {
             case 0:
                 // Move to shoot preload
                 follower.followPath(shootPreloadPath);
-                setPathState(1);
+                setPathState(100);
+                break;
+
+            case 100:
+                // Shoot 3 balls from far
+                if (!shootingActive) {
+                    startShootingBurst(3, Constants.LAUNCHER_FAR_VELOCITY);
+                } else {
+                    if (updateShootingBurst(Constants.LAUNCHER_FAR_VELOCITY)) {
+                        setPathState(1);
+                    }
+                }
                 break;
 
             case 1:
@@ -200,15 +214,17 @@ public class BlueSideFarAuto extends PedroBaseAuto {
             case 2:
                 // Start intake + move to intake middle
                 if (!follower.isBusy()) {
+                    follower.setMaxPower(0.6);
                     startIntake();
                     follower.followPath(intakeMiddlePath);
-                    setPathState(20); // intake middle cleanup
+                    setPathState(101); // intake middle cleanup
                 }
                 break;
 
-            case 20:
+            case 101:
                 // Stop intake after reaching intake middle
                 if (!follower.isBusy()) {
+                    follower.setMaxPower(1);
                     stopIntake();
                     setPathState(3);
                 }
@@ -226,11 +242,11 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 // Move to shoot middle pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootMiddlePath);
-                    setPathState(40); // shooting burst at middle
+                    setPathState(102); // shooting burst at middle
                 }
                 break;
 
-            case 40:
+            case 102:
                 // Shoot 3 balls at middle
                 if (!shootingActive) {
                     startShootingBurst(3, Constants.LAUNCHER_CLOSE_VELOCITY);
@@ -252,15 +268,17 @@ public class BlueSideFarAuto extends PedroBaseAuto {
             case 6:
                 // Start intake + move to intake top
                 if (!follower.isBusy()) {
+                    follower.setMaxPower(0.6);
                     startIntake();
                     follower.followPath(intakeTopPath);
-                    setPathState(60); // intake top cleanup
+                    setPathState(103); // intake top cleanup
                 }
                 break;
 
-            case 60:
+            case 103:
                 // Stop intake after reaching intake top
                 if (!follower.isBusy()) {
+                    follower.setMaxPower(1);
                     stopIntake();
                     setPathState(7);
                 }
@@ -270,11 +288,11 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 // Move to shoot top pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootTopPath);
-                    setPathState(70); // shooting burst at top
+                    setPathState(104); // shooting burst at top
                 }
                 break;
 
-            case 70:
+            case 104:
                 // Shoot 3 balls at top
                 if (!shootingActive) {
                     startShootingBurst(3, Constants.LAUNCHER_CLOSE_VELOCITY);
@@ -296,15 +314,17 @@ public class BlueSideFarAuto extends PedroBaseAuto {
             case 9:
                 // Start intake + move to intake bottom
                 if (!follower.isBusy()) {
+                    follower.setMaxPower(0.6);
                     startIntake();
                     follower.followPath(intakeBottomPath);
-                    setPathState(90); // intake bottom cleanup
+                    setPathState(105); // intake bottom cleanup
                 }
                 break;
 
-            case 90:
+            case 105:
                 // Stop intake after reaching intake bottom
                 if (!follower.isBusy()) {
+                    follower.setMaxPower(1);
                     stopIntake();
                     setPathState(10);
                 }
@@ -314,11 +334,11 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 // Move to shoot bottom pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootBottomPath);
-                    setPathState(100); // shooting burst at bottom
+                    setPathState(106); // shooting burst at bottom
                 }
                 break;
 
-            case 100:
+            case 106:
                 // Shoot 3 balls at bottom
                 if (!shootingActive) {
                     startShootingBurst(3, Constants.LAUNCHER_FAR_VELOCITY);
