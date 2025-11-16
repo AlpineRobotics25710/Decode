@@ -34,8 +34,8 @@ public abstract class PedroBaseAuto extends OpMode {
     protected int shotsFired = 0;
     protected boolean shootingActive = false;
 
-    public static double FAR_SHOOTING_ANGLE_BLUE = Math.toRadians(111);
-    public static double CLOSE_SHOOTING_ANGLE_BLUE = Math.toRadians(135);
+    public static double FAR_SHOOTING_ANGLE_BLUE = Math.toRadians(112);
+    public static double CLOSE_SHOOTING_ANGLE_BLUE = Math.toRadians(134);
     public static double FAR_SHOOTING_ANGLE_RED = Math.toRadians(66);
     public static double CLOSE_SHOOTING_ANGLE_RED = Math.toRadians(45);
 
@@ -139,6 +139,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("Press B/O", "for BLUE");
         CommonTelemetry.addData("Press A/X", "for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
+        CommonTelemetry.update();
     }
 
     @Override
@@ -161,12 +162,12 @@ public abstract class PedroBaseAuto extends OpMode {
         autonomousPathUpdate();
 
         // Common Pedro telemetry
-        telemetry.addData("pathState", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addData("Alliance", alliance);
-        telemetry.update();
+        CommonTelemetry.addData("pathState", pathState);
+        CommonTelemetry.addData("x", follower.getPose().getX());
+        CommonTelemetry.addData("y", follower.getPose().getY());
+        CommonTelemetry.addData("heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
+        CommonTelemetry.addData("Alliance", alliance);
+        CommonTelemetry.update();
     }
 
     @Override

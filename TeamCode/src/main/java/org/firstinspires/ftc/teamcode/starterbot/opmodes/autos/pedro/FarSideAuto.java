@@ -6,9 +6,11 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
+@Disabled
 @Autonomous(name = "DO NOT RUN, STILL IN BETA TESTING - Far Side Auto (Alliance Select)", group = "Pedro Autos")
 public class FarSideAuto extends PedroBaseAuto {
 
@@ -17,17 +19,17 @@ public class FarSideAuto extends PedroBaseAuto {
     // Global start pose (BLUE coordinates)
     private final Pose startPoseBlue        = new Pose(51.75, 8.75, Math.toRadians(90));
 
-    private final Pose shootPreloadPoseBlue = new Pose(60,   12, FAR_SHOOTING_ANGLE_BLUE);                         // line 0
+    private final Pose shootPreloadPoseBlue = new Pose(60,   12,   FAR_SHOOTING_ANGLE_BLUE);                         // line 0
     private final Pose pickUpMiddlePoseBlue = new Pose(50,   58.5, Math.toRadians(180));                        // line 1
     private final Pose intakeMiddlePoseBlue = new Pose(16,   58.5, Math.toRadians(180));                        // line 2
     private final Pose openGatePoseBlue     = new Pose(15,   70.5, Math.toRadians(0));                          // line 3
-    private final Pose shootMiddlePoseBlue  = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE_BLUE + Math.toRadians(3)); // line 4
+    private final Pose shootMiddlePoseBlue  = new Pose(60,   84,   CLOSE_SHOOTING_ANGLE_BLUE); // line 4
     private final Pose pickUpTopPoseBlue    = new Pose(50,   83,   Math.toRadians(180));                        // line 5
     private final Pose intakeTopPoseBlue    = new Pose(15.5, 83,   Math.toRadians(180));                        // line 6
-    private final Pose shootTopPoseBlue     = new Pose(58.5, 84, CLOSE_SHOOTING_ANGLE_BLUE);                       // line 7
+    private final Pose shootTopPoseBlue     = new Pose(58.5, 84,   CLOSE_SHOOTING_ANGLE_BLUE);                       // line 7
     private final Pose pickUpBottomPoseBlue = new Pose(50,   35,   Math.toRadians(180));                        // line 8
     private final Pose intakeBottomPoseBlue = new Pose(14.5, 35,   Math.toRadians(180));                        // line 9
-    private final Pose shootBottomPoseBlue  = new Pose(60,   12, FAR_SHOOTING_ANGLE_BLUE);                         // line 10
+    private final Pose shootBottomPoseBlue  = new Pose(60,   12,   FAR_SHOOTING_ANGLE_BLUE);                         // line 10
     private final Pose parkPoseBlue         = new Pose(20,   70.5, Math.toRadians(0));                          // line 11
 
     // Control points (BLUE coordinates)

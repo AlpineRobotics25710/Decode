@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
-@Autonomous(name = "Red Side Far Auto", group = "Pedro Autos")
+@Autonomous(name = "Far Side Red", group = "Pedro Autos")
 public class FarSideRed extends PedroBaseAuto {
 
     // POSES (RED)
@@ -19,14 +19,14 @@ public class FarSideRed extends PedroBaseAuto {
 
     private final Pose shootPreloadPose   = new Pose(90,   12.5, FAR_SHOOTING_ANGLE_RED);   // line 0: Shoot preload
     private final Pose pickUpMiddlePose   = new Pose(94,   58.5, Math.toRadians(0));    // line 1: Pick up middle
-    private final Pose intakeMiddlePose   = new Pose(126.5,58.5, Math.toRadians(180));  // line 2: Intake middle
+    private final Pose intakeMiddlePose   = new Pose(126.5,58.5, Math.toRadians(0));  // line 2: Intake middle
     private final Pose openGatePose       = new Pose(129,  70.5, Math.toRadians(180));  // line 3: Open gate
     private final Pose shootMiddlePose    = new Pose(88,   88,   CLOSE_SHOOTING_ANGLE_RED);   // line 4: Shoot middle
     private final Pose pickUpTopPose      = new Pose(94,   83,   Math.toRadians(0));    // line 5: Pick up top
-    private final Pose intakeTopPose      = new Pose(128,  83,   Math.toRadians(180));  // line 6: Intake top
+    private final Pose intakeTopPose      = new Pose(128,  83,   Math.toRadians(0));  // line 6: Intake top
     private final Pose shootTopPose       = new Pose(88,   88,   CLOSE_SHOOTING_ANGLE_RED);   // line 7: Shoot top
     private final Pose pickUpBottomPose   = new Pose(94,   35,   Math.toRadians(0));    // line 8: Pick up bottom
-    private final Pose intakeBottomPose   = new Pose(128,  35,   Math.toRadians(180));  // line 9: Intake bottom
+    private final Pose intakeBottomPose   = new Pose(128,  35,   Math.toRadians(0));  // line 9: Intake bottom
     private final Pose shootBottomPose    = new Pose(90,   12.5, FAR_SHOOTING_ANGLE_RED);   // line 10: Shoot bottom
     private final Pose parkPose           = new Pose(124,  70.5, Math.toRadians(180));  // line 11: Park
 
@@ -88,7 +88,7 @@ public class FarSideRed extends PedroBaseAuto {
         intakeMiddlePath = new Path(
                 new BezierLine(pickUpMiddlePose, intakeMiddlePose));
         // headingType = constant, startDeg = endDeg = 180
-        intakeMiddlePath.setConstantHeadingInterpolation(Math.toRadians(180));
+        intakeMiddlePath.setConstantHeadingInterpolation(0);
 
         // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         openGatePath = new Path(
