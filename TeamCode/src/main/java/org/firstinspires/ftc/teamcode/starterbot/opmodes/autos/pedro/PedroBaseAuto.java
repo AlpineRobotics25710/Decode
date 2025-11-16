@@ -7,7 +7,6 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
@@ -28,7 +27,7 @@ public abstract class PedroBaseAuto extends OpMode {
     protected Timer opmodeTimer;
     protected int pathState;
     private boolean prevA = false, prevB = false;
-    private Alliance alliance = Alliance.BLUE;
+    protected Alliance alliance = Alliance.BLUE;
 
     // Shooting helper state
     protected int shotsToFire = 0;
@@ -38,10 +37,10 @@ public abstract class PedroBaseAuto extends OpMode {
     public static double FAR_SHOOTING_ANGLE = Math.toRadians(113.5);
     public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(135);
 
-    /** Child must supply the starting pose for this auto. */
+    /** Child must supply the starting pose for this auto (already alliance-mirrored if needed). */
     protected abstract Pose getStartPose();
 
-    /** Child must build all Paths / PathChains here. */
+    /** Child must build all Paths / PathChains here, using the current alliance. */
     protected abstract void buildPaths();
 
     /** Child must implement the path state machine here. */
@@ -55,6 +54,11 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
+    /** Helper for autos that need to know if we're on red side. */
+    protected boolean isRedAlliance() {
+        return alliance == Alliance.RED;
+    }
+
     // intake helpers
     protected void startIntake() {
         Robot.spinToIntake();
@@ -64,7 +68,7 @@ public abstract class PedroBaseAuto extends OpMode {
         Robot.stopIntake();
     }
 
-    // helpers
+    // Shooting helpers
 
     /**
      * Start a burst of N shots using Robot.launchBasedOnVelocity().
@@ -116,13 +120,13 @@ public abstract class PedroBaseAuto extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        buildPaths();
-        follower.setStartingPose(getStartPose());
+        // IMPORTANT: we NO LONGER build paths or set the starting pose here.
+        // That will be done in start(), AFTER the alliance is selected in init_loop().
     }
 
     @Override
     public void init_loop() {
-        // Edge-detect if you don't have aWasPressed/bWasPressed helpers
+        // Alliance selection using gamepad
         boolean a = gamepad1.a;
         boolean b = gamepad1.b;
         if (a && !prevA) alliance = Alliance.RED;
@@ -138,6 +142,11 @@ public abstract class PedroBaseAuto extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+
+        // NOW build paths with the chosen alliance, and set starting pose
+        buildPaths();
+        follower.setStartingPose(getStartPose());
+
         setPathState(0);
     }
 
@@ -154,6 +163,7 @@ public abstract class PedroBaseAuto extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("Alliance", alliance);
         telemetry.update();
     }
 
