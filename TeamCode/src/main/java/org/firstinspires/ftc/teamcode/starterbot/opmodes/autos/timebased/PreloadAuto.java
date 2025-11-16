@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.starterbot.Robot;
 @Autonomous(name = "Preload Auto", group = "Time-Based Auto")
 public class PreloadAuto extends OpMode {
     public static int TOTAL_SHOTS = 3;
-    public static long DRIVE_TIME_MS = 500;
+    public static long DRIVE_TIME_MS = 250;
     public static long SHOT_COOLDOWN_MS = 250; // small debounce between shots
 
     private enum AutoState {SHOOTING, DRIVING, DONE}
@@ -103,7 +103,7 @@ public class PreloadAuto extends OpMode {
 
             case DRIVING: {
                 if (driveTimer.milliseconds() <= DRIVE_TIME_MS) {
-                    Robot.driveForward(0.75);
+                    Robot.driveForward(0.6);
                 } else {
                     Robot.driveForward(0);
                     state = AutoState.DONE;
@@ -120,7 +120,7 @@ public class PreloadAuto extends OpMode {
 
         prevLaunchState = ls;
 
-        // ----- TELEMETRY -----
+        // telemetry
         telemetry.addData("State", state);
         telemetry.addData("Alliance", alliance);
         telemetry.addData("Shots", "%d / %d", shotsFired, TOTAL_SHOTS);

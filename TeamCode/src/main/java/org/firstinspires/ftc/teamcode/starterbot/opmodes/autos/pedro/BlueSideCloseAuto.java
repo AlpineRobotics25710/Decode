@@ -7,6 +7,8 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.starterbot.Constants;
+
 @Autonomous(name = "Blue Side Close Auto", group = "Pedro Autos")
 public class BlueSideCloseAuto extends PedroBaseAuto {
 
@@ -227,9 +229,9 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
             case 40:
                 // Shoot 3 balls at middle
                 if (!shootingActive) {
-                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                    startShootingBurst(3, Constants.LAUNCHER_CLOSE_VELOCITY);
                 } else {
-                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                    if (updateShootingBurst(Constants.LAUNCHER_CLOSE_VELOCITY)) {
                         setPathState(5);
                     }
                 }
@@ -270,9 +272,9 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
             case 70:
                 // Shoot 3 balls at top
                 if (!shootingActive) {
-                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                    startShootingBurst(3, Constants.LAUNCHER_CLOSE_VELOCITY);
                 } else {
-                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                    if (updateShootingBurst(Constants.LAUNCHER_CLOSE_VELOCITY)) {
                         setPathState(8);
                     }
                 }
@@ -313,9 +315,9 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
             case 100:
                 // Shoot 3 balls at bottom
                 if (!shootingActive) {
-                    startShootingBurst(3, AUTO_LAUNCH_VELOCITY_TPS);
+                    startShootingBurst(3, Constants.LAUNCHER_FAR_VELOCITY);
                 } else {
-                    if (updateShootingBurst(AUTO_LAUNCH_VELOCITY_TPS)) {
+                    if (updateShootingBurst(Constants.LAUNCHER_FAR_VELOCITY)) {
                         setPathState(11);
                     }
                 }

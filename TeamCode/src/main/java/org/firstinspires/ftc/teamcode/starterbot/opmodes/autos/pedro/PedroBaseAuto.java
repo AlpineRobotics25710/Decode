@@ -5,6 +5,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
@@ -29,9 +30,6 @@ public abstract class PedroBaseAuto extends OpMode {
     protected int shotsFired = 0;
     protected boolean shootingActive = false;
 
-    // Tune these if needed
-    protected static final double AUTO_LAUNCH_VELOCITY_TPS = 3000.0; // guess, tune on bot
-    protected static final double AUTO_INTAKE_POWER = 1.0;
 
     /** Child must supply the starting pose for this auto. */
     protected abstract Pose getStartPose();
@@ -50,16 +48,16 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
-    // ==== Intake helpers ====
+    // intake helpers
     protected void startIntake() {
-        Robot.setIntakePower(AUTO_INTAKE_POWER);
+        Robot.setIntakePower(Constants.INTAKE_POWER);
     }
 
     protected void stopIntake() {
         Robot.setIntakePower(0.0); // or Constants.ZERO if you prefer
     }
 
-    // ==== Shooting helpers ====
+    // helpers
 
     /**
      * Start a burst of N shots using Robot.launchBasedOnVelocity().
@@ -96,8 +94,6 @@ public abstract class PedroBaseAuto extends OpMode {
         }
         return false;
     }
-
-    // ==== OpMode lifecycle ====
 
     @Override
     public void init() {
