@@ -145,21 +145,6 @@ public abstract class BaseTeleOp extends OpMode {
         x *= dampeningFactor;
         rx *= dampeningFactor;
 
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio,
-        // but only if at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-
-        double frontLeftPower = (y + x + rx) / denominator;
-        double backLeftPower = (y - x + rx) / denominator;
-        double frontRightPower = (y - x - rx) / denominator;
-        double backRightPower = (y + x - rx) / denominator;
-
-        CommonTelemetry.addData("Front Left Power: ", frontLeftPower);
-        CommonTelemetry.addData("Back Left Power: ", backLeftPower);
-        CommonTelemetry.addData("Front Right Power: ", frontRightPower);
-        CommonTelemetry.addData("Back Right Power: ", backRightPower);
-
         Robot.mecanumDrive(y, x, rx);
     }
 

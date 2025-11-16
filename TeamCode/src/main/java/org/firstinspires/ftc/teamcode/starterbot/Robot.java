@@ -208,6 +208,11 @@ public class Robot {
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
+        CommonTelemetry.addData("Front Left Power: ", frontLeftPower);
+        CommonTelemetry.addData("Back Left Power: ", backLeftPower);
+        CommonTelemetry.addData("Front Right Power: ", frontRightPower);
+        CommonTelemetry.addData("Back Right Power: ", backRightPower);
+
         // Send powers to the wheels.
         frontLeftDrive.setPower(frontLeftPower);
         backLeftDrive.setPower(backLeftPower);
