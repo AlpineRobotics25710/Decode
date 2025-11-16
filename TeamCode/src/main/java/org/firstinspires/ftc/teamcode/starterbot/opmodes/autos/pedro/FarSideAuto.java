@@ -33,7 +33,7 @@ public class FarSideAuto extends PedroBaseAuto {
     // Control points (BLUE coordinates)
     private final Pose cpPickUpMiddle1Blue  = new Pose(53.25, 56,    0); // line 1
     private final Pose cpOpenGate1Blue      = new Pose(51,    58,    0); // line 3
-    private final Pose cpOpenGate2Blue      = new Pose(59.25, 70,    0); // line 3
+    private final Pose cpOpenGate2Blue      = new Pose(58.5,  64,    0); // line 3
     private final Pose cpShootMiddle1Blue   = new Pose(60,    67.25, 0); // line 4
     private final Pose cpShootTop1Blue      = new Pose(49,    92,    0); // line 7
     private final Pose cpPickUpBottom1Blue  = new Pose(60,    34,    0); // line 8
@@ -256,7 +256,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 break;
 
             case 1001: // WAIT before shooting preload
-                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 1.25) {   // wait 0.75 sec
                     setPathState(100);                          // go to real shooting state
                 }
                 break;
@@ -309,7 +309,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 break;
 
             case 35:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
                     setPathState(4);                          // go to real shooting state
                 }
                 break;
@@ -323,7 +323,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 break;
 
             case 1021: // WAIT before shooting middle
-                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 0.75 sec
+                if (pathTimer.getElapsedTimeSeconds() > 1.25) {   // wait 1.25 sec
                     setPathState(102);                          // go to real shooting state
                 }
                 break;
