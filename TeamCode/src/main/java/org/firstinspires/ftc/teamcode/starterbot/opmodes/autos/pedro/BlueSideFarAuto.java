@@ -112,6 +112,7 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 Math.toRadians(0),
                 CLOSE_SHOOTING_ANGLE,
                 0.65);
+        shootMiddlePath.setHeadingConstraint(0.985);
 
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         pickUpTopChain = follower.pathBuilder()
