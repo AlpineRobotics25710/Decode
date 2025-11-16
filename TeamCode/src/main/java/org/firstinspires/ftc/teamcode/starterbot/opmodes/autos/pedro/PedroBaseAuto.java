@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
  *  - buildPaths()
  *  - autonomousPathUpdate()
  */
-public abstract class PedroAutoBase extends OpMode {
+public abstract class PedroBaseAuto extends OpMode {
 
     protected Follower follower;
     protected Timer pathTimer;

@@ -8,7 +8,7 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "Blue Side Far Auto (Pedro, Mixed + Mechs)", group = "Pedro Autos")
-public class BlueSideFarAuto extends PedroAutoBase {
+public class BlueSideFarAuto extends PedroBaseAuto {
 
     // poses
 
