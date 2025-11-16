@@ -35,7 +35,7 @@ public abstract class PedroBaseAuto extends OpMode {
     protected int shotsFired = 0;
     protected boolean shootingActive = false;
 
-    public static double FAR_SHOOTING_ANGLE = Math.toRadians(119);
+    public static double FAR_SHOOTING_ANGLE = Math.toRadians(115);
     public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(135);
 
     /** Child must supply the starting pose for this auto. */
@@ -87,7 +87,6 @@ public abstract class PedroBaseAuto extends OpMode {
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
 
         if (!shootingActive) {
-            switchRampState();
             return true;
         }
 
@@ -95,6 +94,7 @@ public abstract class PedroBaseAuto extends OpMode {
             shotsFired++;
             if (shotsFired >= shotsToFire) {
                 shootingActive = false;
+                switchRampState();
                 return true;
             } else {
                 // Start next shot in the burst
