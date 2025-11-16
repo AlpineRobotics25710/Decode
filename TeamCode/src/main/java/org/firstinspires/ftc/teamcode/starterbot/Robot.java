@@ -220,7 +220,7 @@ public class Robot {
         backRightDrive.setPower(backRightPower);
     }
 
-    // Helpers for Auto
+    // Helpers for Time-Based Auto
     public static void stopDrive() {
         mecanumDrive(0, 0, 0);
     }
