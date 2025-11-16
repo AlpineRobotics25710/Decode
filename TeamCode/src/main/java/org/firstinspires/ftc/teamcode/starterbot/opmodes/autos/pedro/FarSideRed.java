@@ -67,8 +67,8 @@ public class FarSideRed extends PedroBaseAuto {
         shootPreloadPath = new Path(
                 new BezierLine(startPose, shootPreloadPose));
         shootPreloadPath.setLinearHeadingInterpolation(
-                Math.toRadians(90),           // from startDeg of line 0 / startPose
-                Math.toRadians(66),           // endDeg of line 0
+                startPose.getHeading(),           // from startDeg of line 0 / startPose
+                shootPreloadPose.getHeading(),           // endDeg of line 0
                 0.65);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
@@ -78,8 +78,8 @@ public class FarSideRed extends PedroBaseAuto {
                         cpPickUpMiddle1,
                         pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(66),     // startDeg line 1
-                        Math.toRadians(0),      // endDeg line 1
+                        shootPreloadPose.getHeading(),     // startDeg line 1
+                        pickUpMiddlePose.getHeading(),      // endDeg line 1
                         0.65)
                 .setHeadingConstraint(0.98)
                 .build();
@@ -99,8 +99,8 @@ public class FarSideRed extends PedroBaseAuto {
                         openGatePose));
         // headingType = linear, startDeg = 0, endDeg = 180
         openGatePath.setLinearHeadingInterpolation(
-                Math.toRadians(0),
-                Math.toRadians(180),
+                pickUpMiddlePose.getHeading(),
+                openGatePose.getHeading(),
                 0.8);
 
         // Line 4: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
@@ -111,8 +111,8 @@ public class FarSideRed extends PedroBaseAuto {
                         shootMiddlePose));
         // headingType = linear, startDeg = 180, endDeg = 45
         shootMiddlePath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(45),
+                openGatePose.getHeading(),
+                shootMiddlePose.getHeading(),
                 0.65);
         shootMiddlePath.setHeadingConstraint(0.985);
 
@@ -123,8 +123,8 @@ public class FarSideRed extends PedroBaseAuto {
                         pickUpTopPose))
                 // headingType = linear, startDeg = 45, endDeg = 0
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(45),
-                        Math.toRadians(0),
+                        shootMiddlePose.getHeading(),
+                        pickUpTopPose.getHeading(),
                         0.65)
                 .setHeadingConstraint(0.98)
                 .build();
@@ -133,7 +133,7 @@ public class FarSideRed extends PedroBaseAuto {
         intakeTopPath = new Path(
                 new BezierLine(pickUpTopPose, intakeTopPose));
         // headingType = constant, 180 deg
-        intakeTopPath.setConstantHeadingInterpolation(Math.toRadians(180));
+        intakeTopPath.setConstantHeadingInterpolation(intakeTopPose.getHeading());
 
         // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         shootTopPath = new Path(
@@ -143,8 +143,8 @@ public class FarSideRed extends PedroBaseAuto {
                         shootTopPose));
         // headingType = linear, startDeg = 0, endDeg = 45
         shootTopPath.setLinearHeadingInterpolation(
-                Math.toRadians(0),
-                Math.toRadians(45),
+                intakeTopPose.getHeading(),
+                shootTopPose.getHeading(),
                 0.65);
 
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
@@ -155,8 +155,8 @@ public class FarSideRed extends PedroBaseAuto {
                         pickUpBottomPose))
                 // headingType = linear, startDeg = 45, endDeg = 0
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(45),
-                        Math.toRadians(0),
+                        shootTopPose.getHeading(),
+                        pickUpBottomPose.getHeading(),
                         0.65)
                 .setHeadingConstraint(0.98)
                 .build();
@@ -167,7 +167,7 @@ public class FarSideRed extends PedroBaseAuto {
                         pickUpBottomPose,
                         intakeBottomPose));
         // headingType = constant, 180 deg
-        intakeBottomPath.setConstantHeadingInterpolation(Math.toRadians(180));
+        intakeBottomPath.setConstantHeadingInterpolation(intakeBottomPose.getHeading());
 
         // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         shootBottomPath = new Path(
@@ -177,8 +177,8 @@ public class FarSideRed extends PedroBaseAuto {
                         shootBottomPose));
         // headingType = linear, startDeg = 180, endDeg = 66
         shootBottomPath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(66),
+                intakeBottomPose.getHeading(),
+                shootBottomPose.getHeading(),
                 0.65);
 
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
@@ -189,8 +189,8 @@ public class FarSideRed extends PedroBaseAuto {
                         parkPose));
         // headingType = linear, startDeg = 66, endDeg = 180
         parkPath.setLinearHeadingInterpolation(
-                Math.toRadians(66),
-                Math.toRadians(180));
+                shootBottomPose.getHeading(),
+                parkPose.getHeading());
     }
 
     @Override
