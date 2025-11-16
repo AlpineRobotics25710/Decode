@@ -190,7 +190,14 @@ public class BlueSideFarAuto extends PedroBaseAuto {
             case 0:
                 // Move to shoot preload
                 follower.followPath(shootPreloadPath);
-                setPathState(100);
+                pathTimer.resetTimer();
+                setPathState(1001);
+                break;
+
+            case 1001: // WAIT before shooting middle
+                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
+                    setPathState(100);                          // go to real shooting state
+                }
                 break;
 
             case 100:
@@ -243,7 +250,14 @@ public class BlueSideFarAuto extends PedroBaseAuto {
                 // Move to shoot middle pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootMiddlePath);
-                    setPathState(102); // shooting burst at middle
+                    pathTimer.resetTimer();
+                    setPathState(1021); // shooting burst at middle
+                }
+                break;
+
+            case 1021: // WAIT before shooting middle
+                if (pathTimer.getElapsedTimeSeconds() > 0.75) {   // wait 0.75 sec
+                    setPathState(102);                          // go to real shooting state
                 }
                 break;
 
