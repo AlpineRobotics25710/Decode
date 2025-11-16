@@ -245,6 +245,24 @@ public class Robot {
         mecanumDrive(0, 0, -p);
     }
 
+    public static void spinToIntake() {
+        Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY); // intake
+        Robot.setIntakePower(Constants.INTAKE_POWER);
+        Robot.setFeederPower(-Constants.FEEDER_POWER);
+    }
+
+    public static void spinToOuttake() {
+        Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY); // outtake
+        Robot.setIntakePower(-Constants.INTAKE_POWER);
+        Robot.setFeederPower(Constants.FEEDER_POWER);
+    }
+
+    public static void stopIntake() {
+        Robot.launcher.setVelocity(Constants.ZERO);
+        Robot.setIntakePower(Constants.ZERO);
+        Robot.setFeederPower(Constants.ZERO);
+    }
+
     public static void switchRampState() {
         // State Machine for Hinge/Ramp state
         switch (rampState) {

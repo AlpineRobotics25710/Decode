@@ -57,11 +57,11 @@ public abstract class PedroBaseAuto extends OpMode {
 
     // intake helpers
     protected void startIntake() {
-        Robot.setIntakePower(Constants.INTAKE_POWER);
+        Robot.spinToIntake();
     }
 
     protected void stopIntake() {
-        Robot.setIntakePower(0.0); // or Constants.ZERO if you prefer
+        Robot.stopIntake();
     }
 
     // helpers

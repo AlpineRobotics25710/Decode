@@ -79,11 +79,11 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchBasedOnVelocity(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
-            Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
+            Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY); // intake
             Robot.setIntakePower(Constants.INTAKE_POWER);
             Robot.setFeederPower(-Constants.FEEDER_POWER);
         } else if (operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY);
+            Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY); // outtake
             Robot.setIntakePower(-Constants.INTAKE_POWER);
             Robot.setFeederPower(Constants.FEEDER_POWER);
         } else if (!operator.right_bumper && !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
