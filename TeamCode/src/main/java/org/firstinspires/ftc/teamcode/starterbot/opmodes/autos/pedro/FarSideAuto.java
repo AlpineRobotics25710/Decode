@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
-@Autonomous(name = "Far Side Auto (Alliance Select)", group = "Pedro Autos")
+@Autonomous(name = "Far Side Auto (Alliance Select)", group = "prod")
 public class FarSideAuto extends PedroBaseAuto {
 
     // BLUE-SIDE TEMPLATE POSES
