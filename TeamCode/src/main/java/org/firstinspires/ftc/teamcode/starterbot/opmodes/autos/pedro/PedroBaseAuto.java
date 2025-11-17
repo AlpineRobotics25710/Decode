@@ -36,8 +36,9 @@ public abstract class PedroBaseAuto extends OpMode {
 
     public static double FAR_SHOOTING_ANGLE_BLUE = Math.toRadians(113.5);
     public static double CLOSE_SHOOTING_ANGLE_BLUE = Math.toRadians(134);
-    public static double FAR_SHOOTING_ANGLE_RED = Math.toRadians(64);
-    public static double CLOSE_SHOOTING_ANGLE_RED = Math.toRadians(45);
+    public static double FIRST_FAR_SHOOTING_ANGLE_RED = Math.toRadians(59.5);
+    public static double LAST_FAR_SHOOTING_ANGLE_RED = Math.toRadians(63);
+    public static double CLOSE_SHOOTING_ANGLE_RED = Math.toRadians(43);
 
     /** Child must supply the starting pose for this auto (already alliance-mirrored if needed). */
     protected abstract Pose getStartPose();

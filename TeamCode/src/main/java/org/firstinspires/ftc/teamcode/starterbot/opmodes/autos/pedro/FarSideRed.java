@@ -17,7 +17,7 @@ public class FarSideRed extends PedroBaseAuto {
     // Global start pose
     private final Pose startPose          = new Pose(87.5, 8.75, Math.toRadians(90));
 
-    private final Pose shootPreloadPose   = new Pose(90,   12.5, FAR_SHOOTING_ANGLE_RED);   // line 0: Shoot preload
+    private final Pose shootPreloadPose   = new Pose(90,   15.5, FIRST_FAR_SHOOTING_ANGLE_RED);   // line 0: Shoot preload
     private final Pose pickUpMiddlePose   = new Pose(94,   58.5, Math.toRadians(0));    // line 1: Pick up middle
     private final Pose intakeMiddlePose   = new Pose(126.5,58.5, Math.toRadians(0));  // line 2: Intake middle
     private final Pose openGatePose       = new Pose(129,  70.5, Math.toRadians(180));  // line 3: Open gate
@@ -27,14 +27,14 @@ public class FarSideRed extends PedroBaseAuto {
     private final Pose shootTopPose       = new Pose(88,   88,   CLOSE_SHOOTING_ANGLE_RED);   // line 7: Shoot top
     private final Pose pickUpBottomPose   = new Pose(94,   35,   Math.toRadians(0));    // line 8: Pick up bottom
     private final Pose intakeBottomPose   = new Pose(128,  35,   Math.toRadians(0));  // line 9: Intake bottom
-    private final Pose shootBottomPose    = new Pose(90,   12.5, FAR_SHOOTING_ANGLE_RED);   // line 10: Shoot bottom
-    private final Pose parkPose           = new Pose(124,  70.5, Math.toRadians(180));  // line 11: Park
+    private final Pose shootBottomPose    = new Pose(90,   15.5, LAST_FAR_SHOOTING_ANGLE_RED);   // line 10: Shoot bottom
+    private final Pose parkPose           = new Pose(116,  70, Math.toRadians(180));  // line 11: Park
 
     // Control points from RedSideFarAuto-Decode.pp
     private final Pose cpPickUpMiddle1  = new Pose(90.75, 56,   0);   // line 1
     private final Pose cpOpenGate1      = new Pose(93,    58,   0);   // line 3
     private final Pose cpOpenGate2      = new Pose(85.5,  64,   0);   // line 3
-    private final Pose cpShootMiddle1   = new Pose(84,    67.25,0);   // line 4
+    private final Pose cpShootMiddle1   = new Pose(85,    57.5,0);   // line 4
     private final Pose cpShootTop1      = new Pose(95,    92,   0);   // line 7
     private final Pose cpPickUpBottom1  = new Pose(86,    35.5,   0);   // line 8
     private final Pose cpShootBottom1   = new Pose(107.25,17.5, 0);   // line 10
