@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
-@Autonomous(name = "Blue Side Close Auto", group = "Pedro Autos")
+@Autonomous(name = "Blue Side Close Auto", group = "prod")
 public class BlueSideCloseAuto extends PedroBaseAuto {
 
     // poses
