@@ -146,7 +146,7 @@ public class FarSideAuto extends PedroBaseAuto {
                         shootPreloadPose.getHeading(),
                         pickUpMiddlePose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.975)
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
@@ -187,7 +187,7 @@ public class FarSideAuto extends PedroBaseAuto {
                         shootMiddlePose.getHeading(),
                         pickUpTopPose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.975)
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
@@ -216,7 +216,7 @@ public class FarSideAuto extends PedroBaseAuto {
                         shootTopPose.getHeading(),
                         pickUpBottomPose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.975)
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
