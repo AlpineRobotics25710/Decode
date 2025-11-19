@@ -116,25 +116,6 @@ public class Robot {
         CommonTelemetry.addData("Status", "Initialized");
     }
 
-    private static void init2WheelDrive(HardwareMap hardwareMap) {
-        // use this method ONLY if drivetrain uses 2 powered non-mecanum wheels
-        leftDrive = hardwareMap.get(DcMotor.class, "LD");
-        rightDrive = hardwareMap.get(DcMotor.class, "RD");
-
-        /*
-         * To drive forward, most robots need the motor on one side to be reversed,
-         * because the axles point in opposite directions. Pushing the left stick forward
-         * MUST make robot go forward. So adjust these two lines based on your first test drive.
-         * Note: The settings here assume direct drive on left and right wheels. Gear
-         * Reduction or 90 Deg drives may require direction flips
-         */
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
-
-        leftDrive.setZeroPowerBehavior(BRAKE);
-        rightDrive.setZeroPowerBehavior(BRAKE);
-    }
-
     public static void initMecanumDrive(HardwareMap hardwareMap) {
         // use this method ONLY if drivetrain uses 4 powered mecanum wheels
         frontRightDrive = hardwareMap.get(DcMotor.class, "FR");
@@ -220,31 +201,6 @@ public class Robot {
         backRightDrive.setPower(backRightPower);
     }
 
-    // Helpers for Time-Based Auto
-    public static void stopDrive() {
-        mecanumDrive(0, 0, 0);
-    }
-
-    public static void driveForward(double p) {
-        mecanumDrive(p, 0, 0);
-    }
-
-    public static void strafeRight(double p) {
-        mecanumDrive(0, p, 0);
-    }
-
-    public static void rotateRight(double p) {
-        mecanumDrive(0, 0, p);
-    }
-
-    public static void strafeLeft(double p) {
-        mecanumDrive(0, -p, 0);
-    }
-
-    public static void rotateLeft(double p) {
-        mecanumDrive(0, 0, -p);
-    }
-
     public static void spinToIntake() {
         Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY); // intake
         Robot.setIntakePower(Constants.INTAKE_POWER);
@@ -288,39 +244,6 @@ public class Robot {
             case CLOSED:
                 blocker.setPosition(Constants.BLOCKER_OPEN);
                 blockerState = BlockerState.OPEN;
-                break;
-        }
-    }
-
-    public static void launchTimeDelay(double launcherVelocity) {
-        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.launcher.setVelocity(launcherVelocity);
-            launchSequenceState = LaunchSequenceState.SPINNING_UP;
-            stateStartTime = System.currentTimeMillis();
-        }
-
-        switch (launchSequenceState) {
-            case SPINNING_UP:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_DELAY_MS) {
-                    Robot.setFeederPower(Constants.FEEDER_POWER);
-                    launchSequenceState = LaunchSequenceState.FEEDING;
-                    stateStartTime = System.currentTimeMillis();
-                }
-                break;
-
-            case FEEDING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
-                    Robot.setFeederPower(Constants.ZERO);
-                    stateStartTime = System.currentTimeMillis();
-                    launchSequenceState = LaunchSequenceState.SHOOTING;
-                }
-                break;
-
-            case SHOOTING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(Constants.ZERO);
-                    launchSequenceState = LaunchSequenceState.IDLE;
-                }
                 break;
         }
     }

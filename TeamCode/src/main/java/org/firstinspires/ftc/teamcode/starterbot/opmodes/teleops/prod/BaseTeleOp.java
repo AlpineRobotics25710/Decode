@@ -67,7 +67,6 @@ public abstract class BaseTeleOp extends OpMode {
          * more complex maneuvers.
          */
 
-        // twoWheel(); // robot currently uses 2 wheel arcade drive
         // mecanum();
         pedroTeleop(); // really jittery right now, probably needs to be tuned
 
