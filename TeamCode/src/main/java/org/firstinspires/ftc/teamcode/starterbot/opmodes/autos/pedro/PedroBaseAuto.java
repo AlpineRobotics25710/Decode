@@ -34,8 +34,11 @@ public abstract class PedroBaseAuto extends OpMode {
     protected int shotsFired = 0;
     protected boolean shootingActive = false;
 
+    // blue
     public static double FAR_SHOOTING_ANGLE_BLUE = Math.toRadians(113.5);
     public static double CLOSE_SHOOTING_ANGLE_BLUE = Math.toRadians(134);
+
+    // red
     public static double FIRST_FAR_SHOOTING_ANGLE_RED = Math.toRadians(59.5);
     public static double LAST_FAR_SHOOTING_ANGLE_RED = Math.toRadians(63);
     public static double CLOSE_SHOOTING_ANGLE_RED = Math.toRadians(43);

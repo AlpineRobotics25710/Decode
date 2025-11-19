@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
 @Autonomous(name = "Blue Side Close Auto", group = "prod")
-public class BlueSideCloseAuto extends PedroBaseAuto {
+public class CloseSideBlue extends PedroBaseAuto {
 
     // poses
 
@@ -69,8 +69,8 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpShootPreload1,
                         shootPreloadPose));
         shootPreloadPath.setLinearHeadingInterpolation(
-                Math.toRadians(323.5),
-                Math.toRadians(131));
+                startPose.getHeading(),
+                shootPreloadPose.getHeading());
 
         // Line 2: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         pickUpMiddleChain = follower.pathBuilder()
@@ -79,9 +79,9 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpPickUpMiddle1,
                         pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(131),
-                        Math.toRadians(180))
-                .setHeadingConstraint(0.975)
+                        shootPreloadPose.getHeading(),
+                        pickUpMiddlePose.getHeading())
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 3: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
@@ -89,7 +89,7 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpMiddlePose,
                         intakeMiddlePose));
-        intakeMiddlePath.setConstantHeadingInterpolation(Math.toRadians(180));
+        intakeMiddlePath.setConstantHeadingInterpolation(intakeMiddlePose.getHeading());
 
         // Line 4: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         openGatePath = new Path(
@@ -99,8 +99,8 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpOpenGate2,
                         openGatePose));
         openGatePath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(0));
+                intakeMiddlePose.getHeading(),
+                openGatePose.getHeading());
 
         // Line 5: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
         shootMiddlePath = new Path(
@@ -109,8 +109,8 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpShootMiddle1,
                         shootMiddlePose));
         shootMiddlePath.setLinearHeadingInterpolation(
-                Math.toRadians(0),
-                Math.toRadians(131));
+                openGatePose.getHeading(),
+                shootMiddlePose.getHeading());
 
         // Line 6: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         pickUpTopChain = follower.pathBuilder()
@@ -118,9 +118,9 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         shootMiddlePose,
                         pickUpTopPose))
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(131),
-                        Math.toRadians(180))
-                .setHeadingConstraint(0.975)
+                        shootMiddlePose.getHeading(),
+                        pickUpTopPose.getHeading())
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 7: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
@@ -128,7 +128,7 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpTopPose,
                         intakeTopPose));
-        intakeTopPath.setConstantHeadingInterpolation(Math.toRadians(180));
+        intakeTopPath.setConstantHeadingInterpolation(intakeTopPose.getHeading());
 
         // Line 8: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         shootTopPath = new Path(
@@ -137,8 +137,8 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpShootTop1,
                         shootTopPose));
         shootTopPath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(131));
+                intakeTopPose.getHeading(),
+                shootTopPose.getHeading());
 
         // Line 9: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
         pickUpBottomChain = follower.pathBuilder()
@@ -147,9 +147,9 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpPickUpBottom1,
                         pickUpBottomPose))
                 .setLinearHeadingInterpolation(
-                        Math.toRadians(131),
-                        Math.toRadians(180))
-                .setHeadingConstraint(0.975)
+                        shootTopPose.getHeading(),
+                        pickUpBottomPose.getHeading())
+                .setHeadingConstraint(0.98)
                 .build();
 
         // Line 10: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
@@ -157,7 +157,7 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 new BezierLine(
                         pickUpBottomPose,
                         intakeBottomPose));
-        intakeBottomPath.setConstantHeadingInterpolation(Math.toRadians(180));
+        intakeBottomPath.setConstantHeadingInterpolation(intakeBottomPose.getHeading());
 
         // Line 11: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         shootBottomPath = new Path(
@@ -166,8 +166,8 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpShootBottom1,
                         shootBottomPose));
         shootBottomPath.setLinearHeadingInterpolation(
-                Math.toRadians(180),
-                Math.toRadians(131));
+                intakeBottomPose.getHeading(),
+                shootBottomPose.getHeading());
 
         // Line 12: Park (shootBottomPose -> parkPose), curve, Path
         parkPath = new Path(
@@ -176,8 +176,8 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                         cpPark1,
                         parkPose));
         parkPath.setLinearHeadingInterpolation(
-                Math.toRadians(131),
-                Math.toRadians(0));
+                shootBottomPose.getHeading(),
+                parkPose.getHeading());
     }
 
     @Override
@@ -186,7 +186,13 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
             case 0:
                 // Move to shoot preload
                 follower.followPath(shootPreloadPath);
-                setPathState(100);
+                setPathState(1001); // go to WAIT-before-preload-shoot state
+                break;
+
+            case 1001: // WAIT before shooting preload
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 1.25 sec
+                    setPathState(100);                          // go to real shooting state
+                }
                 break;
 
             case 100:
@@ -230,7 +236,14 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 // Open gate
                 if (!follower.isBusy()) {
                     follower.followPath(openGatePath);
-                    setPathState(4);
+                    pathTimer.resetTimer();
+                    setPathState(35);
+                }
+                break;
+
+            case 35:
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 0.75 sec
+                    setPathState(4);                          // go to real shooting state
                 }
                 break;
 
@@ -238,7 +251,14 @@ public class BlueSideCloseAuto extends PedroBaseAuto {
                 // Move to shoot middle pose
                 if (!follower.isBusy()) {
                     follower.followPath(shootMiddlePath);
-                    setPathState(102); // shooting burst at middle
+                    pathTimer.resetTimer();
+                    setPathState(1021); // WAIT-before-middle-shoot
+                }
+                break;
+
+            case 1021: // WAIT before shooting middle
+                if (pathTimer.getElapsedTimeSeconds() > 1) {   // wait 1 sec
+                    setPathState(102);                          // go to real shooting state
                 }
                 break;
 
