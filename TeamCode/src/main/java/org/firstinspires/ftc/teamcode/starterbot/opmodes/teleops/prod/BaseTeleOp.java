@@ -82,7 +82,7 @@ public abstract class BaseTeleOp extends OpMode {
         } else if (operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.spinToOuttake();
         } else if (!operator.right_bumper && !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.stopIntake();
+            Robot.stopAll();
         }
 
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
@@ -139,14 +139,6 @@ public abstract class BaseTeleOp extends OpMode {
         rx *= dampeningFactor;
 
         Robot.mecanumDrive(y, x, rx);
-    }
-
-    public void twoWheel() {
-        if (turtleMode.get()) {
-            Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
-        } else {
-            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
-        }
     }
 
     public void pedroTeleop() {

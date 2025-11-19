@@ -4,82 +4,89 @@ import static org.firstinspires.ftc.teamcode.starterbot.Robot.switchRampState;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
+import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
-import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
-/**
- * Base class for all Pedro autos using the centralized Robot + Follower setup.
- * Child classes must implement:
- *  - getStartPose()
- *  - buildPaths()
- *  - autonomousPathUpdate()
- */
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+
+
 public abstract class PedroBaseAuto extends OpMode {
-
     protected Follower follower;
-    protected Timer pathTimer;
     protected Timer opmodeTimer;
-    protected int pathState;
-    private boolean prevA = false, prevB = false;
-    protected Alliance alliance = Alliance.BLUE;
+    protected Timer pathTimer;
 
-    // Shooting helper state
+    protected LinkedList<Object> allPaths;
+    protected Map<Object, Double> shotNeeded;
+    protected Set<Object> intakeNeeded;
+    protected int currIndex = 0;
+
+    // intake flags
+    protected boolean intakeActive = false;
+
+    // shooting flags
     protected int shotsToFire = 0;
     protected int shotsFired = 0;
     protected boolean shootingActive = false;
-
-    // blue
-    public static double FAR_SHOOTING_ANGLE_BLUE = Math.toRadians(113.5);
-    public static double CLOSE_SHOOTING_ANGLE_BLUE = Math.toRadians(134);
-
-    // red
-    public static double FIRST_FAR_SHOOTING_ANGLE_RED = Math.toRadians(59.5);
-    public static double LAST_FAR_SHOOTING_ANGLE_RED = Math.toRadians(63);
-    public static double CLOSE_SHOOTING_ANGLE_RED = Math.toRadians(43);
-
-    /** Child must supply the starting pose for this auto (already alliance-mirrored if needed). */
-    protected abstract Pose getStartPose();
-
-    /** Child must build all Paths / PathChains here, using the current alliance. */
-    protected abstract void buildPaths();
-
-    /** Child must implement the path state machine here. */
-    protected abstract void autonomousPathUpdate();
-
-    /** Common helper to change path state + reset path timer. */
-    protected void setPathState(int newState) {
-        pathState = newState;
-        if (pathTimer != null) {
-            pathTimer.resetTimer();
-        }
-    }
-
-    /** Helper for autos that need to know if we're on red side. */
-    protected boolean isRedAlliance() {
-        return alliance == Alliance.RED;
-    }
-
-    // intake helpers
-    protected void startIntake() {
-        Robot.spinToIntake();
-    }
-
-    protected void stopIntake() {
-        Robot.stopIntake();
-    }
-
-    // Shooting helpers
+    protected boolean waitingBeforeShooting = false;
+    protected double currentShotVelocity = 0;
 
     /**
-     * Start a burst of N shots using Robot.launchBasedOnVelocity().
-     * Call only when Robot.launchSequenceState == IDLE.
+     * Child must supply the starting pose for this auto
      */
+    protected abstract Pose getStartPose();
+
+    /**
+     * Child must build all Paths / PathChains here
+     */
+    protected abstract void buildPaths();
+
+    public void autonomousPathUpdate() {
+        if (follower.isBusy() || currIndex >= allPaths.size()) return;
+
+        // if shooting, loop shooting
+        if (shootingActive) {
+            updateShootingSequence();
+            return;
+        }
+
+        // if intaking, loop intake
+        if (intakeActive) {
+            updateIntakeSequence();
+            return;
+        }
+
+        Object step = currentPath();
+
+        // get ready to intake
+        if (intakeNeeded.contains(step)) {
+            beginIntakeSequence(step);
+            return;
+        }
+
+        // if you need to shoot
+        if (shotNeeded.containsKey(step)) {
+            beginShootingSequence(step, shotNeeded.get(step));
+            return;
+        }
+
+        // no actions are needed, just follow the path
+        followPathOrPathChain(step, false);
+
+        // Unknown type, skip it
+        advancePath();
+    }
+
     protected void startShootingBurst(int numShots, double launchVelocityTps) {
         shotsToFire = numShots;
         shotsFired = 0;
@@ -88,12 +95,7 @@ public abstract class PedroBaseAuto extends OpMode {
         Robot.launchBasedOnVelocity(launchVelocityTps);
     }
 
-    /**
-     * Call this every loop while in a "shooting" state.
-     * Returns true when the burst is completely done.
-     */
     protected boolean updateShootingBurst(double launchVelocityTps) {
-        // Keep the current launch sequence progressing
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
 
         if (!shootingActive) {
@@ -105,56 +107,123 @@ public abstract class PedroBaseAuto extends OpMode {
             if (shotsFired >= shotsToFire) {
                 shootingActive = false;
                 switchRampState();
+                // ensure launcher stopped
+                Robot.launchBasedOnVelocity(Constants.ZERO);
                 return true;
             } else {
-                // Start next shot in the burst
+                // start next shot
                 Robot.launchBasedOnVelocity(launchVelocityTps);
             }
         }
         return false;
     }
 
+    // Intake actions
+
+    protected void beginIntakeSequence(Object intakePath) {
+        follower.setMaxPower(0.5);
+        Robot.spinToIntake();
+        followPathOrPathChain(intakePath, true);
+        intakeActive = true;
+    }
+
+    protected void updateIntakeSequence() {
+        if (!intakeActive) return;
+
+        if (!follower.isBusy()) {
+            follower.setMaxPower(1.0);
+            Robot.stopAll();
+            intakeActive = false;
+            advancePath();
+        }
+    }
+
+    // Shooting actions
+
+    protected void beginShootingSequence(Object shootingPath, double velocity) {
+        followPathOrPathChain(shootingPath, false);
+
+        shotsToFire = 3;
+        currentShotVelocity = velocity;
+
+        waitingBeforeShooting = true;
+        pathTimer.resetTimer();          // 1-second settle delay
+    }
+
+    protected void updateShootingSequence() {
+        if (waitingBeforeShooting) {
+            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.0) {
+                waitingBeforeShooting = false;
+
+                Robot.switchRampState();
+                shootingActive = true;
+                shotsFired = 0;
+            }
+            return;
+        }
+
+        if (shootingActive) {
+            Robot.launchBasedOnVelocity(currentShotVelocity);
+
+            if (Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+                shotsFired++;
+
+                if (shotsFired >= shotsToFire) {
+                    shootingActive = false;
+                    Robot.switchRampState();
+                    advancePath();
+                } else {
+                    Robot.launchBasedOnVelocity(currentShotVelocity);
+                }
+            }
+        }
+    }
+
+    protected Object currentPath() {
+        return safeGet(currIndex);
+    }
+
+    protected void advancePath() {
+        currIndex++;
+        pathTimer.resetTimer();
+    }
+
+    protected Object safeGet(int index) {
+        if (index < 0 || index >= allPaths.size()) return null;
+        return allPaths.get(index);
+    }
+
+    protected void followPathOrPathChain(Object toFollow, boolean holdEnd) {
+        if (toFollow instanceof Path) {
+            follower.followPath((Path) toFollow, holdEnd);
+        } else if (toFollow instanceof PathChain) {
+            follower.followPath((PathChain) toFollow, holdEnd);
+        }
+    }
+
     @Override
     public void init() {
         CommonTelemetry.init(telemetry);
+
+        allPaths = new LinkedList<>();
+        shotNeeded = new HashMap<>();
+        intakeNeeded = new HashSet<>();
 
         // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap);
         follower = Robot.follower;
 
-        pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-
-        // IMPORTANT: we NO LONGER build paths or set the starting pose here.
-        // That will be done in start(), AFTER the alliance is selected in init_loop().
-    }
-
-    @Override
-    public void init_loop() {
-        // Alliance selection using gamepad
-        boolean a = gamepad1.a;
-        boolean b = gamepad1.b;
-        if (a && !prevA) alliance = Alliance.RED;
-        if (b && !prevB) alliance = Alliance.BLUE;
-        prevA = a;
-        prevB = b;
-
-        CommonTelemetry.addData("Press B/O", "for BLUE");
-        CommonTelemetry.addData("Press A/X", "for RED");
-        CommonTelemetry.addData("Selected Alliance", alliance);
-        CommonTelemetry.update();
+        pathTimer = new Timer();
+        pathTimer.resetTimer();
     }
 
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-
-        // NOW build paths with the chosen alliance, and set starting pose
         buildPaths();
         follower.setStartingPose(getStartPose());
-
-        setPathState(0);
     }
 
     @Override
@@ -165,17 +234,18 @@ public abstract class PedroBaseAuto extends OpMode {
         // Let child drive the state machine
         autonomousPathUpdate();
 
+        Robot.loop();
+
         // Common Pedro telemetry
-        CommonTelemetry.addData("pathState", pathState);
+        CommonTelemetry.addData("curr index", currIndex);
         CommonTelemetry.addData("x", follower.getPose().getX());
         CommonTelemetry.addData("y", follower.getPose().getY());
         CommonTelemetry.addData("heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
-        CommonTelemetry.addData("Alliance", alliance);
+        CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
+        CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTime());
+        CommonTelemetry.addData("shooting active", shootingActive);
+        CommonTelemetry.addData("shots fired", shotsFired);
+        CommonTelemetry.addData("shots to fire", shotsToFire);
         CommonTelemetry.update();
-    }
-
-    @Override
-    public void stop() {
-        // Usually nothing special; Robot/SDK handles stopping
     }
 }

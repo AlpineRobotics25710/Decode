@@ -201,6 +201,10 @@ public class Robot {
         backRightDrive.setPower(backRightPower);
     }
 
+    public static void driveForward(double power) {
+        mecanumDrive(power, 0, 0);
+    }
+
     public static void spinToIntake() {
         Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY); // intake
         Robot.setIntakePower(Constants.INTAKE_POWER);
@@ -213,7 +217,7 @@ public class Robot {
         Robot.setFeederPower(Constants.FEEDER_POWER);
     }
 
-    public static void stopIntake() {
+    public static void stopAll() {
         Robot.launcher.setVelocity(Constants.ZERO);
         Robot.setIntakePower(Constants.ZERO);
         Robot.setFeederPower(Constants.ZERO);
