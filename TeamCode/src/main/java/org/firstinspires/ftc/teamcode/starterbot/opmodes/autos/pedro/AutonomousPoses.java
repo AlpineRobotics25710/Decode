@@ -76,32 +76,30 @@ class RedFarPoses {
 
 @Configurable
 class BlueClosePoses {
-    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(43);
-    
-    // Heading 323.5° to match first real segment
-    public static Pose startPose = new Pose(21, 122, Math.toRadians(323.5));
+    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(134);
 
-    public static final Pose shootPreloadPose = new Pose(60, 83.5, CLOSE_SHOOTING_ANGLE); // line 1
-    public static final Pose pickUpMiddlePose = new Pose(45, 60, Math.toRadians(180)); // line 2
-    public static final Pose intakeMiddlePose = new Pose(17.5, 60, Math.toRadians(180)); // line 3
-    public static final Pose openGatePose = new Pose(15, 70.5, Math.toRadians(0));   // line 4
-    public static final Pose shootMiddlePose = new Pose(60, 84, CLOSE_SHOOTING_ANGLE); // line 5
-    public static final Pose pickUpTopPose = new Pose(45, 84, Math.toRadians(180)); // line 6
-    public static final Pose intakeTopPose = new Pose(17.5, 84, Math.toRadians(180)); // line 7
-    public static final Pose shootTopPose = new Pose(60, 84, CLOSE_SHOOTING_ANGLE); // line 8
-    public static final Pose pickUpBottomPose = new Pose(45, 36, Math.toRadians(180)); // line 9
-    public static final Pose intakeBottomPose = new Pose(22, 36, Math.toRadians(180)); // line 10
-    public static final Pose shootBottomPose = new Pose(60, 84, CLOSE_SHOOTING_ANGLE); // line 11
-    public static final Pose parkPose = new Pose(20, 70, Math.toRadians(0));   // line 12
+    // Global start pose (Blue coordinates)
+    public static final Pose startPose = new Pose(21, 122, Math.toRadians(143.5));
 
-    // Control points
-    public static final Pose cpShootPreload1 = new Pose(62.75, 107.75, 0); // line 1
-    public static final Pose cpPickUpMiddle1 = new Pose(64, 63, 0); // line 2
-    public static final Pose cpOpenGate1 = new Pose(51, 58, 0); // line 4
-    public static final Pose cpOpenGate2 = new Pose(59.25, 70, 0); // line 4
-    public static final Pose cpShootMiddle1 = new Pose(60, 67.25, 0); // line 5
-    public static final Pose cpShootTop1 = new Pose(53, 68.25, 0); // line 8
-    public static final Pose cpPickUpBottom1 = new Pose(60, 34, 0); // line 9
-    public static final Pose cpShootBottom1 = new Pose(58, 56, 0); // line 11
-    public static final Pose cpPark1 = new Pose(54.5, 69, 0); // line 12
+    public static final Pose shootPreloadPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);                         // line 0
+    public static final Pose pickUpMiddlePose = new Pose(50, 58.5, Math.toRadians(180));                        // line 1
+    public static final Pose intakeMiddlePose = new Pose(16, 58.5, Math.toRadians(180));                        // line 2
+    public static final Pose openGatePose = new Pose(15, 70.5, Math.toRadians(0));                          // line 3
+    public static final Pose shootMiddlePose = new Pose(56, 84, CLOSE_SHOOTING_ANGLE); // line 4
+    public static final Pose pickUpTopPose = new Pose(50, 83, Math.toRadians(180));                        // line 5
+    public static final Pose intakeTopPose = new Pose(15.5, 83, Math.toRadians(180));                        // line 6
+    public static final Pose shootTopPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);                       // line 7
+    public static final Pose pickUpBottomPose = new Pose(50, 35, Math.toRadians(180));                        // line 8
+    public static final Pose intakeBottomPose = new Pose(14.5, 35, Math.toRadians(180));                        // line 9
+    public static final Pose shootBottomPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);                         // line 10
+    public static final Pose parkPose = new Pose(35, 80, Math.toRadians(180));                          // line 11
+
+    // Control points (Blue coordinates)
+    public static final Pose cpPickUpMiddle1 = new Pose(58, 70); // line 1
+    public static final Pose cpOpenGate1 = new Pose(51, 58); // line 3
+    public static final Pose cpOpenGate2 = new Pose(58.5, 64); // line 3
+    public static final Pose cpShootMiddle1 = new Pose(60, 67.25); // line 4
+    public static final Pose cpShootTop1 = new Pose(49, 92); // line 7
+    public static final Pose cpPickUpBottom1 = new Pose(66, 57); // line 8
+    public static final Pose cpShootBottom1 = new Pose(53, 48); // line 10
 }
