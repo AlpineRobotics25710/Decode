@@ -103,16 +103,16 @@ public class PreloadAuto extends OpMode {
 
             case DRIVING: {
                 if (driveTimer.milliseconds() <= DRIVE_TIME_MS) {
-                    Robot.driveForward(0.6);
+                    Robot.mecanumDrive(0.6, 0, 0);
                 } else {
-                    Robot.driveForward(0);
+                    Robot.mecanumDrive(0, 0, 0);
                     state = AutoState.DONE;
                 }
                 break;
             }
 
             case DONE: {
-                Robot.driveForward(0.0);
+                Robot.mecanumDrive(0.0, 0, 0);
                 Robot.launcher.setVelocity(Constants.ZERO);
                 break;
             }
