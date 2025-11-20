@@ -1,12 +1,13 @@
-package org.firstinspires.ftc.teamcode.starterbot.opmode.teleop;
+package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.prod;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
-import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 import java.util.function.Supplier;
 
@@ -15,6 +16,8 @@ public abstract class BaseTeleOp extends OpMode {
     protected Gamepad operator;
 
     protected Supplier<Boolean> turtleMode;
+    protected boolean robotCentric = true;
+    protected boolean useBrakeMode = true;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -23,6 +26,8 @@ public abstract class BaseTeleOp extends OpMode {
     public void init() {
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
+        Robot.follower.setStartingPose(new Pose());
+        Robot.follower.update();
         initGamepads();
     }
 
@@ -47,6 +52,7 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void start() {
+        Robot.follower.startTeleopDrive(useBrakeMode);
     }
 
     @Override
@@ -61,8 +67,8 @@ public abstract class BaseTeleOp extends OpMode {
          * more complex maneuvers.
          */
 
-        // twoWheel(); // robot currently uses 2 wheel arcade drive
-        mecanum();
+        // mecanum();
+        pedroTeleop(); // really jittery right now, probably needs to be tuned
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
@@ -72,17 +78,11 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchBasedOnVelocity(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
-            Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY);
-            Robot.setIntakePower(Constants.INTAKE_POWER);
-            Robot.setFeederPower(-Constants.FEEDER_POWER);
+            Robot.spinToIntake();
         } else if (operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY);
-            Robot.setIntakePower(-Constants.INTAKE_POWER);
-            Robot.setFeederPower(Constants.FEEDER_POWER);
+            Robot.spinToOuttake();
         } else if (!operator.right_bumper && !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.launcher.setVelocity(Constants.ZERO);
-            Robot.setIntakePower(Constants.ZERO);
-            Robot.setFeederPower(Constants.ZERO);
+            Robot.stopIntake();
         }
 
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
@@ -121,11 +121,15 @@ public abstract class BaseTeleOp extends OpMode {
          */
         // Set this value to something new to see if the code is updating on the control hub
         CommonTelemetry.addData("code", "updated");
+        CommonTelemetry.addData("Driver Left Stick X value: ", driver.left_stick_x);
+        CommonTelemetry.addData("Driver Left Stick Y value: ", driver.left_stick_y);
+        CommonTelemetry.addData("Driver Right Stick X value: ", driver.right_stick_x);
+
         CommonTelemetry.update();
     }
 
     public void mecanum() {
-        double y = -driver.left_stick_y; // Remember, Y stick value is reversed
+        double y = -driver.left_stick_y; // Remember, Y stick is reversed!
         double x = driver.left_stick_x * 1.1; // Counteract imperfect strafing
         double rx = driver.right_stick_x;
 
@@ -137,11 +141,29 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.mecanumDrive(y, x, rx);
     }
 
-    public void twoWheel(Gamepad driver) {
+    public void twoWheel() {
         if (turtleMode.get()) {
             Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
         } else {
             Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
+        }
+    }
+
+    public void pedroTeleop() {
+        if (turtleMode.get()) {
+            Robot.follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y * (Constants.TURTLE),
+                    -gamepad1.left_stick_x * (Constants.TURTLE),
+                    -gamepad1.right_stick_x * (Constants.TURTLE),
+                    robotCentric // Robot Centric
+            );
+        } else {
+            Robot.follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x,
+                    robotCentric // Robot Centric
+            );
         }
     }
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.starterbot;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -38,12 +39,13 @@ public class Robot {
     public static Servo blocker;
 
     // States(Enums)
-    static RampState rampState;
-    static BlockerState blockerState;
+    public static RampState rampState;
+    public static BlockerState blockerState;
     public static LaunchSequenceState launchSequenceState;
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
-
     private static long stateStartTime;
+    // Pedro
+    public static Follower follower;
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -55,8 +57,8 @@ public class Robot {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step.
          */
-        //init2WheelDrive(hardwareMap); // robot is currently using 2 wheel arcade drive
-        initMecanumDrive(hardwareMap); // TODO: Uncomment when drivetrain is switched to mecanum wheels
+        //init2WheelDrive(hardwareMap); // Uncomment when drivetrain is using 2 wheel arcade drive
+        initMecanumDrive(hardwareMap); // Robot is currently using mecanum drive
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "LF");
@@ -83,8 +85,6 @@ public class Robot {
          * slow down much faster when it is coasting. This creates a much more controllable
          * drivetrain. As the robot stops much quicker.
          */
-        leftDrive.setZeroPowerBehavior(BRAKE);
-        rightDrive.setZeroPowerBehavior(BRAKE);
         launcher.setZeroPowerBehavior(BRAKE);
 
         /*
@@ -107,26 +107,13 @@ public class Robot {
          */
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        // Init follower
+        follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
+
         /*
          * Tell the driver that initialization is complete.
          */
         CommonTelemetry.addData("Status", "Initialized");
-    }
-
-    private static void init2WheelDrive(HardwareMap hardwareMap) {
-        // use this method ONLY if drivetrain uses 2 powered non-mecanum wheels
-        leftDrive = hardwareMap.get(DcMotor.class, "LD");
-        rightDrive = hardwareMap.get(DcMotor.class, "RD");
-
-        /*
-         * To drive forward, most robots need the motor on one side to be reversed,
-         * because the axles point in opposite directions. Pushing the left stick forward
-         * MUST make robot go forward. So adjust these two lines based on your first test drive.
-         * Note: The settings here assume direct drive on left and right wheels. Gear
-         * Reduction or 90 Deg drives may require direction flips
-         */
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public static void initMecanumDrive(HardwareMap hardwareMap) {
@@ -136,15 +123,23 @@ public class Robot {
         backRightDrive = hardwareMap.get(DcMotor.class, "BR");
         backLeftDrive = hardwareMap.get(DcMotor.class, "BL");
 
-        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
-        backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
-        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
-        backRightDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
+        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
+
+        frontLeftDrive.setZeroPowerBehavior(BRAKE);
+        frontRightDrive.setZeroPowerBehavior(BRAKE);
+        backRightDrive.setZeroPowerBehavior(BRAKE);
+        backLeftDrive.setZeroPowerBehavior(BRAKE);
     }
 
     public static void loop() {
-        CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
-        CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
+        //CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
+        //CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
+
+        // Follower
+        follower.update();
 
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
@@ -188,41 +183,40 @@ public class Robot {
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+
         double frontLeftPower = (y + x + rx) / denominator;
         double backLeftPower = (y - x + rx) / denominator;
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
+        CommonTelemetry.addData("Front Left Power: ", frontLeftPower);
+        CommonTelemetry.addData("Back Left Power: ", backLeftPower);
+        CommonTelemetry.addData("Front Right Power: ", frontRightPower);
+        CommonTelemetry.addData("Back Right Power: ", backRightPower);
+
         // Send powers to the wheels.
         frontLeftDrive.setPower(frontLeftPower);
-        frontRightDrive.setPower(frontRightPower);
         backLeftDrive.setPower(backLeftPower);
+        frontRightDrive.setPower(frontRightPower);
         backRightDrive.setPower(backRightPower);
     }
 
-    // Helpers for Auto
-    public static void stopDrive() {
-        mecanumDrive(0, 0, 0);
+    public static void spinToIntake() {
+        Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY); // intake
+        Robot.setIntakePower(Constants.INTAKE_POWER);
+        Robot.setFeederPower(-Constants.FEEDER_POWER);
     }
 
-    public static void driveForward(double p) {
-        mecanumDrive(p, 0, 0);
+    public static void spinToOuttake() {
+        Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY); // outtake
+        Robot.setIntakePower(-Constants.INTAKE_POWER);
+        Robot.setFeederPower(Constants.FEEDER_POWER);
     }
 
-    public static void strafeRight(double p) {
-        mecanumDrive(0, p, 0);
-    }
-
-    public static void rotateRight(double p) {
-        mecanumDrive(0, 0, p);
-    }
-
-    public static void strafeLeft(double p) {
-        mecanumDrive(0, -p, 0);
-    }
-
-    public static void rotateLeft(double p) {
-        mecanumDrive(0, 0, -p);
+    public static void stopIntake() {
+        Robot.launcher.setVelocity(Constants.ZERO);
+        Robot.setIntakePower(Constants.ZERO);
+        Robot.setFeederPower(Constants.ZERO);
     }
 
     public static void switchRampState() {
@@ -250,39 +244,6 @@ public class Robot {
             case CLOSED:
                 blocker.setPosition(Constants.BLOCKER_OPEN);
                 blockerState = BlockerState.OPEN;
-                break;
-        }
-    }
-
-    public static void launchTimeDelay(double launcherVelocity) {
-        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.launcher.setVelocity(launcherVelocity);
-            launchSequenceState = LaunchSequenceState.SPINNING_UP;
-            stateStartTime = System.currentTimeMillis();
-        }
-
-        switch (launchSequenceState) {
-            case SPINNING_UP:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_DELAY_MS) {
-                    Robot.setFeederPower(Constants.FEEDER_POWER);
-                    launchSequenceState = LaunchSequenceState.FEEDING;
-                    stateStartTime = System.currentTimeMillis();
-                }
-                break;
-
-            case FEEDING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
-                    Robot.setFeederPower(Constants.ZERO);
-                    stateStartTime = System.currentTimeMillis();
-                    launchSequenceState = LaunchSequenceState.SHOOTING;
-                }
-                break;
-
-            case SHOOTING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(Constants.ZERO);
-                    launchSequenceState = LaunchSequenceState.IDLE;
-                }
                 break;
         }
     }
