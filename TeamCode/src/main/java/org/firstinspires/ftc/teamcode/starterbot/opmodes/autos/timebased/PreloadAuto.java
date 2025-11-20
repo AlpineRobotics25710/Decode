@@ -5,11 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
-import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 @Configurable
 @Autonomous(name = "Preload Auto", group = "Time-Based Auto")
@@ -17,18 +17,12 @@ public class PreloadAuto extends OpMode {
     public static int TOTAL_SHOTS = 3;
     public static long DRIVE_TIME_MS = 250;
     public static long SHOT_COOLDOWN_MS = 250; // small debounce between shots
-
-    private enum AutoState {SHOOTING, DRIVING, DONE}
-
+    private final ElapsedTime driveTimer = new ElapsedTime();
+    private final ElapsedTime shotCooldown = new ElapsedTime();
     private AutoState state;
-
     private int shotsFired;
     private boolean shotInFlight;          // true after we command a shot, until launcher returns to IDLE
     private LaunchSequenceState prevLaunchState;
-
-    private final ElapsedTime driveTimer = new ElapsedTime();
-    private final ElapsedTime shotCooldown = new ElapsedTime();
-
     private Alliance alliance = Alliance.RED;
     private boolean prevA = false, prevB = false;
 
@@ -129,4 +123,6 @@ public class PreloadAuto extends OpMode {
         telemetry.addData("Drive Timer (ms)", (int) driveTimer.milliseconds());
         telemetry.update();
     }
+
+    private enum AutoState {SHOOTING, DRIVING, DONE}
 }

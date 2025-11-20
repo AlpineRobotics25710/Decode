@@ -42,10 +42,10 @@ public class Robot {
     public static RampState rampState;
     public static BlockerState blockerState;
     public static LaunchSequenceState launchSequenceState;
-    private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
-    private static long stateStartTime;
     // Pedro
     public static Follower follower;
+    private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
+    private static long stateStartTime;
 
     // Prevent instantiation from other classes.
     private Robot() {

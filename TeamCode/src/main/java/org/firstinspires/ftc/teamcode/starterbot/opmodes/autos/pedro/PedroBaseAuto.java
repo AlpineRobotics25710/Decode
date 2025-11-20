@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 
-import static org.firstinspires.ftc.teamcode.starterbot.Robot.switchRampState;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -10,7 +8,6 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
-import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
@@ -76,7 +73,10 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // if you need to shoot
         if (shotNeeded.containsKey(step)) {
-            beginShootingSequence(step, shotNeeded.get(step));
+            Double velocity = shotNeeded.get(step);
+            if (velocity != null) { // ensure not null
+                beginShootingSequence(step, velocity);
+            }
             return;
         }
 
@@ -85,37 +85,6 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // Unknown type, skip it
         advancePath();
-    }
-
-    protected void startShootingBurst(int numShots, double launchVelocityTps) {
-        shotsToFire = numShots;
-        shotsFired = 0;
-        shootingActive = true;
-        switchRampState();
-        Robot.launchBasedOnVelocity(launchVelocityTps);
-    }
-
-    protected boolean updateShootingBurst(double launchVelocityTps) {
-        Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
-
-        if (!shootingActive) {
-            return true;
-        }
-
-        if (Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            shotsFired++;
-            if (shotsFired >= shotsToFire) {
-                shootingActive = false;
-                switchRampState();
-                // ensure launcher stopped
-                Robot.launchBasedOnVelocity(Constants.ZERO);
-                return true;
-            } else {
-                // start next shot
-                Robot.launchBasedOnVelocity(launchVelocityTps);
-            }
-        }
-        return false;
     }
 
     // Intake actions
@@ -145,7 +114,6 @@ public abstract class PedroBaseAuto extends OpMode {
 
         shotsToFire = 3;
         currentShotVelocity = velocity;
-
         waitingBeforeShooting = true;
         pathTimer.resetTimer();          // 1-second settle delay
     }
