@@ -29,10 +29,11 @@ public abstract class BaseTeleOp extends OpMode {
 
     protected enum Alliance {BLUE, RED}
 
-    // Poses (x, y, heading) – heading is ALWAYS in radians
-    protected Pose closeShootPose = new Pose(88, 88, CLOSE_SHOOTING_ANGLE_RED); // Red Side Close Shooting Pose by default
-    protected double parkHeading = Math.toRadians(90); // radians
-    protected Pose parkPose = new Pose(38.75, 33.25, parkHeading); // Red Side Park Pose by default
+    // Should probably add these and other poses to their own constants class later, but just here for now
+    protected final Pose closeShootPoseBlue = new Pose(56,84, CLOSE_SHOOTING_ANGLE_BLUE);
+    protected final Pose closeShootPoseRed = new Pose(88,88, CLOSE_SHOOTING_ANGLE_RED);
+    protected Pose parkPoseBlue = new Pose(107.25, 0, 0); // TODO: Need to find real values
+    protected Pose parkPoseRed = new Pose(38.75, 33.25, 0); // TODO: Need to find real values
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -44,8 +45,6 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.follower.setStartingPose(new Pose());
         Robot.follower.update();
         initGamepads();
-
-        alliance = Alliance.RED; // red by default
     }
 
     /**
@@ -59,19 +58,9 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (driver.aWasPressed() && alliance != Alliance.BLUE) {
-            parkPose.mirror();
-            closeShootPose.mirror();
-            closeShootPose = closeShootPose.withHeading(CLOSE_SHOOTING_ANGLE_BLUE);
-            alliance = Alliance.BLUE;
-        }
-
-        if (driver.bWasPressed() && alliance != Alliance.RED) {
-            parkPose.mirror();
-            closeShootPose.mirror();
-            closeShootPose = closeShootPose.withHeading(CLOSE_SHOOTING_ANGLE_RED);
-            alliance = Alliance.RED;
-        }
+        alliance = Alliance.BLUE; // blue by default
+        if (driver.aWasPressed()) alliance = Alliance.BLUE;
+        if (driver.bWasPressed()) alliance = Alliance.RED;
 
         CommonTelemetry.addData("Press A", "for BLUE");
         CommonTelemetry.addData("Press B", "for RED");
@@ -90,46 +79,45 @@ public abstract class BaseTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        // 1) Sync our flag with Pedro's actual state
+        /*
+         * Here we call a function called arcadeDrive. The arcadeDrive function takes the input from
+         * the joysticks, and applies power to the left and right drive motor to move the robot
+         * as requested by the driver. "arcade" refers to the control style we're using here.
+         * Much like a classic arcade game, when you move the left joystick forward both motors
+         * work to drive the robot forward, and when you move the right joystick left and right
+         * both motors work to rotate the robot. Combinations of these inputs can be used to create
+         * more complex maneuvers.
+         */
+
+        // this line needs to be first so that you can't control the robot when it is autonomously driving
         autonomousDriving = Robot.follower.isBusy();
 
-        // 2) Allow either driver or operator to cancel following if something goes wrong
+        // break following if something goes wrong
         if ((driver.aWasPressed() || operator.dpadUpWasPressed()) && autonomousDriving) { // driver or operator can break following
             Robot.follower.breakFollowing();
             autonomousDriving = false;
         }
 
-        // 3) Handle waypoint requests ONLY when not currently auto-driving
-
-        // Line to close shooting pose from current pose
         if (!autonomousDriving && driver.dpadUpWasPressed()) {
-            lineToPose(closeShootPose);
-            autonomousDriving = true; // block TeleOp drive this loop as we just started a path
+            lineToPose(alliance == Alliance.BLUE ? closeShootPoseBlue : closeShootPoseRed);
         }
 
-        // Line to park pose from current pose
         if (!autonomousDriving && driver.dpadDownWasPressed()) {
-            // Decide whether to park facing +Y (90) or -Y (270) based on current heading
-            double currentHeading = Robot.follower.getHeading(); // radians
-
-            if (currentHeading > Math.PI) {
-                parkHeading = Math.toRadians(270);
-            } else {
-                parkHeading = Math.toRadians(90);
+            double desiredHeading = Math.toRadians(90);
+            if (Robot.follower.getHeading() > Math.PI) {
+                desiredHeading = Math.toRadians(270);
             }
-
-            parkPose = parkPose.withHeading(parkHeading);
-            lineToPose(parkPose);
-            autonomousDriving = true; // block TeleOp drive this loop as we just started a path
+            parkPoseBlue = parkPoseBlue.withHeading(desiredHeading);
+            parkPoseRed = parkPoseRed.withHeading(desiredHeading);
+            lineToPose(alliance == Alliance.BLUE ? parkPoseBlue : parkPoseRed);
         }
 
-        // 4) Manual TeleOp drive ONLY when not following a path
         if (!autonomousDriving) {
             // mecanum();
-            pedroTeleop();
+            pedroTeleop(); // really jittery right now, probably needs to be tuned
         }
 
-        // 5) Launcher controls
+        // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
             Robot.setIntakePower(Constants.ZERO); // turn off intake
             Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
@@ -146,6 +134,17 @@ public abstract class BaseTeleOp extends OpMode {
 
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
 
+        /*
+         * TECH TIP: State Machines
+         * We use a "state machine" to control our launcher motor and feeder servos in this program.
+         * The first step of a state machine is creating an enum that captures the different "states"
+         * that our code can be in.
+         * The core advantage of a state machine is that it allows us to continue to loop through all
+         * of our code while only running specific code when it's necessary. We can continuously check
+         * what "State" our machine is in, run the associated code, and when we are done with that step
+         * move on to the next state.
+         */
+
         // Calling State Machine for Hinge/Ramp state
         if (operator.xWasPressed()) {
             Robot.switchRampState();
@@ -156,18 +155,23 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.switchBlockerState();
         }
 
+        // Intake controls (can change later)
+        // Right trigger rotates forward, left trigger rotates backwards
+        // By subtracting, you're able to prevent them from fighting to give power to the motor
+        //Robot.setIntakePower(operator.right_trigger - operator.left_trigger);
+
         // Loop the robot
         Robot.loop();
 
         /*
          * Show the state and motor powers
          */
+        // Set this value to something new to see if the code is updating on the control hub
         CommonTelemetry.addData("code", "updated");
         CommonTelemetry.addData("Driver Left Stick X value: ", driver.left_stick_x);
         CommonTelemetry.addData("Driver Left Stick Y value: ", driver.left_stick_y);
-        CommonTelemetry.addData("Driver Right Stick X value: ", driver.right_stick_y);
         CommonTelemetry.addData("Driver Right Stick X value: ", driver.right_stick_x);
-        CommonTelemetry.addData("autonomousDriving", autonomousDriving);
+        CommonTelemetry.addData("autonomous driving", autonomousDriving);
 
         CommonTelemetry.update();
     }
@@ -185,35 +189,38 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.mecanumDrive(y, x, rx);
     }
 
-    // Lines to the desired pose from the current pose with a linear heading interpolation
+    public void twoWheel() {
+        if (turtleMode.get()) {
+            Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
+        } else {
+            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
+        }
+    }
+
+    // lines to the desired pose from the current pose with a linear heading interpolation
     public void lineToPose(Pose desiredPose) {
-        Pose currentPose = Robot.follower.getPose();
-        double currentHeading = Robot.follower.getHeading();
-
-        Path path = new Path(new BezierLine(currentPose, desiredPose));
-        path.setLinearHeadingInterpolation(currentHeading, desiredPose.getHeading());
-
-        // We do NOT touch autonomousDriving here
+        Path path = new Path(new BezierLine(Robot.follower.getPose(), desiredPose));
+        path.setLinearHeadingInterpolation(Robot.follower.getHeading(), desiredPose.getHeading());
+        autonomousDriving = true;
         Robot.follower.followPath(path);
     }
 
     public void pedroTeleop() {
-        double y = -driver.left_stick_y;
-        double x = -driver.left_stick_x;
-        double rx = -driver.right_stick_x;
-
         if (turtleMode.get()) {
-            y *= Constants.TURTLE;
-            x *= Constants.TURTLE;
-            rx *= Constants.TURTLE;
+            Robot.follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y * (Constants.TURTLE),
+                    -gamepad1.left_stick_x * (Constants.TURTLE),
+                    -gamepad1.right_stick_x * (Constants.TURTLE),
+                    robotCentric // Robot Centric
+            );
+        } else {
+            Robot.follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x,
+                    robotCentric // Robot Centric
+            );
         }
-
-        Robot.follower.setTeleOpDrive(
-                y,
-                x,
-                rx,
-                robotCentric // Robot Centric
-        );
     }
 
     /*
