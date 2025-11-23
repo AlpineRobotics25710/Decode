@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
-@Autonomous(name = "Far Side Red", group = "Pedro Autos")
+@Autonomous(name = "Far Side Red", group = "pedro")
 public class FarSideRed extends PedroBaseAuto {
     @Override
     protected Pose getStartPose() {
@@ -38,7 +38,6 @@ public class FarSideRed extends PedroBaseAuto {
                         RedFarPoses.shootPreloadPose.getHeading(),     // startDeg line 1
                         RedFarPoses.pickUpMiddlePose.getHeading(),      // endDeg line 1
                         0.65)
-                .setHeadingConstraint(0.98)
                 .build();
         allPaths.add(pickUpMiddleChain);
 
@@ -75,7 +74,6 @@ public class FarSideRed extends PedroBaseAuto {
                 RedFarPoses.openGatePose.getHeading(),
                 RedFarPoses.shootMiddlePose.getHeading(),
                 0.65);
-        shootMiddlePath.setHeadingConstraint(0.985);
         allPaths.add(shootMiddlePath);
         shotNeeded.put(shootMiddlePath, Constants.LAUNCHER_CLOSE_VELOCITY);
 
@@ -89,7 +87,6 @@ public class FarSideRed extends PedroBaseAuto {
                         RedFarPoses.shootMiddlePose.getHeading(),
                         RedFarPoses.pickUpTopPose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.98)
                 .build();
         allPaths.add(pickUpTopChain);
 
@@ -126,7 +123,6 @@ public class FarSideRed extends PedroBaseAuto {
                         RedFarPoses.shootTopPose.getHeading(),
                         RedFarPoses.pickUpBottomPose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.98)
                 .build();
         allPaths.add(pickUpBottomChain);
 

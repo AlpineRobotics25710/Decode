@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 @Configurable
-@Autonomous(name = "Preload Auto", group = "Time-Based Auto")
+@Autonomous(name = "Preload Auto", group = "timebased")
 public class PreloadAuto extends OpMode {
     public static int TOTAL_SHOTS = 3;
     public static long DRIVE_TIME_MS = 250;

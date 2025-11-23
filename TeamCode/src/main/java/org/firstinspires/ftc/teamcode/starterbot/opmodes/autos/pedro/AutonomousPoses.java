@@ -8,8 +8,8 @@ class BlueFarPoses {
     // BLUE-SIDE TEMPLATE POSES
 
     // blue
-    public static double FAR_SHOOTING_ANGLE = Math.toRadians(113.5);
-    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(134);
+    public static double FAR_SHOOTING_ANGLE = Math.toRadians(120);
+    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(136);
 
     // Global start pose (Blue coordinates)
     public static final Pose startPose = new Pose(56.5, 8.75, Math.toRadians(90));

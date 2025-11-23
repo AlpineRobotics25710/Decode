@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 
 @Configurable
-@Autonomous(name = "Goal Side Auto")
+@Autonomous(name = "Goal Side Auto", group = "timebased")
 public class GoalSideAuto extends OpMode {
     public static int TOTAL_SHOTS = 3;
     public static long DRIVE_TO_LAUNCH_TIME_MS = 1500;

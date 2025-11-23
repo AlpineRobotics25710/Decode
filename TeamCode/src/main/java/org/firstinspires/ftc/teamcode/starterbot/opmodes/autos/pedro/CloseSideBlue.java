@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 
-@Autonomous(name = "Blue Side Close Auto", group = "prod")
+@Autonomous(name = "Blue Side Close Auto", group = "pedro")
 public class CloseSideBlue extends PedroBaseAuto {
     @Override
     protected Pose getStartPose() {
@@ -39,7 +39,6 @@ public class CloseSideBlue extends PedroBaseAuto {
                         BlueClosePoses.shootPreloadPose.getHeading(),
                         BlueClosePoses.pickUpMiddlePose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.98)
                 .build();
         allPaths.add(pickUpMiddleChain);
 
@@ -73,7 +72,6 @@ public class CloseSideBlue extends PedroBaseAuto {
                 BlueClosePoses.openGatePose.getHeading(),
                 BlueClosePoses.shootMiddlePose.getHeading(),
                 0.65);
-        shootMiddlePath.setHeadingConstraint(0.985);
         allPaths.add(shootMiddlePath);
         shotNeeded.put(shootMiddlePath, Constants.LAUNCHER_CLOSE_VELOCITY);
 
@@ -86,7 +84,6 @@ public class CloseSideBlue extends PedroBaseAuto {
                         BlueClosePoses.shootMiddlePose.getHeading(),
                         BlueClosePoses.pickUpTopPose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.98)
                 .build();
         allPaths.add(pickUpTopChain);
 
@@ -120,7 +117,6 @@ public class CloseSideBlue extends PedroBaseAuto {
                         BlueClosePoses.shootTopPose.getHeading(),
                         BlueClosePoses.pickUpBottomPose.getHeading(),
                         0.65)
-                .setHeadingConstraint(0.98)
                 .build();
         allPaths.add(pickUpBottomChain);
 

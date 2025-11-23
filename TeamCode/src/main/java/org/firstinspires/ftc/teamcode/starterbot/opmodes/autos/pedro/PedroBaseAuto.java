@@ -49,10 +49,10 @@ public abstract class PedroBaseAuto extends OpMode {
     protected abstract void buildPaths();
 
     public void autonomousPathUpdate() {
-        if (follower.isBusy() || currIndex >= allPaths.size()) return;
+        //if (follower.isBusy() || currIndex >= allPaths.size()) return;
 
         // if shooting, loop shooting
-        if (shootingActive) {
+        if (waitingBeforeShooting || shootingActive) {
             updateShootingSequence();
             return;
         }
@@ -60,6 +60,15 @@ public abstract class PedroBaseAuto extends OpMode {
         // if intaking, loop intake
         if (intakeActive) {
             updateIntakeSequence();
+            return;
+        }
+
+        // block new paths if busy or if all paths are done
+        if (follower.isBusy()) {
+            return;
+        }
+
+        if (currIndex >= allPaths.size()) {
             return;
         }
 
@@ -80,10 +89,8 @@ public abstract class PedroBaseAuto extends OpMode {
             return;
         }
 
-        // no actions are needed, just follow the path
+        // follow regular path
         followPathOrPathChain(step, false);
-
-        // Unknown type, skip it
         advancePath();
     }
 
@@ -110,17 +117,19 @@ public abstract class PedroBaseAuto extends OpMode {
     // Shooting actions
 
     protected void beginShootingSequence(Object shootingPath, double velocity) {
-        followPathOrPathChain(shootingPath, false);
+        followPathOrPathChain(shootingPath, true);
 
         shotsToFire = 3;
+        shotsFired = 0;
         currentShotVelocity = velocity;
         waitingBeforeShooting = true;
+        shootingActive = false;
         pathTimer.resetTimer();          // 1-second settle delay
     }
 
     protected void updateShootingSequence() {
         if (waitingBeforeShooting) {
-            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.0) {
+            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0.5) {
                 waitingBeforeShooting = false;
 
                 Robot.switchRampState();
@@ -185,6 +194,9 @@ public abstract class PedroBaseAuto extends OpMode {
         opmodeTimer.resetTimer();
         pathTimer = new Timer();
         pathTimer.resetTimer();
+
+        CommonTelemetry.addData("Autonomous", "initialized");
+        CommonTelemetry.update();
     }
 
     @Override
@@ -206,14 +218,20 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // Common Pedro telemetry
         CommonTelemetry.addData("curr index", currIndex);
-        CommonTelemetry.addData("x", follower.getPose().getX());
-        CommonTelemetry.addData("y", follower.getPose().getY());
-        CommonTelemetry.addData("heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
-        CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
-        CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTime());
+        CommonTelemetry.addData("intake active", intakeActive);
+        CommonTelemetry.addData("Waiting before shooting", waitingBeforeShooting);
         CommonTelemetry.addData("shooting active", shootingActive);
         CommonTelemetry.addData("shots fired", shotsFired);
         CommonTelemetry.addData("shots to fire", shotsToFire);
+        CommonTelemetry.addData("follower busy", follower.isBusy());
+        CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
+        CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTime());
+        CommonTelemetry.addData("x", follower.getPose().getX());
+        CommonTelemetry.addData("y", follower.getPose().getY());
+        CommonTelemetry.addData("curr heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
+        CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
+        CommonTelemetry.addData("heading error (rad)", follower.getHeadingError());
+        CommonTelemetry.addData("heading constraint (rad)", follower.getConstraints().getHeadingConstraint());
         CommonTelemetry.update();
     }
 }

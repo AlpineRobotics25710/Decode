@@ -109,11 +109,13 @@ public class Robot {
 
         // Init follower
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
+        CommonTelemetry.addData("follower heading constraint", follower.getConstraints().getHeadingConstraint());
 
         /*
          * Tell the driver that initialization is complete.
          */
         CommonTelemetry.addData("Status", "Initialized");
+        CommonTelemetry.addData("Branch", "restructure");
     }
 
     public static void initMecanumDrive(HardwareMap hardwareMap) {
