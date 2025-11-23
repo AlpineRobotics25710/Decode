@@ -25,7 +25,7 @@ public abstract class BaseTeleOp extends OpMode {
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
-    protected Pose parkPoseRed = new Pose(56, 36, 0); // TODO: Need to find real values
+    protected Pose parkPoseRed = new Pose(37, 32, 90); // TODO: Need to find real values
     protected Pose parkPoseBlue = parkPoseRed.mirror(); // TODO: Need to find real values
 
     /*
@@ -78,12 +78,14 @@ public abstract class BaseTeleOp extends OpMode {
         if (prevAutonomousDriving && !autonomousDriving) {
             CommonTelemetry.addData("breaking", "following");
             Robot.follower.breakFollowing();
+            Robot.follower.startTeleopDrive(true);
         }
 
         // break following if something goes wrong
         if ((driver.aWasPressed() || operator.dpadUpWasPressed()) && autonomousDriving) { // driver or operator can break following
             Robot.follower.breakFollowing();
             autonomousDriving = false;
+            Robot.follower.startTeleopDrive(true);
         }
 
         if (!autonomousDriving && driver.dpadUpWasPressed()) {
