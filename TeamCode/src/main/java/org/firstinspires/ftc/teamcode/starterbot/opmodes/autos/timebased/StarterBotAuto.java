@@ -60,7 +60,7 @@ import org.firstinspires.ftc.teamcode.starterbot.Robot;
  * main robot "loop," continuously checking for conditions that allow us to move to the next step.
  */
 
-@Autonomous(name = "StarterBotAuto", group = "prod")
+@Autonomous(name = "StarterBotAuto", group = "timebased")
 //@Disabled
 public class StarterBotAuto extends OpMode {
 
