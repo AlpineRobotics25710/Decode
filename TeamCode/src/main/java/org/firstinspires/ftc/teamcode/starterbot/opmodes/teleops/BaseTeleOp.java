@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
+import static org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.PedroBaseAuto.CLOSE_SHOOTING_ANGLE_BLUE;
+import static org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.PedroBaseAuto.CLOSE_SHOOTING_ANGLE_RED;
+
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
@@ -12,12 +17,18 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
+    // Should probably add these and other poses to their own constants class later, but just here for now
+    protected final Pose closeShootPoseBlue = new Pose(56, 84, CLOSE_SHOOTING_ANGLE_BLUE);
+    protected final Pose closeShootPoseRed = new Pose(88, 88, CLOSE_SHOOTING_ANGLE_RED);
     protected Gamepad driver;
     protected Gamepad operator;
-
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
+    protected Alliance alliance;
+    protected boolean autonomousDriving = false;
+    protected Pose parkPoseBlue = new Pose(107.25, 0, 0); // TODO: Need to find real values
+    protected Pose parkPoseRed = new Pose(38.75, 33.25, 0); // TODO: Need to find real values
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -42,8 +53,14 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        // See if code is updating on control hub
-        CommonTelemetry.addData("Curr time", System.currentTimeMillis());
+        alliance = Alliance.BLUE; // blue by default
+        if (driver.aWasPressed()) alliance = Alliance.BLUE;
+        if (driver.bWasPressed()) alliance = Alliance.RED;
+
+        CommonTelemetry.addData("Press A", "for BLUE");
+        CommonTelemetry.addData("Press B", "for RED");
+        CommonTelemetry.addData("Selected Alliance", alliance);
+        CommonTelemetry.addData("curr time", System.currentTimeMillis());
         CommonTelemetry.update();
     }
 
@@ -67,8 +84,33 @@ public abstract class BaseTeleOp extends OpMode {
          * more complex maneuvers.
          */
 
-        // mecanum();
-        pedroTeleop(); // really jittery right now, probably needs to be tuned
+        // this line needs to be first so that you can't control the robot when it is autonomously driving
+        autonomousDriving = Robot.follower.isBusy();
+
+        // break following if something goes wrong
+        if ((driver.aWasPressed() || operator.dpadUpWasPressed()) && autonomousDriving) { // driver or operator can break following
+            Robot.follower.breakFollowing();
+            autonomousDriving = false;
+        }
+
+        if (!autonomousDriving && driver.dpadUpWasPressed()) {
+            lineToPose(alliance == Alliance.BLUE ? closeShootPoseBlue : closeShootPoseRed);
+        }
+
+        if (!autonomousDriving && driver.dpadDownWasPressed()) {
+            double desiredHeading = Math.toRadians(90);
+            if (Robot.follower.getHeading() > Math.PI) {
+                desiredHeading = Math.toRadians(270);
+            }
+            parkPoseBlue = parkPoseBlue.withHeading(desiredHeading);
+            parkPoseRed = parkPoseRed.withHeading(desiredHeading);
+            lineToPose(alliance == Alliance.BLUE ? parkPoseBlue : parkPoseRed);
+        }
+
+        if (!autonomousDriving) {
+            // mecanum();
+            pedroTeleop(); // really jittery right now, probably needs to be tuned
+        }
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
@@ -124,6 +166,7 @@ public abstract class BaseTeleOp extends OpMode {
         CommonTelemetry.addData("Driver Left Stick X value: ", driver.left_stick_x);
         CommonTelemetry.addData("Driver Left Stick Y value: ", driver.left_stick_y);
         CommonTelemetry.addData("Driver Right Stick X value: ", driver.right_stick_x);
+        CommonTelemetry.addData("autonomous driving", autonomousDriving);
 
         CommonTelemetry.update();
     }
@@ -139,6 +182,14 @@ public abstract class BaseTeleOp extends OpMode {
         rx *= dampeningFactor;
 
         Robot.mecanumDrive(y, x, rx);
+    }
+
+    // lines to the desired pose from the current pose with a linear heading interpolation
+    public void lineToPose(Pose desiredPose) {
+        Path path = new Path(new BezierLine(Robot.follower.getPose(), desiredPose));
+        path.setLinearHeadingInterpolation(Robot.follower.getHeading(), desiredPose.getHeading());
+        autonomousDriving = true;
+        Robot.follower.followPath(path);
     }
 
     public void pedroTeleop() {
@@ -165,4 +216,6 @@ public abstract class BaseTeleOp extends OpMode {
     @Override
     public void stop() {
     }
+
+    protected enum Alliance {BLUE, RED}
 }
