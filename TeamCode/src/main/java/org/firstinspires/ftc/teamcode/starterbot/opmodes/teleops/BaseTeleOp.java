@@ -71,7 +71,6 @@ public abstract class BaseTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        // this line needs to be first so that you can't control the robot when it is autonomously driving
         prevAutonomousDriving = autonomousDriving;
         autonomousDriving = Robot.follower.isBusy();
 
@@ -103,8 +102,6 @@ public abstract class BaseTeleOp extends OpMode {
         }
 
         if (!autonomousDriving) {
-            CommonTelemetry.addData("in pedro teleop if", "yes");
-            //Robot.follower.breakFollowing();
             // mecanum();
             pedroTeleop(); // really jittery right now, probably needs to be tuned
         }
@@ -157,13 +154,12 @@ public abstract class BaseTeleOp extends OpMode {
         /*
          * Show the state and motor powers
          */
-        // Set this value to something new to see if the code is updating on the control hub
         CommonTelemetry.addData("robot x", Robot.follower.getPose().getX());
         CommonTelemetry.addData("robot y", Robot.follower.getPose().getY());
         CommonTelemetry.addData("robot heading", Robot.follower.getPose().getHeading());
         CommonTelemetry.addData("autonomous driving", autonomousDriving);
         CommonTelemetry.addData("prev auton driving", prevAutonomousDriving);
-        CommonTelemetry.addData("follow is busy", Robot.follower.isBusy());
+        CommonTelemetry.addData("follower is busy", Robot.follower.isBusy());
 
         CommonTelemetry.update();
     }

@@ -145,7 +145,7 @@ public class Robot {
 
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.0f / %.0f", curTps, targetVelocityTps));
+        CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.3f / %.3f", curTps, targetVelocityTps));
 
         // estimated RPM (5203 @ ~537.7 ticks/rev)
         CommonTelemetry.addData("Launcher rpm (est)", String.format(Locale.US, "%.0f", curTps * 60.0 / 537.7));
