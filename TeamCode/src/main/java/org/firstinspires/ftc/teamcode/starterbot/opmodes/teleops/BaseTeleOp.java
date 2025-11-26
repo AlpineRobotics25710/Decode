@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
@@ -12,12 +14,19 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
+    // Should probably add these and other poses to their own constants class later, but just here for now
+    protected final Pose closeShootPoseBlue = new Pose(56, 84, Math.toRadians(136));
+    protected final Pose closeShootPoseRed = closeShootPoseBlue.mirror();
     protected Gamepad driver;
     protected Gamepad operator;
-
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
+    protected Alliance alliance;
+    protected boolean autonomousDriving = false;
+    protected boolean prevAutonomousDriving = false;
+    protected Pose parkPoseRed = new Pose(37, 32, 90); // TODO: Need to find real values
+    protected Pose parkPoseBlue = parkPoseRed.mirror(); // TODO: Need to find real values
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -26,8 +35,8 @@ public abstract class BaseTeleOp extends OpMode {
     public void init() {
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
-        Robot.follower.setStartingPose(new Pose());
-        Robot.follower.update();
+        Robot.follower.setStartingPose(new Pose(56.5, 8.75, Math.toRadians(90)));
+        alliance = Alliance.BLUE; // blue by default
         initGamepads();
     }
 
@@ -42,8 +51,13 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        // See if code is updating on control hub
-        CommonTelemetry.addData("Curr time", System.currentTimeMillis());
+        if (driver.aWasPressed()) alliance = Alliance.BLUE;
+        if (driver.bWasPressed()) alliance = Alliance.RED;
+
+        CommonTelemetry.addData("Press A", "for BLUE");
+        CommonTelemetry.addData("Press B", "for RED");
+        CommonTelemetry.addData("Selected Alliance", alliance);
+        CommonTelemetry.addData("curr time", System.currentTimeMillis());
         CommonTelemetry.update();
     }
 
@@ -57,18 +71,40 @@ public abstract class BaseTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        /*
-         * Here we call a function called arcadeDrive. The arcadeDrive function takes the input from
-         * the joysticks, and applies power to the left and right drive motor to move the robot
-         * as requested by the driver. "arcade" refers to the control style we're using here.
-         * Much like a classic arcade game, when you move the left joystick forward both motors
-         * work to drive the robot forward, and when you move the right joystick left and right
-         * both motors work to rotate the robot. Combinations of these inputs can be used to create
-         * more complex maneuvers.
-         */
+        prevAutonomousDriving = autonomousDriving;
+        autonomousDriving = Robot.follower.isBusy();
 
-        // mecanum();
-        pedroTeleop(); // really jittery right now, probably needs to be tuned
+        if (prevAutonomousDriving && !autonomousDriving) {
+            CommonTelemetry.addData("breaking", "following");
+            Robot.follower.breakFollowing();
+            Robot.follower.startTeleopDrive(useBrakeMode);
+        }
+
+        // break following if something goes wrong
+        if ((driver.aWasPressed() || operator.dpadUpWasPressed()) && autonomousDriving) { // driver or operator can break following
+            Robot.follower.breakFollowing();
+            autonomousDriving = false;
+            Robot.follower.startTeleopDrive(useBrakeMode);
+        }
+
+        if (!autonomousDriving && driver.dpadUpWasPressed()) {
+            lineToPose(alliance == Alliance.BLUE ? closeShootPoseBlue : closeShootPoseRed);
+        }
+
+        if (!autonomousDriving && driver.dpadDownWasPressed()) {
+            double desiredHeading = Math.toRadians(90);
+            if (Robot.follower.getHeading() > Math.PI) {
+                desiredHeading = Math.toRadians(270);
+            }
+            parkPoseBlue = parkPoseBlue.withHeading(desiredHeading);
+            parkPoseRed = parkPoseRed.withHeading(desiredHeading);
+            lineToPose(alliance == Alliance.BLUE ? parkPoseBlue : parkPoseRed);
+        }
+
+        if (!autonomousDriving) {
+            // mecanum();
+            pedroTeleop(); // really jittery right now, probably needs to be tuned
+        }
 
         // Launcher controls
         if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
@@ -82,7 +118,7 @@ public abstract class BaseTeleOp extends OpMode {
         } else if (operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
             Robot.spinToOuttake();
         } else if (!operator.right_bumper && !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.stopIntake();
+            Robot.stopAll();
         }
 
         Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
@@ -113,17 +149,17 @@ public abstract class BaseTeleOp extends OpMode {
         // By subtracting, you're able to prevent them from fighting to give power to the motor
         //Robot.setIntakePower(operator.right_trigger - operator.left_trigger);
 
-        // Loop the robot
         Robot.loop();
 
         /*
          * Show the state and motor powers
          */
-        // Set this value to something new to see if the code is updating on the control hub
-        CommonTelemetry.addData("code", "updated");
-        CommonTelemetry.addData("Driver Left Stick X value: ", driver.left_stick_x);
-        CommonTelemetry.addData("Driver Left Stick Y value: ", driver.left_stick_y);
-        CommonTelemetry.addData("Driver Right Stick X value: ", driver.right_stick_x);
+        CommonTelemetry.addData("robot x", Robot.follower.getPose().getX());
+        CommonTelemetry.addData("robot y", Robot.follower.getPose().getY());
+        CommonTelemetry.addData("robot heading", Robot.follower.getPose().getHeading());
+        CommonTelemetry.addData("autonomous driving", autonomousDriving);
+        CommonTelemetry.addData("prev auton driving", prevAutonomousDriving);
+        CommonTelemetry.addData("follower is busy", Robot.follower.isBusy());
 
         CommonTelemetry.update();
     }
@@ -141,12 +177,12 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.mecanumDrive(y, x, rx);
     }
 
-    public void twoWheel() {
-        if (turtleMode.get()) {
-            Robot.arcadeDrive(driver.left_stick_y, (Constants.TURTLE) * -driver.right_stick_x);
-        } else {
-            Robot.arcadeDrive(driver.left_stick_y, Constants.TURN_THROTTLE * -driver.right_stick_x);
-        }
+    // lines to the desired pose from the current pose with a linear heading interpolation
+    public void lineToPose(Pose desiredPose) {
+        Path path = new Path(new BezierLine(Robot.follower.getPose(), desiredPose));
+        path.setLinearHeadingInterpolation(Robot.follower.getHeading(), desiredPose.getHeading());
+        autonomousDriving = true;
+        Robot.follower.followPath(path);
     }
 
     public void pedroTeleop() {
@@ -173,4 +209,6 @@ public abstract class BaseTeleOp extends OpMode {
     @Override
     public void stop() {
     }
+
+    protected enum Alliance {BLUE, RED}
 }

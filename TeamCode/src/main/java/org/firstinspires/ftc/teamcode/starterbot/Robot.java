@@ -42,10 +42,10 @@ public class Robot {
     public static RampState rampState;
     public static BlockerState blockerState;
     public static LaunchSequenceState launchSequenceState;
-    private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
-    private static long stateStartTime;
     // Pedro
     public static Follower follower;
+    private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
+    private static long stateStartTime;
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -109,11 +109,13 @@ public class Robot {
 
         // Init follower
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
+        CommonTelemetry.addData("follower heading constraint", follower.getConstraints().getHeadingConstraint());
 
         /*
          * Tell the driver that initialization is complete.
          */
         CommonTelemetry.addData("Status", "Initialized");
+        CommonTelemetry.addData("Branch", "restructure");
     }
 
     public static void initMecanumDrive(HardwareMap hardwareMap) {
@@ -143,7 +145,7 @@ public class Robot {
 
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.0f / %.0f", curTps, targetVelocityTps));
+        CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.3f / %.3f", curTps, targetVelocityTps));
 
         // estimated RPM (5203 @ ~537.7 ticks/rev)
         CommonTelemetry.addData("Launcher rpm (est)", String.format(Locale.US, "%.0f", curTps * 60.0 / 537.7));
@@ -217,7 +219,7 @@ public class Robot {
         Robot.setFeederPower(Constants.FEEDER_POWER);
     }
 
-    public static void stopIntake() {
+    public static void stopAll() {
         Robot.launcher.setVelocity(Constants.ZERO);
         Robot.setIntakePower(Constants.ZERO);
         Robot.setFeederPower(Constants.ZERO);
