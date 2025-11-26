@@ -140,9 +140,6 @@ public class Robot {
         //CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
         //CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
 
-        // Follower
-        follower.update();
-
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
         CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.3f / %.3f", curTps, targetVelocityTps));

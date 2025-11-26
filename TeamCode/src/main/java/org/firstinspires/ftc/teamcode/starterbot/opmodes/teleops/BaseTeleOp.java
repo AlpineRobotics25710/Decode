@@ -54,6 +54,8 @@ public abstract class BaseTeleOp extends OpMode {
         if (driver.aWasPressed()) alliance = Alliance.BLUE;
         if (driver.bWasPressed()) alliance = Alliance.RED;
 
+        CommonTelemetry.drawOnlyCurrent(Robot.follower);
+
         CommonTelemetry.addData("Press A", "for BLUE");
         CommonTelemetry.addData("Press B", "for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
@@ -149,7 +151,9 @@ public abstract class BaseTeleOp extends OpMode {
         // By subtracting, you're able to prevent them from fighting to give power to the motor
         //Robot.setIntakePower(operator.right_trigger - operator.left_trigger);
 
+        Robot.follower.update();
         Robot.loop();
+        CommonTelemetry.draw(Robot.follower);
 
         /*
          * Show the state and motor powers

@@ -200,6 +200,11 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        CommonTelemetry.drawOnlyCurrent(follower);
+    }
+
+    @Override
     public void start() {
         opmodeTimer.resetTimer();
         buildPaths();
@@ -215,6 +220,8 @@ public abstract class PedroBaseAuto extends OpMode {
         autonomousPathUpdate();
 
         Robot.loop();
+
+        CommonTelemetry.draw(follower);
 
         // Common Pedro telemetry
         CommonTelemetry.addData("curr index", currIndex);
