@@ -35,7 +35,8 @@ public abstract class BaseTeleOp extends OpMode {
     public void init() {
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
-        Robot.follower.setStartingPose(new Pose(56.5, 8.75, Math.toRadians(90)));
+        Pose startingPose = (Pose) blackboard.getOrDefault("final_auton_pose", new Pose(56.5, 8.75, Math.toRadians(90)));
+        Robot.follower.setStartingPose(startingPose);
         alliance = Alliance.BLUE; // blue by default
         initGamepads();
     }
@@ -59,6 +60,7 @@ public abstract class BaseTeleOp extends OpMode {
         CommonTelemetry.addData("Press A", "for BLUE");
         CommonTelemetry.addData("Press B", "for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
+        CommonTelemetry.addData("start pose", Robot.follower.getPose());
         CommonTelemetry.addData("curr time", System.currentTimeMillis());
         CommonTelemetry.update();
     }

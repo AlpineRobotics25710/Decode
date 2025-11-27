@@ -117,6 +117,7 @@ public abstract class PedroBaseAuto extends OpMode {
     // Shooting actions
 
     protected void beginShootingSequence(Object shootingPath, double velocity) {
+        ((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
 
         shotsToFire = 3;
@@ -124,7 +125,7 @@ public abstract class PedroBaseAuto extends OpMode {
         currentShotVelocity = velocity;
         waitingBeforeShooting = true;
         shootingActive = false;
-        pathTimer.resetTimer();          // 1-second settle delay
+        pathTimer.resetTimer();
     }
 
     protected void updateShootingSequence() {
@@ -189,6 +190,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap);
         follower = Robot.follower;
+        follower.setStartingPose(getStartPose());
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -201,6 +203,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void init_loop() {
+        follower.update();
         CommonTelemetry.drawOnlyCurrent(follower);
     }
 
@@ -208,7 +211,6 @@ public abstract class PedroBaseAuto extends OpMode {
     public void start() {
         opmodeTimer.resetTimer();
         buildPaths();
-        follower.setStartingPose(getStartPose());
     }
 
     @Override
@@ -237,8 +239,13 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("y", follower.getPose().getY());
         CommonTelemetry.addData("curr heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
         CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
-        CommonTelemetry.addData("heading error (rad)", follower.getHeadingError());
-        CommonTelemetry.addData("heading constraint (rad)", follower.getConstraints().getHeadingConstraint());
+        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
+        CommonTelemetry.addData("heading constraint (deg)", Math.toDegrees(follower.getConstraints().getHeadingConstraint()));
         CommonTelemetry.update();
+    }
+
+    @Override
+    public void stop() {
+        blackboard.put("final_auton_pose", follower.getPose());
     }
 }
