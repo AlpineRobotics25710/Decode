@@ -22,6 +22,8 @@ public abstract class BaseTeleOp extends OpMode {
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
+    protected boolean isDriving = true;
+    public static double drivingTolerance = 0.1;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
@@ -81,17 +83,24 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
+
+        if (!isDriving && (Math.abs(gamepad1.left_stick_y) >= drivingTolerance || Math.abs(gamepad1.left_stick_x) >= drivingTolerance || Math.abs(gamepad1.right_stick_x) >= drivingTolerance)) {
+                isDriving = true;
+        }
+
         // break following if something goes wrong
-        if (driver.aWasPressed() && autonomousDriving) { // driver can break following
+        if (isDriving && autonomousDriving) { // if driver inputs some control (through joysticks) then break
             autonomousDriving = false;
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
-        if (!autonomousDriving && driver.dpadUpWasPressed()) {
+        if (!autonomousDriving && driver.dpadUpWasPressed()) { // driver dpad UP for going to shoot pose
+            isDriving = false;
             lineToPose(alliance == Alliance.BLUE ? closeShootPoseBlue : closeShootPoseRed);
         }
 
-        if (!autonomousDriving && driver.dpadDownWasPressed()) {
+        if (!autonomousDriving && driver.dpadDownWasPressed()) {// driver dpad DOWN for going to park pose
+            isDriving = false;
             double desiredHeading = Math.toRadians(90);
             if (Robot.follower.getHeading() > Math.PI) {
                 desiredHeading = Math.toRadians(270);
@@ -101,9 +110,9 @@ public abstract class BaseTeleOp extends OpMode {
             lineToPose(alliance == Alliance.BLUE ? parkPoseBlue : parkPoseRed);
         }
 
-        if (!autonomousDriving) {
+        if (isDriving && !autonomousDriving) {
             // mecanum();
-            pedroTeleop(); // really jittery right now, probably needs to be tuned
+            pedroTeleop();
         }
 
         // Launcher controls
