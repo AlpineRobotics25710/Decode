@@ -76,13 +76,11 @@ public abstract class BaseTeleOp extends OpMode {
 
         if (prevAutonomousDriving && !autonomousDriving) {
             CommonTelemetry.addData("breaking", "following");
-            Robot.follower.breakFollowing();
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
         // break following if something goes wrong
-        if ((driver.aWasPressed() || operator.dpadUpWasPressed()) && autonomousDriving) { // driver or operator can break following
-            Robot.follower.breakFollowing();
+        if (driver.aWasPressed() && autonomousDriving) { // driver can break following
             autonomousDriving = false;
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
