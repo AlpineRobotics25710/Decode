@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
+import org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.BaseTeleOp;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -233,5 +234,10 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("heading error (rad)", follower.getHeadingError());
         CommonTelemetry.addData("heading constraint (rad)", follower.getConstraints().getHeadingConstraint());
         CommonTelemetry.update();
+    }
+
+    @Override
+    public void stop() {
+        BaseTeleOp.startingPose = follower.getPose();
     }
 }

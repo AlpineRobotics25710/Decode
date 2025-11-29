@@ -27,6 +27,8 @@ public abstract class BaseTeleOp extends OpMode {
     protected boolean prevAutonomousDriving = false;
     protected Pose parkPoseRed = new Pose(37, 32, 90); // TODO: Need to find real values
     protected Pose parkPoseBlue = parkPoseRed.mirror(); // TODO: Need to find real values
+    protected Pose ShootingPose = new Pose(11, 140);
+    public static Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90));
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -35,7 +37,7 @@ public abstract class BaseTeleOp extends OpMode {
     public void init() {
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
-        Robot.follower.setStartingPose(new Pose(56.5, 8.75, Math.toRadians(90)));
+        Robot.follower.setStartingPose(startingPose);
         alliance = Alliance.BLUE; // blue by default
         initGamepads();
     }
