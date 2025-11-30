@@ -14,9 +14,6 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
-    // Should probably add these and other poses to their own constants class later, but just here for now
-    protected final Pose closeShootPoseBlue = new Pose(56, 84, Math.toRadians(136));
-    protected final Pose closeShootPoseRed = closeShootPoseBlue.mirror();
     protected Gamepad driver;
     protected Gamepad operator;
     protected Supplier<Boolean> turtleMode;
@@ -27,9 +24,11 @@ public abstract class BaseTeleOp extends OpMode {
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
-    protected Pose parkPoseRed = new Pose(37, 32, 90); // TODO: Need to find real values
-    protected Pose parkPoseBlue = parkPoseRed.mirror(); // TODO: Need to find real values
-    protected Pose ShootingPose = new Pose(11, 140);
+
+    // Should probably add these and other poses to their own constants class later, but just here for now
+    protected final Pose closeShootPose = new Pose(56, 84, Math.toRadians(136)); // blue initially
+    protected Pose parkPose = new Pose(105, 33); // blue initially
+    protected Pose shootPose = new Pose(11, 140); // blue initially
     public static Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90));
 
     /*
@@ -55,8 +54,19 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (driver.aWasPressed()) alliance = Alliance.BLUE;
-        if (driver.bWasPressed()) alliance = Alliance.RED;
+        if (driver.aWasPressed() && alliance != Alliance.BLUE) {
+            alliance = Alliance.BLUE;
+            parkPose.mirror();
+            shootPose.mirror();
+            closeShootPose.mirror();
+        }
+
+        if (driver.bWasPressed() && alliance != Alliance.RED) {
+            alliance = Alliance.RED;
+            parkPose.mirror();
+            shootPose.mirror();
+            closeShootPose.mirror();
+        }
 
         CommonTelemetry.addData("Press A", "for BLUE");
         CommonTelemetry.addData("Press B", "for RED");
@@ -83,7 +93,6 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
-
         if (!isDriving && (Math.abs(gamepad1.left_stick_y) >= drivingTolerance || Math.abs(gamepad1.left_stick_x) >= drivingTolerance || Math.abs(gamepad1.right_stick_x) >= drivingTolerance)) {
                 isDriving = true;
         }
@@ -96,7 +105,7 @@ public abstract class BaseTeleOp extends OpMode {
 
         if (!autonomousDriving && driver.dpadUpWasPressed()) { // driver dpad UP for going to shoot pose
             isDriving = false;
-            lineToPose(alliance == Alliance.BLUE ? closeShootPoseBlue : closeShootPoseRed);
+            lineToPose(closeShootPose);
         }
 
         if (!autonomousDriving && driver.dpadDownWasPressed()) {// driver dpad DOWN for going to park pose
@@ -105,9 +114,10 @@ public abstract class BaseTeleOp extends OpMode {
             if (Robot.follower.getHeading() > Math.PI) {
                 desiredHeading = Math.toRadians(270);
             }
-            parkPoseBlue = parkPoseBlue.withHeading(desiredHeading);
-            parkPoseRed = parkPoseRed.withHeading(desiredHeading);
-            lineToPose(alliance == Alliance.BLUE ? parkPoseBlue : parkPoseRed);
+
+            lineToPose(parkPose.withHeading(desiredHeading));
+        }
+
         }
 
         if (isDriving && !autonomousDriving) {
