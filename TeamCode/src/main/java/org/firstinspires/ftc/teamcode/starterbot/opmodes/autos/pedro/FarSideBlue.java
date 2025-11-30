@@ -17,6 +17,9 @@ public class FarSideBlue extends PedroBaseAuto {
     }
 
     @Override
+    protected Pose getEndPose() { return BlueFarPoses.parkPose; }
+
+    @Override
     protected void buildPaths() {
         // Line 0: Shoot preload (startPose -> shootPreloadPose), straight line, Path
         // Only pick-up paths are PathChains, everything else is a Path

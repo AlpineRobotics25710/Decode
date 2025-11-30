@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
@@ -42,6 +43,8 @@ public abstract class PedroBaseAuto extends OpMode {
      * Child must supply the starting pose for this auto
      */
     protected abstract Pose getStartPose();
+
+    protected abstract Pose getEndPose();
 
     /**
      * Child must build all Paths / PathChains here
@@ -179,6 +182,15 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
+    public void interruptAndPark() {
+        follower.breakFollowing();
+        Robot.stopAll();
+        follower.followPath(follower.pathBuilder()
+                .addPath(new BezierLine(follower.getPose(), getEndPose()))
+                .build()
+        );
+    }
+
     @Override
     public void init() {
         CommonTelemetry.init(telemetry);
@@ -215,6 +227,11 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void loop() {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5) {
+            interruptAndPark();
+            stop();
+        }
+
         // Common follower update
         follower.update();
 

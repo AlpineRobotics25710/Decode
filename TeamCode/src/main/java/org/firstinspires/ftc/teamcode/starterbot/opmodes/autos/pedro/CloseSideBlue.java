@@ -17,6 +17,9 @@ public class CloseSideBlue extends PedroBaseAuto {
     }
 
     @Override
+    protected Pose getEndPose() { return BlueClosePoses.parkPose; }
+
+    @Override
     protected void buildPaths() {
         // Line 1: Shoot preload (startPose -> shootPreloadPose), curve, Path
         Path shootPreloadPath = new Path(
