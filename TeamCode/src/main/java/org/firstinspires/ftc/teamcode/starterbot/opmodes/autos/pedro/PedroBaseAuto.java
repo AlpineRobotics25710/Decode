@@ -39,6 +39,11 @@ public abstract class PedroBaseAuto extends OpMode {
     protected boolean waitingBeforeShooting = false;
     protected double currentShotVelocity = 0;
 
+    protected boolean interrupted = false;
+    protected Alliance alliance = Alliance.BLUE;
+
+    public enum Alliance { BLUE, RED }
+
     /**
      * Child must supply the starting pose for this auto
      */
@@ -183,13 +188,26 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     public void interruptAndPark() {
+        Pose followerPose = follower.getPose();
+
+        cancelAllActions();
+
+        Path goToEnd = new Path(new BezierLine(followerPose, getEndPose()));
+        goToEnd.setLinearHeadingInterpolation(followerPose.getHeading(), getEndPose().getHeading());
+        followPathOrPathChain(goToEnd, false);
+    }
+
+    protected void cancelAllActions() {
+        intakeActive = false;
+        waitingBeforeShooting = false;
+        shootingActive = false;
+        shotsToFire = 0;
+        shotsFired = 0;
+
         follower.breakFollowing();
         Robot.stopAll();
-        follower.followPath(follower.pathBuilder()
-                .addPath(new BezierLine(follower.getPose(), getEndPose()))
-                .build()
-        );
     }
+
 
     @Override
     public void init() {
@@ -215,8 +233,13 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void init_loop() {
+        if (gamepad1.a) alliance = Alliance.BLUE;
+        if (gamepad1.b) alliance = Alliance.RED;
+
         follower.update();
         CommonTelemetry.drawOnlyCurrent(follower);
+        CommonTelemetry.addData("Alliance", alliance);
+        CommonTelemetry.update();
     }
 
     @Override
@@ -227,18 +250,21 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void loop() {
-        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5) {
-            interruptAndPark();
-            stop();
-        }
-
         // Common follower update
         follower.update();
 
-        // Let child drive the state machine
-        autonomousPathUpdate();
+        if (opmodeTimer.getElapsedTimeSeconds() >= 29.5) {
+            interrupted = true;
+            follower.breakFollowing();
+            interruptAndPark();
+        }
 
-        Robot.loop();
+        if (!interrupted) {
+            // Let child drive the state machine
+            autonomousPathUpdate();
+
+            Robot.loop();
+        }
 
         CommonTelemetry.draw(follower);
 

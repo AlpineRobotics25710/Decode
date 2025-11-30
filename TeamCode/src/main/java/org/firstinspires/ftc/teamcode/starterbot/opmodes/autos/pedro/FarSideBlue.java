@@ -145,7 +145,6 @@ public class FarSideBlue extends PedroBaseAuto {
         Path parkPath = new Path(
                 new BezierCurve(
                         BlueFarPoses.shootBottomPose,
-                        BlueFarPoses.cpPark1,
                         BlueFarPoses.parkPose));
         parkPath.setLinearHeadingInterpolation(
                 BlueFarPoses.shootBottomPose.getHeading(),
