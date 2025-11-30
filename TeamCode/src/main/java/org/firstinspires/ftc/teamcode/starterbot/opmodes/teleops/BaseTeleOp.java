@@ -14,19 +14,22 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
-    // Should probably add these and other poses to their own constants class later, but just here for now
-    protected final Pose closeShootPoseBlue = new Pose(56, 84, Math.toRadians(136));
-    protected final Pose closeShootPoseRed = closeShootPoseBlue.mirror();
     protected Gamepad driver;
     protected Gamepad operator;
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
+    protected boolean isDriving = true;
+    public static double drivingTolerance = 0.1;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
-    protected Pose parkPoseRed = new Pose(37, 32, 90); // TODO: Need to find real values
-    protected Pose parkPoseBlue = parkPoseRed.mirror(); // TODO: Need to find real values
+
+    // Should probably add these and other poses to their own constants class later, but just here for now
+    protected final Pose closeShootPose = new Pose(56, 84, Math.toRadians(136)); // blue initially
+    protected Pose parkPose = new Pose(105, 33); // blue initially
+    protected Pose shootPose = new Pose(11, 140); // blue initially
+    public static Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90));
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -35,7 +38,7 @@ public abstract class BaseTeleOp extends OpMode {
     public void init() {
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
-        Robot.follower.setStartingPose(new Pose(56.5, 8.75, Math.toRadians(90)));
+        Robot.follower.setStartingPose(startingPose);
         alliance = Alliance.BLUE; // blue by default
         initGamepads();
     }
@@ -51,8 +54,19 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (driver.aWasPressed()) alliance = Alliance.BLUE;
-        if (driver.bWasPressed()) alliance = Alliance.RED;
+        if (driver.aWasPressed() && alliance != Alliance.BLUE) {
+            alliance = Alliance.BLUE;
+            parkPose.mirror();
+            shootPose.mirror();
+            closeShootPose.mirror();
+        }
+
+        if (driver.bWasPressed() && alliance != Alliance.RED) {
+            alliance = Alliance.RED;
+            parkPose.mirror();
+            shootPose.mirror();
+            closeShootPose.mirror();
+        }
 
         CommonTelemetry.addData("Press A", "for BLUE");
         CommonTelemetry.addData("Press B", "for RED");
@@ -79,29 +93,41 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
+        if (!isDriving && (Math.abs(gamepad1.left_stick_y) >= drivingTolerance || Math.abs(gamepad1.left_stick_x) >= drivingTolerance || Math.abs(gamepad1.right_stick_x) >= drivingTolerance)) {
+            isDriving = true;
+        }
+
         // break following if something goes wrong
-        if (driver.aWasPressed() && autonomousDriving) { // driver can break following
+        if (isDriving && autonomousDriving) { // if driver inputs some control (through joysticks) then break
             autonomousDriving = false;
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
-        if (!autonomousDriving && driver.dpadUpWasPressed()) {
-            lineToPose(alliance == Alliance.BLUE ? closeShootPoseBlue : closeShootPoseRed);
+        if (!autonomousDriving && driver.dpadUpWasPressed()) { // driver dpad UP for going to shoot pose
+            isDriving = false;
+            lineToPose(closeShootPose);
         }
 
-        if (!autonomousDriving && driver.dpadDownWasPressed()) {
+        if (!autonomousDriving && driver.dpadDownWasPressed()) {// driver dpad DOWN for going to park pose
+            isDriving = false;
             double desiredHeading = Math.toRadians(90);
             if (Robot.follower.getHeading() > Math.PI) {
                 desiredHeading = Math.toRadians(270);
             }
-            parkPoseBlue = parkPoseBlue.withHeading(desiredHeading);
-            parkPoseRed = parkPoseRed.withHeading(desiredHeading);
-            lineToPose(alliance == Alliance.BLUE ? parkPoseBlue : parkPoseRed);
+
+            lineToPose(parkPose.withHeading(desiredHeading));
         }
 
-        if (!autonomousDriving) {
+        // turn to shoot based on alliance and current position
+        if (!autonomousDriving && driver.dpadLeftWasPressed()) {
+            isDriving = false;
+            autonomousDriving = true;
+            turnToShoot();
+        }
+
+        if (isDriving && !autonomousDriving) {
             // mecanum();
-            pedroTeleop(); // really jittery right now, probably needs to be tuned
+            pedroTeleop();
         }
 
         // Launcher controls
@@ -181,6 +207,15 @@ public abstract class BaseTeleOp extends OpMode {
         path.setLinearHeadingInterpolation(Robot.follower.getHeading(), desiredPose.getHeading());
         autonomousDriving = true;
         Robot.follower.followPath(path);
+    }
+
+    // turns to desired shooting position from the current pose
+    public void turnToShoot() {
+        double xDist = Robot.follower.getPose().getX() - shootPose.getX(); // blue side: 72-11 = 61, red side: 72 - 133 = -61
+        double yDist = shootPose.getY() - Robot.follower.getPose().getY(); // 140-111 = 29
+        double desiredHeading = Math.atan2(xDist, yDist) + (Math.PI / 2); // blue side: (61/29) = ~0.44 rad = ~64 deg, red side: (-61/29) = ~-0.44 rad = ~-64 deg (i think the math checks out)
+
+        Robot.follower.turnTo(desiredHeading);
     }
 
     public void pedroTeleop() {
