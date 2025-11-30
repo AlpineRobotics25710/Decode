@@ -94,7 +94,7 @@ public abstract class BaseTeleOp extends OpMode {
         }
 
         if (!isDriving && (Math.abs(gamepad1.left_stick_y) >= drivingTolerance || Math.abs(gamepad1.left_stick_x) >= drivingTolerance || Math.abs(gamepad1.right_stick_x) >= drivingTolerance)) {
-                isDriving = true;
+            isDriving = true;
         }
 
         // break following if something goes wrong
@@ -118,6 +118,11 @@ public abstract class BaseTeleOp extends OpMode {
             lineToPose(parkPose.withHeading(desiredHeading));
         }
 
+        // turn to shoot based on alliance and current position
+        if (!autonomousDriving && driver.dpadLeftWasPressed()) {
+            isDriving = false;
+            autonomousDriving = true;
+            turnToShoot();
         }
 
         if (isDriving && !autonomousDriving) {
@@ -202,6 +207,15 @@ public abstract class BaseTeleOp extends OpMode {
         path.setLinearHeadingInterpolation(Robot.follower.getHeading(), desiredPose.getHeading());
         autonomousDriving = true;
         Robot.follower.followPath(path);
+    }
+
+    // turns to desired shooting position from the current pose
+    public void turnToShoot() {
+        double xDist = Robot.follower.getPose().getX() - shootPose.getX(); // blue side: 72-11 = 61, red side: 72 - 133 = -61
+        double yDist = shootPose.getY() - Robot.follower.getPose().getY(); // 140-111 = 29
+        double desiredHeading = Math.atan2(xDist, yDist) + (Math.PI / 2); // blue side: (61/29) = ~0.44 rad = ~64 deg, red side: (-61/29) = ~-0.44 rad = ~-64 deg (i think the math checks out)
+
+        Robot.follower.turnTo(desiredHeading);
     }
 
     public void pedroTeleop() {
