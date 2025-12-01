@@ -42,8 +42,6 @@ public abstract class PedroBaseAuto extends OpMode {
     protected boolean interrupted = false;
     protected Alliance alliance = Alliance.BLUE;
 
-    public enum Alliance { BLUE, RED }
-
     /**
      * Child must supply the starting pose for this auto
      */
@@ -102,14 +100,14 @@ public abstract class PedroBaseAuto extends OpMode {
         advancePath();
     }
 
-    // Intake actions
-
     protected void beginIntakeSequence(Object intakePath) {
         follower.setMaxPower(0.5);
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;
     }
+
+    // Intake actions
 
     protected void updateIntakeSequence() {
         if (!intakeActive) return;
@@ -122,8 +120,6 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
-    // Shooting actions
-
     protected void beginShootingSequence(Object shootingPath, double velocity) {
         ((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
@@ -135,6 +131,8 @@ public abstract class PedroBaseAuto extends OpMode {
         shootingActive = false;
         pathTimer.resetTimer();
     }
+
+    // Shooting actions
 
     protected void updateShootingSequence() {
         if (waitingBeforeShooting) {
@@ -208,7 +206,6 @@ public abstract class PedroBaseAuto extends OpMode {
         Robot.stopAll();
     }
 
-
     @Override
     public void init() {
         CommonTelemetry.init(telemetry);
@@ -246,6 +243,7 @@ public abstract class PedroBaseAuto extends OpMode {
     public void start() {
         opmodeTimer.resetTimer();
         buildPaths();
+        follower.setStartingPose(getStartPose());
     }
 
     @Override
@@ -291,4 +289,6 @@ public abstract class PedroBaseAuto extends OpMode {
     public void stop() {
         blackboard.put("final_auton_pose", follower.getPose());
     }
+
+    public enum Alliance {BLUE, RED}
 }
