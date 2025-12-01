@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
-import org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.BaseTeleOp;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +39,8 @@ public abstract class PedroBaseAuto extends OpMode {
     protected boolean waitingBeforeShooting = false;
     protected double currentShotVelocity = 0;
 
+    protected Alliance alliance = Alliance.BLUE; // By default blue
+
     /**
      * Child must supply the starting pose for this auto
      */
@@ -48,6 +50,11 @@ public abstract class PedroBaseAuto extends OpMode {
      * Child must build all Paths / PathChains here
      */
     protected abstract void buildPaths();
+
+    /**
+     * Any alliance-specific set up. Called in the start() method before buildPaths();
+     */
+    protected abstract void allianceSetup(Alliance alliance);
 
     public void autonomousPathUpdate() {
         //if (follower.isBusy() || currIndex >= allPaths.size()) return;
@@ -201,8 +208,19 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        if (gamepad1.a) alliance = Alliance.BLUE;
+        if (gamepad1.b) alliance = Alliance.RED;
+
+        CommonTelemetry.addData("Instructions", "Select A for BLUE, Select B for RED");
+        CommonTelemetry.addData("Selected Alliance", alliance);
+        CommonTelemetry.update();
+    }
+
+    @Override
     public void start() {
         opmodeTimer.resetTimer();
+        allianceSetup(alliance);
         buildPaths();
         follower.setStartingPose(getStartPose());
     }

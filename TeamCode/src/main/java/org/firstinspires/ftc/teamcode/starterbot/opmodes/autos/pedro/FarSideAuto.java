@@ -8,12 +8,21 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
+import org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.poses.FarPoses;
 
 @Autonomous(name = "Far Side Blue", group = "pedro")
-public class FarSideBlue extends PedroBaseAuto {
+public class FarSideAuto extends PedroBaseAuto {
     @Override
     protected Pose getStartPose() {
-        return BlueFarPoses.startPose;
+        return FarPoses.startPose;
+    }
+
+    @Override
+    protected void allianceSetup(Alliance alliance) {
+        if (alliance != new FarPoses().originalPosesAlliance()) {
+            new FarPoses().mirror();
+        }
     }
 
     @Override
@@ -21,10 +30,10 @@ public class FarSideBlue extends PedroBaseAuto {
         // Line 0: Shoot preload (startPose -> shootPreloadPose), straight line, Path
         // Only pick-up paths are PathChains, everything else is a Path
         Path shootPreloadPath = new Path(
-                new BezierLine(BlueFarPoses.startPose, BlueFarPoses.shootPreloadPose));
+                new BezierLine(FarPoses.startPose, FarPoses.shootPreloadPose));
         shootPreloadPath.setLinearHeadingInterpolation(
-                BlueFarPoses.startPose.getHeading(),
-                BlueFarPoses.shootPreloadPose.getHeading(),
+                FarPoses.startPose.getHeading(),
+                FarPoses.shootPreloadPose.getHeading(),
                 0.65);
         allPaths.add(shootPreloadPath);
         shotNeeded.put(shootPreloadPath, Constants.LAUNCHER_FAR_VELOCITY);
@@ -32,45 +41,45 @@ public class FarSideBlue extends PedroBaseAuto {
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddleChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        BlueFarPoses.shootPreloadPose,
-                        BlueFarPoses.cpPickUpMiddle1,
-                        BlueFarPoses.pickUpMiddlePose))
+                        FarPoses.shootPreloadPose,
+                        FarPoses.cpPickUpMiddle1,
+                        FarPoses.pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        BlueFarPoses.shootPreloadPose.getHeading(),
-                        BlueFarPoses.pickUpMiddlePose.getHeading(),
+                        FarPoses.shootPreloadPose.getHeading(),
+                        FarPoses.pickUpMiddlePose.getHeading(),
                         0.65)
                 .build();
         allPaths.add(pickUpMiddleChain);
 
         // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
         Path intakeMiddlePath = new Path(
-                new BezierLine(BlueFarPoses.pickUpMiddlePose, BlueFarPoses.intakeMiddlePose));
-        intakeMiddlePath.setConstantHeadingInterpolation(BlueFarPoses.intakeMiddlePose.getHeading());
+                new BezierLine(FarPoses.pickUpMiddlePose, FarPoses.intakeMiddlePose));
+        intakeMiddlePath.setConstantHeadingInterpolation(FarPoses.intakeMiddlePose.getHeading());
         allPaths.add(intakeMiddlePath);
         intakeNeeded.add(intakeMiddlePath);
 
         // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         Path openGatePath = new Path(
                 new BezierCurve(
-                        BlueFarPoses.intakeMiddlePose,
-                        BlueFarPoses.cpOpenGate1,
-                        BlueFarPoses.cpOpenGate2,
-                        BlueFarPoses.openGatePose));
+                        FarPoses.intakeMiddlePose,
+                        FarPoses.cpOpenGate1,
+                        FarPoses.cpOpenGate2,
+                        FarPoses.openGatePose));
         openGatePath.setLinearHeadingInterpolation(
-                BlueFarPoses.intakeMiddlePose.getHeading(),
-                BlueFarPoses.openGatePose.getHeading(),
+                FarPoses.intakeMiddlePose.getHeading(),
+                FarPoses.openGatePose.getHeading(),
                 0.8);
         allPaths.add(openGatePath);
 
         // Line 4: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
         Path shootMiddlePath = new Path(
                 new BezierCurve(
-                        BlueFarPoses.openGatePose,
-                        BlueFarPoses.cpShootMiddle1,
-                        BlueFarPoses.shootMiddlePose));
+                        FarPoses.openGatePose,
+                        FarPoses.cpShootMiddle1,
+                        FarPoses.shootMiddlePose));
         shootMiddlePath.setLinearHeadingInterpolation(
-                BlueFarPoses.openGatePose.getHeading(),
-                BlueFarPoses.shootMiddlePose.getHeading(),
+                FarPoses.openGatePose.getHeading(),
+                FarPoses.shootMiddlePose.getHeading(),
                 0.65);
         allPaths.add(shootMiddlePath);
         shotNeeded.put(shootMiddlePath, Constants.LAUNCHER_CLOSE_VELOCITY);
@@ -78,31 +87,31 @@ public class FarSideBlue extends PedroBaseAuto {
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         PathChain pickUpTopChain = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        BlueFarPoses.shootMiddlePose,
-                        BlueFarPoses.pickUpTopPose))
+                        FarPoses.shootMiddlePose,
+                        FarPoses.pickUpTopPose))
                 .setLinearHeadingInterpolation(
-                        BlueFarPoses.shootMiddlePose.getHeading(),
-                        BlueFarPoses.pickUpTopPose.getHeading(),
+                        FarPoses.shootMiddlePose.getHeading(),
+                        FarPoses.pickUpTopPose.getHeading(),
                         0.65)
                 .build();
         allPaths.add(pickUpTopChain);
 
         // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
         Path intakeTopPath = new Path(
-                new BezierLine(BlueFarPoses.pickUpTopPose, BlueFarPoses.intakeTopPose));
-        intakeTopPath.setConstantHeadingInterpolation(BlueFarPoses.intakeTopPose.getHeading());
+                new BezierLine(FarPoses.pickUpTopPose, FarPoses.intakeTopPose));
+        intakeTopPath.setConstantHeadingInterpolation(FarPoses.intakeTopPose.getHeading());
         allPaths.add(intakeTopPath);
         intakeNeeded.add(intakeTopPath);
 
         // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         Path shootTopPath = new Path(
                 new BezierCurve(
-                        BlueFarPoses.intakeTopPose,
-                        BlueFarPoses.cpShootTop1,
-                        BlueFarPoses.shootTopPose));
+                        FarPoses.intakeTopPose,
+                        FarPoses.cpShootTop1,
+                        FarPoses.shootTopPose));
         shootTopPath.setLinearHeadingInterpolation(
-                BlueFarPoses.intakeTopPose.getHeading(),
-                BlueFarPoses.shootTopPose.getHeading(),
+                FarPoses.intakeTopPose.getHeading(),
+                FarPoses.shootTopPose.getHeading(),
                 0.65);
         allPaths.add(shootTopPath);
         shotNeeded.put(shootTopPath, Constants.LAUNCHER_CLOSE_VELOCITY);
@@ -110,12 +119,12 @@ public class FarSideBlue extends PedroBaseAuto {
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
         PathChain pickUpBottomChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        BlueFarPoses.shootTopPose,
-                        BlueFarPoses.cpPickUpBottom1,
-                        BlueFarPoses.pickUpBottomPose))
+                        FarPoses.shootTopPose,
+                        FarPoses.cpPickUpBottom1,
+                        FarPoses.pickUpBottomPose))
                 .setLinearHeadingInterpolation(
-                        BlueFarPoses.shootTopPose.getHeading(),
-                        BlueFarPoses.pickUpBottomPose.getHeading(),
+                        FarPoses.shootTopPose.getHeading(),
+                        FarPoses.pickUpBottomPose.getHeading(),
                         0.65)
                 .build();
         allPaths.add(pickUpBottomChain);
@@ -123,21 +132,21 @@ public class FarSideBlue extends PedroBaseAuto {
         // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
         Path intakeBottomPath = new Path(
                 new BezierLine(
-                        BlueFarPoses.pickUpBottomPose,
-                        BlueFarPoses.intakeBottomPose));
-        intakeBottomPath.setConstantHeadingInterpolation(BlueFarPoses.intakeBottomPose.getHeading());
+                        FarPoses.pickUpBottomPose,
+                        FarPoses.intakeBottomPose));
+        intakeBottomPath.setConstantHeadingInterpolation(FarPoses.intakeBottomPose.getHeading());
         allPaths.add(intakeBottomPath);
         intakeNeeded.add(intakeBottomPath);
 
         // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         Path shootBottomPath = new Path(
                 new BezierCurve(
-                        BlueFarPoses.intakeBottomPose,
-                        BlueFarPoses.cpShootBottom1,
-                        BlueFarPoses.shootBottomPose));
+                        FarPoses.intakeBottomPose,
+                        FarPoses.cpShootBottom1,
+                        FarPoses.shootBottomPose));
         shootBottomPath.setLinearHeadingInterpolation(
-                BlueFarPoses.intakeBottomPose.getHeading(),
-                BlueFarPoses.shootBottomPose.getHeading(),
+                FarPoses.intakeBottomPose.getHeading(),
+                FarPoses.shootBottomPose.getHeading(),
                 0.65);
         allPaths.add(shootBottomPath);
         shotNeeded.put(shootBottomPath, Constants.LAUNCHER_FAR_VELOCITY);
@@ -145,12 +154,12 @@ public class FarSideBlue extends PedroBaseAuto {
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
         Path parkPath = new Path(
                 new BezierCurve(
-                        BlueFarPoses.shootBottomPose,
-                        BlueFarPoses.cpPark1,
-                        BlueFarPoses.parkPose));
+                        FarPoses.shootBottomPose,
+                        FarPoses.cpPark1,
+                        FarPoses.parkPose));
         parkPath.setLinearHeadingInterpolation(
-                BlueFarPoses.shootBottomPose.getHeading(),
-                BlueFarPoses.parkPose.getHeading());
+                FarPoses.shootBottomPose.getHeading(),
+                FarPoses.parkPose.getHeading());
         allPaths.add(parkPath);
     }
 }
