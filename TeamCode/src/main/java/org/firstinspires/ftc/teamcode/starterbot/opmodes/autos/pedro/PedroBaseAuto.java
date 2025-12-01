@@ -238,6 +238,6 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void stop() {
-        BaseTeleOp.startingPose = follower.getPose();
+        blackboard.put("final_auton_pose", follower.getPose());
     }
 }

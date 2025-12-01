@@ -19,7 +19,6 @@ public abstract class BaseTeleOp extends OpMode {
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
-    protected boolean isDriving = true;
     public static double drivingTolerance = 0.1;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
@@ -36,6 +35,8 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init() {
+        startingPose = (Pose) blackboard.getOrDefault("final_auton_pose", startingPose);
+
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
         Robot.follower.setStartingPose(startingPose);
@@ -54,14 +55,14 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (driver.aWasPressed() && alliance != Alliance.BLUE) {
+        if (driver.a) {
             alliance = Alliance.BLUE;
             parkPose.mirror();
             shootPose.mirror();
             closeShootPose.mirror();
         }
 
-        if (driver.bWasPressed() && alliance != Alliance.RED) {
+        if (driver.b) {
             alliance = Alliance.RED;
             parkPose.mirror();
             shootPose.mirror();
@@ -93,23 +94,24 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
-        if (!isDriving && (Math.abs(gamepad1.left_stick_y) >= drivingTolerance || Math.abs(gamepad1.left_stick_x) >= drivingTolerance || Math.abs(gamepad1.right_stick_x) >= drivingTolerance)) {
-            isDriving = true;
-        }
+        boolean joystickMovement = (Math.abs(gamepad1.left_stick_y) >= drivingTolerance ||
+                Math.abs(gamepad1.left_stick_x) >= drivingTolerance ||
+                Math.abs(gamepad1.right_stick_y) >= drivingTolerance ||
+                Math.abs(gamepad1.right_stick_x) >= drivingTolerance);
 
         // break following if something goes wrong
-        if (isDriving && autonomousDriving) { // if driver inputs some control (through joysticks) then break
+        if (joystickMovement && autonomousDriving) { // if driver inputs some control (through joysticks) then break
             autonomousDriving = false;
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
         if (!autonomousDriving && driver.dpadUpWasPressed()) { // driver dpad UP for going to shoot pose
-            isDriving = false;
+            autonomousDriving = true;
             lineToPose(closeShootPose);
         }
 
         if (!autonomousDriving && driver.dpadDownWasPressed()) {// driver dpad DOWN for going to park pose
-            isDriving = false;
+            autonomousDriving = true;
             double desiredHeading = Math.toRadians(90);
             if (Robot.follower.getHeading() > Math.PI) {
                 desiredHeading = Math.toRadians(270);
@@ -120,12 +122,11 @@ public abstract class BaseTeleOp extends OpMode {
 
         // turn to shoot based on alliance and current position
         if (!autonomousDriving && driver.dpadLeftWasPressed()) {
-            isDriving = false;
             autonomousDriving = true;
             turnToShoot();
         }
 
-        if (isDriving && !autonomousDriving) {
+        if (!autonomousDriving) {
             // mecanum();
             pedroTeleop();
         }
@@ -205,7 +206,6 @@ public abstract class BaseTeleOp extends OpMode {
     public void lineToPose(Pose desiredPose) {
         Path path = new Path(new BezierLine(Robot.follower.getPose(), desiredPose));
         path.setLinearHeadingInterpolation(Robot.follower.getHeading(), desiredPose.getHeading());
-        autonomousDriving = true;
         Robot.follower.followPath(path);
     }
 
@@ -213,7 +213,8 @@ public abstract class BaseTeleOp extends OpMode {
     public void turnToShoot() {
         double xDist = Robot.follower.getPose().getX() - shootPose.getX(); // blue side: 72-11 = 61, red side: 72 - 133 = -61
         double yDist = shootPose.getY() - Robot.follower.getPose().getY(); // 140-111 = 29
-        double desiredHeading = Math.atan2(xDist, yDist) + (Math.PI / 2); // blue side: (61/29) = ~0.44 rad = ~64 deg, red side: (-61/29) = ~-0.44 rad = ~-64 deg (i think the math checks out)
+        double desiredHeading = Math.atan(xDist / yDist); // blue side: (61/29) = ~0.44 rad = ~64 deg, red side: (-61/29) = ~-0.44 rad = ~-64 deg (i think the math checks out)
+        if (alliance == Alliance.BLUE) desiredHeading += (Math.PI / 2);
 
         Robot.follower.turnTo(desiredHeading);
     }
