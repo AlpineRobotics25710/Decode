@@ -17,6 +17,9 @@ public class CloseSideBlue extends PedroBaseAuto {
     }
 
     @Override
+    protected Pose getEndPose() { return BlueClosePoses.parkPose; }
+
+    @Override
     protected void buildPaths() {
         // Line 1: Shoot preload (startPose -> shootPreloadPose), curve, Path
         Path shootPreloadPath = new Path(
@@ -27,7 +30,7 @@ public class CloseSideBlue extends PedroBaseAuto {
                 BlueClosePoses.startPose.getHeading(),
                 BlueClosePoses.shootPreloadPose.getHeading());
         allPaths.add(shootPreloadPath);
-        shotNeeded.put(shootPreloadPath, Constants.LAUNCHER_FAR_VELOCITY);
+        shotNeeded.put(shootPreloadPath, Constants.LAUNCHER_CLOSE_VELOCITY);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddleChain = follower.pathBuilder()
