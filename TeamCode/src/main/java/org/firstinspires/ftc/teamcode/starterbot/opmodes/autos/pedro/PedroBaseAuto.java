@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
@@ -41,10 +42,15 @@ public abstract class PedroBaseAuto extends OpMode {
 
     protected Alliance alliance = Alliance.BLUE; // By default blue
 
+    protected boolean interrupted = false;
+    protected Alliance alliance = Alliance.BLUE;
+
     /**
      * Child must supply the starting pose for this auto
      */
     protected abstract Pose getStartPose();
+
+    protected abstract Pose getEndPose();
 
     /**
      * Child must build all Paths / PathChains here
@@ -102,14 +108,14 @@ public abstract class PedroBaseAuto extends OpMode {
         advancePath();
     }
 
-    // Intake actions
-
     protected void beginIntakeSequence(Object intakePath) {
         follower.setMaxPower(0.5);
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;
     }
+
+    // Intake actions
 
     protected void updateIntakeSequence() {
         if (!intakeActive) return;
@@ -122,9 +128,8 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
-    // Shooting actions
-
     protected void beginShootingSequence(Object shootingPath, double velocity) {
+        ((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
 
         shotsToFire = 3;
@@ -132,8 +137,10 @@ public abstract class PedroBaseAuto extends OpMode {
         currentShotVelocity = velocity;
         waitingBeforeShooting = true;
         shootingActive = false;
-        pathTimer.resetTimer();          // 1-second settle delay
+        pathTimer.resetTimer();
     }
+
+    // Shooting actions
 
     protected void updateShootingSequence() {
         if (waitingBeforeShooting) {
@@ -186,6 +193,27 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
+    public void interruptAndPark() {
+        Pose followerPose = follower.getPose();
+
+        cancelAllActions();
+
+        Path goToEnd = new Path(new BezierLine(followerPose, getEndPose()));
+        goToEnd.setLinearHeadingInterpolation(followerPose.getHeading(), getEndPose().getHeading());
+        followPathOrPathChain(goToEnd, false);
+    }
+
+    protected void cancelAllActions() {
+        intakeActive = false;
+        waitingBeforeShooting = false;
+        shootingActive = false;
+        shotsToFire = 0;
+        shotsFired = 0;
+
+        follower.breakFollowing();
+        Robot.stopAll();
+    }
+
     @Override
     public void init() {
         CommonTelemetry.init(telemetry);
@@ -197,6 +225,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap);
         follower = Robot.follower;
+        follower.setStartingPose(getStartPose());
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -218,6 +247,17 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        if (gamepad1.a) alliance = Alliance.BLUE;
+        if (gamepad1.b) alliance = Alliance.RED;
+
+        follower.update();
+        CommonTelemetry.drawOnlyCurrent(follower);
+        CommonTelemetry.addData("Alliance", alliance);
+        CommonTelemetry.update();
+    }
+
+    @Override
     public void start() {
         opmodeTimer.resetTimer();
         allianceSetup(alliance);
@@ -230,10 +270,20 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        // Let child drive the state machine
-        autonomousPathUpdate();
+        if (opmodeTimer.getElapsedTimeSeconds() >= 29.5) {
+            interrupted = true;
+            follower.breakFollowing();
+            interruptAndPark();
+        }
 
-        Robot.loop();
+        if (!interrupted) {
+            // Let child drive the state machine
+            autonomousPathUpdate();
+
+            Robot.loop();
+        }
+
+        CommonTelemetry.draw(follower);
 
         // Common Pedro telemetry
         CommonTelemetry.addData("curr index", currIndex);
@@ -249,8 +299,8 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("y", follower.getPose().getY());
         CommonTelemetry.addData("curr heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
         CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
-        CommonTelemetry.addData("heading error (rad)", follower.getHeadingError());
-        CommonTelemetry.addData("heading constraint (rad)", follower.getConstraints().getHeadingConstraint());
+        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
+        CommonTelemetry.addData("heading constraint (deg)", Math.toDegrees(follower.getConstraints().getHeadingConstraint()));
         CommonTelemetry.update();
     }
 

@@ -38,6 +38,7 @@ public abstract class BaseTeleOp extends OpMode {
 
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
+        Pose startingPose = (Pose) blackboard.getOrDefault("final_auton_pose", new Pose(56.5, 8.75, Math.toRadians(90)));
         Robot.follower.setStartingPose(startingPose);
         alliance = Alliance.BLUE; // blue by default
         initGamepads();
@@ -68,9 +69,12 @@ public abstract class BaseTeleOp extends OpMode {
             closeShootPose.mirror();
         }
 
+        CommonTelemetry.drawOnlyCurrent(Robot.follower);
+
         CommonTelemetry.addData("Press A", "for BLUE");
         CommonTelemetry.addData("Press B", "for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
+        CommonTelemetry.addData("start pose", Robot.follower.getPose());
         CommonTelemetry.addData("curr time", System.currentTimeMillis());
         CommonTelemetry.update();
     }
@@ -173,7 +177,9 @@ public abstract class BaseTeleOp extends OpMode {
         // By subtracting, you're able to prevent them from fighting to give power to the motor
         //Robot.setIntakePower(operator.right_trigger - operator.left_trigger);
 
+        Robot.follower.update();
         Robot.loop();
+        CommonTelemetry.draw(Robot.follower);
 
         /*
          * Show the state and motor powers
