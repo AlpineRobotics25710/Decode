@@ -43,7 +43,6 @@ public abstract class PedroBaseAuto extends OpMode {
     protected Alliance alliance = Alliance.BLUE; // By default blue
 
     protected boolean interrupted = false;
-    protected Alliance alliance = Alliance.BLUE;
 
     /**
      * Child must supply the starting pose for this auto
@@ -243,17 +242,6 @@ public abstract class PedroBaseAuto extends OpMode {
 
         CommonTelemetry.addData("Instructions", "Select A for BLUE, Select B for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
-        CommonTelemetry.update();
-    }
-
-    @Override
-    public void init_loop() {
-        if (gamepad1.a) alliance = Alliance.BLUE;
-        if (gamepad1.b) alliance = Alliance.RED;
-
-        follower.update();
-        CommonTelemetry.drawOnlyCurrent(follower);
-        CommonTelemetry.addData("Alliance", alliance);
         CommonTelemetry.update();
     }
 

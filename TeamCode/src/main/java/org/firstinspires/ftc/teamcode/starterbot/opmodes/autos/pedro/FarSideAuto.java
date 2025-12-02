@@ -26,7 +26,7 @@ public class FarSideAuto extends PedroBaseAuto {
     }
 
     @Override
-    protected Pose getEndPose() { return BlueFarPoses.parkPose; }
+    protected Pose getEndPose() { return FarPoses.parkPose; }
 
     @Override
     protected void buildPaths() {

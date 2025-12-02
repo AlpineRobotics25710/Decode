@@ -27,7 +27,7 @@ public class CloseSideAuto extends PedroBaseAuto {
     }
 
     @Override
-    protected Pose getEndPose() { return BlueClosePoses.parkPose; }
+    protected Pose getEndPose() { return ClosePoses.parkPose; }
 
     @Override
     protected void buildPaths() {
