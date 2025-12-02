@@ -7,37 +7,62 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 
 @Configurable
 public class FarPoses implements AutonomousPoses {
-    // BLUE-SIDE TEMPLATE POSES
+    // Shooting angles
+    public double FAR_SHOOTING_ANGLE;
+    public double CLOSE_SHOOTING_ANGLE;
 
-    // blue
-    public static double FAR_SHOOTING_ANGLE = Math.toRadians(113);
-    public static double CLOSE_SHOOTING_ANGLE = Math.toRadians(136);
+    // Poses
+    public Pose startPose;
+    public Pose shootPreloadPose;
+    public Pose pickUpMiddlePose;
+    public Pose intakeMiddlePose;
+    public Pose openGatePose;
+    public Pose shootMiddlePose;
+    public Pose pickUpTopPose;
+    public Pose intakeTopPose;
+    public Pose shootTopPose;
+    public Pose pickUpBottomPose;
+    public Pose intakeBottomPose;
+    public Pose shootBottomPose;
+    public Pose parkPose;
 
-    // Global start pose (Blue coordinates)
-    public static Pose startPose = new Pose(56.5, 8.75, Math.toRadians(90));
+    // Control points
+    public Pose cpPickUpMiddle1;
+    public Pose cpOpenGate1;
+    public Pose cpOpenGate2;
+    public Pose cpShootMiddle1;
+    public Pose cpShootTop1;
+    public Pose cpPickUpBottom1;
+    public Pose cpShootBottom1;
+    public Pose cpPark1;
 
-    public static Pose shootPreloadPose = new Pose(54.5, 15.5, FAR_SHOOTING_ANGLE);                         // line 0
-    public static Pose pickUpMiddlePose = new Pose(50, 58.5, Math.toRadians(180));                        // line 1
-    public static Pose intakeMiddlePose = new Pose(16, 58.5, Math.toRadians(180));                        // line 2
-    public static Pose openGatePose = new Pose(15, 70.5, Math.toRadians(0));                          // line 3
-    public static Pose shootMiddlePose = new Pose(56, 84, CLOSE_SHOOTING_ANGLE); // line 4
-    public static Pose pickUpTopPose = new Pose(50, 83, Math.toRadians(180));                        // line 5
-    public static Pose intakeTopPose = new Pose(15.5, 83, Math.toRadians(180));                        // line 6
-    public static Pose shootTopPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);                       // line 7
-    public static Pose pickUpBottomPose = new Pose(50, 35, Math.toRadians(180));                        // line 8
-    public static Pose intakeBottomPose = new Pose(14.5, 35, Math.toRadians(180));                        // line 9
-    public static Pose shootBottomPose = new Pose(54.5, 12, FAR_SHOOTING_ANGLE);                         // line 10
-    public static Pose parkPose = new Pose(20, 70.5, Math.toRadians(0));                          // line 11
+    public FarPoses() {
+        FAR_SHOOTING_ANGLE = Math.toRadians(113);
+        CLOSE_SHOOTING_ANGLE = Math.toRadians(136);
 
-    // Control points (Blue coordinates)
-    public static Pose cpPickUpMiddle1 = new Pose(53.25, 56, 0); // line 1
-    public static Pose cpOpenGate1 = new Pose(51, 58, 0); // line 3
-    public static Pose cpOpenGate2 = new Pose(58.5, 64, 0); // line 3
-    public static Pose cpShootMiddle1 = new Pose(60, 67.25, 0); // line 4
-    public static Pose cpShootTop1 = new Pose(49, 92, 0); // line 7
-    public static Pose cpPickUpBottom1 = new Pose(58, 35.5, 0); // line 8
-    public static Pose cpShootBottom1 = new Pose(42, 26, 0); // line 10
-    public static Pose cpPark1 = new Pose(46, 60, 0); // line 11
+        startPose = new Pose(56.5, 8.75, Math.toRadians(90));
+        shootPreloadPose = new Pose(54.5, 15.5, FAR_SHOOTING_ANGLE);
+        pickUpMiddlePose = new Pose(50, 58.5, Math.toRadians(180));
+        intakeMiddlePose = new Pose(16, 58.5, Math.toRadians(180));
+        openGatePose = new Pose(15, 70.5, Math.toRadians(0));
+        shootMiddlePose = new Pose(56, 84, CLOSE_SHOOTING_ANGLE);
+        pickUpTopPose = new Pose(50, 83, Math.toRadians(180));
+        intakeTopPose = new Pose(15.5, 83, Math.toRadians(180));
+        shootTopPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);
+        pickUpBottomPose = new Pose(50, 35, Math.toRadians(180));
+        intakeBottomPose = new Pose(14.5, 35, Math.toRadians(180));
+        shootBottomPose = new Pose(54.5, 12, FAR_SHOOTING_ANGLE);
+        parkPose = new Pose(20, 70.5, Math.toRadians(0));
+
+        cpPickUpMiddle1 = new Pose(53.25, 56, 0);
+        cpOpenGate1 = new Pose(51, 58, 0);
+        cpOpenGate2 = new Pose(58.5, 64, 0);
+        cpShootMiddle1 = new Pose(60, 67.25, 0);
+        cpShootTop1 = new Pose(49, 92, 0);
+        cpPickUpBottom1 = new Pose(58, 35.5, 0);
+        cpShootBottom1 = new Pose(42, 26, 0);
+        cpPark1 = new Pose(46, 60, 0);
+    }
     
     @Override
     public void mirror() {
@@ -62,6 +87,10 @@ public class FarPoses implements AutonomousPoses {
         cpPickUpBottom1 = cpPickUpBottom1.mirror();
         cpShootBottom1 = cpShootBottom1.mirror();
         cpPark1 = cpPark1.mirror();
+
+        // Update headings
+        CLOSE_SHOOTING_ANGLE = (Math.PI) - CLOSE_SHOOTING_ANGLE;
+        FAR_SHOOTING_ANGLE = (Math.PI) - FAR_SHOOTING_ANGLE;
     }
     
     @Override

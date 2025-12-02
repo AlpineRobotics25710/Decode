@@ -10,80 +10,84 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.poses.ClosePoses;
-import org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.poses.FarPoses;
 
-@Autonomous(name = "Blue Side Close Auto", group = "pedro")
+@Autonomous(name = "Close Side Auto", group = "pedro")
 public class CloseSideAuto extends PedroBaseAuto {
+    private ClosePoses poses;
+
     @Override
     protected Pose getStartPose() {
-        return ClosePoses.startPose;
+        return poses.startPose;
     }
 
     @Override
     protected void allianceSetup(Alliance alliance) {
-        if (alliance != new ClosePoses().originalPosesAlliance()) {
-            new ClosePoses().mirror();
+        poses = new ClosePoses();
+        if (alliance != poses.originalPosesAlliance()) {
+            poses.mirror();
         }
     }
 
     @Override
-    protected Pose getEndPose() { return ClosePoses.parkPose; }
+    protected Pose getEndPose() {
+        return poses.parkPose;
+    }
 
     @Override
     protected void buildPaths() {
         // Line 1: Shoot preload (startPose -> shootPreloadPose), curve, Path
         Path shootPreloadPath = new Path(
                 new BezierLine(
-                        ClosePoses.startPose,
-                        ClosePoses.shootPreloadPose));
+                        poses.startPose,
+                        poses.shootPreloadPose));
         shootPreloadPath.setLinearHeadingInterpolation(
-                ClosePoses.startPose.getHeading(),
-                ClosePoses.shootPreloadPose.getHeading());
+                poses.startPose.getHeading(),
+                poses.shootPreloadPose.getHeading());
         allPaths.add(shootPreloadPath);
         shotNeeded.put(shootPreloadPath, Constants.LAUNCHER_CLOSE_VELOCITY);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddleChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        ClosePoses.shootPreloadPose,
-                        ClosePoses.cpPickUpMiddle1,
-                        ClosePoses.pickUpMiddlePose))
+                        poses.shootPreloadPose,
+                        poses.cpPickUpMiddle1,
+                        poses.pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        ClosePoses.shootPreloadPose.getHeading(),
-                        ClosePoses.pickUpMiddlePose.getHeading(),
+                        poses.shootPreloadPose.getHeading(),
+                        poses.pickUpMiddlePose.getHeading(),
                         0.65)
                 .build();
         allPaths.add(pickUpMiddleChain);
 
         // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
         Path intakeMiddlePath = new Path(
-                new BezierLine(ClosePoses.pickUpMiddlePose, ClosePoses.intakeMiddlePose));
-        intakeMiddlePath.setConstantHeadingInterpolation(ClosePoses.intakeMiddlePose.getHeading());
+                new BezierLine(poses.pickUpMiddlePose, poses.intakeMiddlePose));
+        intakeMiddlePath.setConstantHeadingInterpolation(poses.intakeMiddlePose.getHeading());
         allPaths.add(intakeMiddlePath);
         intakeNeeded.add(intakeMiddlePath);
 
         // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         Path openGatePath = new Path(
                 new BezierCurve(
-                        ClosePoses.intakeMiddlePose,
-                        ClosePoses.cpOpenGate1,
-                        ClosePoses.cpOpenGate2,
-                        ClosePoses.openGatePose));
+                        poses.intakeMiddlePose,
+                        poses.cpOpenGate1,
+                        poses.cpOpenGate2,
+                        poses.openGatePose));
         openGatePath.setLinearHeadingInterpolation(
-                ClosePoses.intakeMiddlePose.getHeading(),
-                ClosePoses.openGatePose.getHeading(),
+                poses.intakeMiddlePose.getHeading(),
+                poses.openGatePose.getHeading(),
                 0.8);
         allPaths.add(openGatePath);
 
         // Line 4: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
         Path shootMiddlePath = new Path(
                 new BezierCurve(
-                        ClosePoses.openGatePose,
-                        ClosePoses.cpShootMiddle1,
-                        ClosePoses.shootMiddlePose));
+                        poses.openGatePose,
+                        poses.cpShootMiddle1,
+                        poses.shootMiddlePose));
         shootMiddlePath.setLinearHeadingInterpolation(
-                ClosePoses.openGatePose.getHeading(),
-                ClosePoses.shootMiddlePose.getHeading(),
+                poses.openGatePose.getHeading(),
+                poses.shootMiddlePose.getHeading(),
                 0.65);
         allPaths.add(shootMiddlePath);
         shotNeeded.put(shootMiddlePath, Constants.LAUNCHER_CLOSE_VELOCITY);
@@ -91,31 +95,31 @@ public class CloseSideAuto extends PedroBaseAuto {
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         PathChain pickUpTopChain = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        ClosePoses.shootMiddlePose,
-                        ClosePoses.pickUpTopPose))
+                        poses.shootMiddlePose,
+                        poses.pickUpTopPose))
                 .setLinearHeadingInterpolation(
-                        ClosePoses.shootMiddlePose.getHeading(),
-                        ClosePoses.pickUpTopPose.getHeading(),
+                        poses.shootMiddlePose.getHeading(),
+                        poses.pickUpTopPose.getHeading(),
                         0.65)
                 .build();
         allPaths.add(pickUpTopChain);
 
         // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
         Path intakeTopPath = new Path(
-                new BezierLine(ClosePoses.pickUpTopPose, ClosePoses.intakeTopPose));
-        intakeTopPath.setConstantHeadingInterpolation(ClosePoses.intakeTopPose.getHeading());
+                new BezierLine(poses.pickUpTopPose, poses.intakeTopPose));
+        intakeTopPath.setConstantHeadingInterpolation(poses.intakeTopPose.getHeading());
         allPaths.add(intakeTopPath);
         intakeNeeded.add(intakeTopPath);
 
         // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         Path shootTopPath = new Path(
                 new BezierCurve(
-                        ClosePoses.intakeTopPose,
-                        ClosePoses.cpShootTop1,
-                        ClosePoses.shootTopPose));
+                        poses.intakeTopPose,
+                        poses.cpShootTop1,
+                        poses.shootTopPose));
         shootTopPath.setLinearHeadingInterpolation(
-                ClosePoses.intakeTopPose.getHeading(),
-                ClosePoses.shootTopPose.getHeading(),
+                poses.intakeTopPose.getHeading(),
+                poses.shootTopPose.getHeading(),
                 0.65);
         allPaths.add(shootTopPath);
         shotNeeded.put(shootTopPath, Constants.LAUNCHER_CLOSE_VELOCITY);
@@ -123,12 +127,12 @@ public class CloseSideAuto extends PedroBaseAuto {
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
         PathChain pickUpBottomChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        ClosePoses.shootTopPose,
-                        ClosePoses.cpPickUpBottom1,
-                        ClosePoses.pickUpBottomPose))
+                        poses.shootTopPose,
+                        poses.cpPickUpBottom1,
+                        poses.pickUpBottomPose))
                 .setLinearHeadingInterpolation(
-                        ClosePoses.shootTopPose.getHeading(),
-                        ClosePoses.pickUpBottomPose.getHeading(),
+                        poses.shootTopPose.getHeading(),
+                        poses.pickUpBottomPose.getHeading(),
                         0.65)
                 .build();
         allPaths.add(pickUpBottomChain);
@@ -136,21 +140,21 @@ public class CloseSideAuto extends PedroBaseAuto {
         // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
         Path intakeBottomPath = new Path(
                 new BezierLine(
-                        ClosePoses.pickUpBottomPose,
-                        ClosePoses.intakeBottomPose));
-        intakeBottomPath.setConstantHeadingInterpolation(ClosePoses.intakeBottomPose.getHeading());
+                        poses.pickUpBottomPose,
+                        poses.intakeBottomPose));
+        intakeBottomPath.setConstantHeadingInterpolation(poses.intakeBottomPose.getHeading());
         allPaths.add(intakeBottomPath);
         intakeNeeded.add(intakeBottomPath);
 
         // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         Path shootBottomPath = new Path(
                 new BezierCurve(
-                        ClosePoses.intakeBottomPose,
-                        ClosePoses.cpShootBottom1,
-                        ClosePoses.shootBottomPose));
+                        poses.intakeBottomPose,
+                        poses.cpShootBottom1,
+                        poses.shootBottomPose));
         shootBottomPath.setLinearHeadingInterpolation(
-                ClosePoses.intakeBottomPose.getHeading(),
-                ClosePoses.shootBottomPose.getHeading(),
+                poses.intakeBottomPose.getHeading(),
+                poses.shootBottomPose.getHeading(),
                 0.65);
         allPaths.add(shootBottomPath);
         shotNeeded.put(shootBottomPath, Constants.LAUNCHER_FAR_VELOCITY);
@@ -158,11 +162,11 @@ public class CloseSideAuto extends PedroBaseAuto {
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
         Path parkPath = new Path(
                 new BezierLine(
-                        ClosePoses.shootBottomPose,
-                        ClosePoses.parkPose));
+                        poses.shootBottomPose,
+                        poses.parkPose));
         parkPath.setLinearHeadingInterpolation(
-                ClosePoses.shootBottomPose.getHeading(),
-                ClosePoses.parkPose.getHeading());
+                poses.shootBottomPose.getHeading(),
+                poses.parkPose.getHeading());
         allPaths.add(parkPath);
     }
 }
