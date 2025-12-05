@@ -15,7 +15,9 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
 
+import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Queue;
 
 public class Robot {
     // Drivetrain motors
@@ -42,10 +44,14 @@ public class Robot {
     public static RampState rampState;
     public static BlockerState blockerState;
     public static LaunchSequenceState launchSequenceState;
+
     // Pedro
     public static Follower follower;
+
+    // Launcher variables
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
     private static long stateStartTime;
+    private static Queue<Double> launchQueue = new LinkedList<>();
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -139,6 +145,8 @@ public class Robot {
     public static void loop() {
         //CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
         //CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
+
+        updateLauncher();
 
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
@@ -251,18 +259,44 @@ public class Robot {
         }
     }
 
-    public static void launchBasedOnVelocity(double launcherVelocity) {
-        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
-            targetVelocityTps = launcherVelocity;
-            Robot.launcher.setVelocity(launcherVelocity);
-            launchSequenceState = LaunchSequenceState.SPINNING_UP;
-            stateStartTime = System.currentTimeMillis();
-        }
+    public static void queueLaunch(double speed) {
+        launchQueue.add(speed);
+    }
 
+    public static void updateLauncher() {
+        if (isLauncherBusy()) {
+            updateLauncherStateMachine();
+        } else if (launchQueue.peek() != null) {
+            double vel = launchQueue.poll();
+            Robot.launcher.setVelocity(vel);
+            startLaunchSequence(vel);
+        } else {
+            Robot.launcher.setVelocity(Constants.LAUNCHER_IDLE_VELOCITY);
+        }
+    }
+
+    public static boolean isLauncherBusy() {
+        return launchSequenceState != LaunchSequenceState.IDLE;
+    }
+
+    public static boolean isLaunchQueueEmpty() {
+        return launchQueue.isEmpty();
+    }
+
+    private static void startLaunchSequence(double velocity) {
+        targetVelocityTps = velocity;
+        Robot.launcher.setVelocity(targetVelocityTps);
+        launchSequenceState = LaunchSequenceState.SPINNING_UP;
+        stateStartTime = System.currentTimeMillis();
+    }
+
+    public static void updateLauncherStateMachine() {
         switch (launchSequenceState) {
             case SPINNING_UP:
-                if (Robot.launcher.getVelocity() >= targetVelocityTps - Constants.LAUNCHER_VELOCITY_TOLERANCE
-                        && System.currentTimeMillis() - stateStartTime < Constants.SPINUP_TIMEOUT_MS) {
+                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocityTps) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
+                boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
+
+                if (targetVelocityTps != Constants.ZERO && (reachedSpeed || timedOut)) {
                     Robot.setFeederPower(Constants.FEEDER_POWER);
                     launchSequenceState = LaunchSequenceState.FEEDING;
                     stateStartTime = System.currentTimeMillis();
@@ -279,9 +313,11 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(Constants.ZERO);
                     launchSequenceState = LaunchSequenceState.IDLE;
                 }
+                break;
+
+            case IDLE:
                 break;
         }
     }

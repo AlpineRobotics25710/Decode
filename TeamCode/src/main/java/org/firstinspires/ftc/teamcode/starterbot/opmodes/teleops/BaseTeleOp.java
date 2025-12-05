@@ -19,7 +19,8 @@ public abstract class BaseTeleOp extends OpMode {
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
-    public static double drivingTolerance = 0.1;
+    protected static double drivingTolerance = 0.1;
+    protected double targetLauncherVelocity = 0.0;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
@@ -136,21 +137,17 @@ public abstract class BaseTeleOp extends OpMode {
         }
 
         // Launcher controls
-        if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
-            Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (operator.aWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchBasedOnVelocity(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
+        if (operator.bWasPressed()) { // outtake controls
+            Robot.queueLaunch(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
+        } else if (operator.aWasPressed()) {
+            Robot.queueLaunch(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
+        } else if (operator.right_bumper && !Robot.isLauncherBusy()) { // intake controls
             Robot.spinToIntake();
-        } else if (operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+        } else if (operator.left_bumper && !Robot.isLauncherBusy()) {
             Robot.spinToOuttake();
-        } else if (!operator.right_bumper && !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
+        } else if (!operator.right_bumper && !operator.left_bumper && !Robot.isLauncherBusy()) {
             Robot.stopAll();
         }
-
-        Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
 
         /*
          * TECH TIP: State Machines
@@ -178,8 +175,8 @@ public abstract class BaseTeleOp extends OpMode {
         // By subtracting, you're able to prevent them from fighting to give power to the motor
         //Robot.setIntakePower(operator.right_trigger - operator.left_trigger);
 
-        Robot.follower.update();
         Robot.loop();
+        Robot.follower.update();
         CommonTelemetry.draw(Robot.follower);
 
         /*

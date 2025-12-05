@@ -64,9 +64,6 @@ public class PreloadAuto extends OpMode {
 
     @Override
     public void loop() {
-        // Always tick the launcher state machine
-        Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
-
         LaunchSequenceState ls = Robot.launchSequenceState;
 
         switch (state) {
@@ -74,7 +71,7 @@ public class PreloadAuto extends OpMode {
                 // If no shot is currently in flight and we have more to shoot, command the next one
                 if (!shotInFlight && shotsFired < TOTAL_SHOTS && ls == LaunchSequenceState.IDLE
                         && shotCooldown.milliseconds() >= SHOT_COOLDOWN_MS) {
-                    Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY);
+                    Robot.queueLaunch(Constants.LAUNCHER_FAR_VELOCITY);
                     shotInFlight = true;          // wait for cycle to complete
                     shotCooldown.reset();
                 }
@@ -113,6 +110,8 @@ public class PreloadAuto extends OpMode {
         }
 
         prevLaunchState = ls;
+
+        Robot.loop();
 
         // telemetry
         telemetry.addData("State", state);
