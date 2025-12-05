@@ -55,19 +55,8 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (driver.a) {
-            alliance = Alliance.BLUE;
-            parkPose.mirror();
-            shootPose.mirror();
-            closeShootPose.mirror();
-        }
-
-        if (driver.b) {
-            alliance = Alliance.RED;
-            parkPose.mirror();
-            shootPose.mirror();
-            closeShootPose.mirror();
-        }
+        if (driver.a) alliance = Alliance.BLUE;
+        if (driver.b) alliance = Alliance.RED;
 
         CommonTelemetry.drawOnlyCurrent(Robot.follower);
 
@@ -84,6 +73,13 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void start() {
+        // Mirror poses if alliance is red
+        if (alliance == Alliance.RED) {
+            parkPose.mirror();
+            shootPose.mirror();
+            closeShootPose.mirror();
+        }
+
         Robot.follower.startTeleopDrive(useBrakeMode);
     }
 
