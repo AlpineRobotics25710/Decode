@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
@@ -150,14 +151,16 @@ public class Robot {
 
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.3f / %.3f", curTps, targetVelocityTps));
-
-        // estimated RPM (5203 @ ~537.7 ticks/rev)
-        CommonTelemetry.addData("Launcher rpm (est)", String.format(Locale.US, "%.0f", curTps * 60.0 / 537.7));
+        CommonTelemetry.addData("Launcher tps (curr/target)", curTps + "/" + targetVelocityTps);
+        CommonTelemetry.addData("Launcher rpm (curr/target)", tpsToRpm(curTps, 537.7) + "/" + tpsToRpm(targetVelocityTps, 537.7));
 
         CommonTelemetry.addData("Ramp State", rampState.toString());
         CommonTelemetry.addData("Blocker State", blockerState.toString());
         CommonTelemetry.addData("Launch Sequence State", launchSequenceState.toString());
+    }
+
+    public static double tpsToRpm(double tps, double ppr) {
+        return (tps * 60) / ppr;
     }
 
     public static void setFeederPower(double power) {
