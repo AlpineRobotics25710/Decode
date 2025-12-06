@@ -35,7 +35,8 @@ public class ClosePoses implements AutonomousPoses {
     public Pose cpShootBottom1;
 
     public ClosePoses() {
-        CLOSE_SHOOTING_ANGLE = Math.toRadians(134);
+        CLOSE_SHOOTING_ANGLE = Math.toRadians(136);
+
         startPose = new Pose(21, 122, Math.toRadians(143.5));
         shootPreloadPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);
         pickUpMiddlePose = new Pose(50, 58.5, Math.toRadians(180));

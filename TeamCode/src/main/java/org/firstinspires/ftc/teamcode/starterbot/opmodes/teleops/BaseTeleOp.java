@@ -40,7 +40,7 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.init(hardwareMap);
         Pose startingPose = (Pose) blackboard.getOrDefault("final_auton_pose", new Pose(56.5, 8.75, Math.toRadians(90)));
         Robot.follower.setStartingPose(startingPose);
-        alliance = Alliance.BLUE; // blue by default
+        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE); // blue by default
         initGamepads();
     }
 

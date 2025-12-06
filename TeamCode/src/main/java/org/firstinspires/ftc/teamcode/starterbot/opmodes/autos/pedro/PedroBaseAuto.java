@@ -63,6 +63,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
     public void autonomousPathUpdate() {
         //if (follower.isBusy() || currIndex >= allPaths.size()) return;
+        if (interrupted) return;
 
         // if shooting, loop shooting
         if (waitingBeforeShooting || shootingActive) {
@@ -224,7 +225,6 @@ public abstract class PedroBaseAuto extends OpMode {
         // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap);
         follower = Robot.follower;
-        follower.setStartingPose(getStartPose());
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -247,10 +247,11 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void start() {
-        opmodeTimer.resetTimer();
-        allianceSetup(alliance);
-        buildPaths();
+        allianceSetup(alliance); // Any alliance-specific set up
         follower.setStartingPose(getStartPose());
+        buildPaths();
+        follower.update();
+        opmodeTimer.resetTimer();
     }
 
     @Override
@@ -258,14 +259,13 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 29.5) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
         }
 
         if (!interrupted) {
-            // Let child drive the state machine
             autonomousPathUpdate();
 
             Robot.loop();
@@ -281,6 +281,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("shots fired", shotsFired);
         CommonTelemetry.addData("shots to fire", shotsToFire);
         CommonTelemetry.addData("follower busy", follower.isBusy());
+        CommonTelemetry.addData("interrupted", interrupted);
         CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
         CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTime());
         CommonTelemetry.addData("x", follower.getPose().getX());
@@ -295,5 +296,6 @@ public abstract class PedroBaseAuto extends OpMode {
     @Override
     public void stop() {
         blackboard.put("final_auton_pose", follower.getPose());
+        blackboard.put("alliance", alliance);
     }
 }
