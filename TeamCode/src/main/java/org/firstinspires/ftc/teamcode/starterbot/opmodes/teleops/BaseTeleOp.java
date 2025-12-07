@@ -14,21 +14,20 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
+    public static double drivingTolerance = 0.1;
+    public static Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90));
+    // Should probably add these and other poses to their own constants class later, but just here for now
+    protected final Pose closeShootPose = new Pose(56, 84, Math.toRadians(136)); // blue initially
     protected Gamepad driver;
     protected Gamepad operator;
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
-    public static double drivingTolerance = 0.1;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
-
-    // Should probably add these and other poses to their own constants class later, but just here for now
-    protected final Pose closeShootPose = new Pose(56, 84, Math.toRadians(136)); // blue initially
     protected Pose parkPose = new Pose(105, 33); // blue initially
     protected Pose shootPose = new Pose(11, 140); // blue initially
-    public static Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90));
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -41,7 +40,7 @@ public abstract class BaseTeleOp extends OpMode {
         Robot.init(hardwareMap);
         Pose startingPose = (Pose) blackboard.getOrDefault("final_auton_pose", new Pose(56.5, 8.75, Math.toRadians(90)));
         Robot.follower.setStartingPose(startingPose);
-        alliance = Alliance.BLUE; // blue by default
+        alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE); // blue by default
         initGamepads();
     }
 
@@ -56,19 +55,8 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (driver.a) {
-            alliance = Alliance.BLUE;
-            parkPose.mirror();
-            shootPose.mirror();
-            closeShootPose.mirror();
-        }
-
-        if (driver.b) {
-            alliance = Alliance.RED;
-            parkPose.mirror();
-            shootPose.mirror();
-            closeShootPose.mirror();
-        }
+        if (driver.a) alliance = Alliance.BLUE;
+        if (driver.b) alliance = Alliance.RED;
 
         CommonTelemetry.drawOnlyCurrent(Robot.follower);
 
@@ -85,6 +73,13 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void start() {
+        // Mirror poses if alliance is red
+        if (alliance == Alliance.RED) {
+            parkPose.mirror();
+            shootPose.mirror();
+            closeShootPose.mirror();
+        }
+
         Robot.follower.startTeleopDrive(useBrakeMode);
     }
 
@@ -226,21 +221,22 @@ public abstract class BaseTeleOp extends OpMode {
     }
 
     public void pedroTeleop() {
+        double left_stick_y = -gamepad1.left_stick_y;
+        double left_stick_x = -gamepad1.left_stick_x;
+        double right_stick_x = -gamepad1.right_stick_x;
+
         if (turtleMode.get()) {
-            Robot.follower.setTeleOpDrive(
-                    -gamepad1.left_stick_y * (Constants.TURTLE),
-                    -gamepad1.left_stick_x * (Constants.TURTLE),
-                    -gamepad1.right_stick_x * (Constants.TURTLE),
-                    robotCentric // Robot Centric
-            );
-        } else {
-            Robot.follower.setTeleOpDrive(
-                    -gamepad1.left_stick_y,
-                    -gamepad1.left_stick_x,
-                    -gamepad1.right_stick_x,
-                    robotCentric // Robot Centric
-            );
+            left_stick_y *= (Constants.TURTLE);
+            left_stick_x *= (Constants.TURTLE);
+            right_stick_x *= (Constants.TURTLE);
         }
+
+        Robot.follower.setTeleOpDrive(
+                left_stick_y,
+                left_stick_x,
+                right_stick_x,
+                robotCentric // Robot Centric
+        );
     }
 
     /*
