@@ -156,6 +156,7 @@ public class Robot {
         CommonTelemetry.addData("Ramp State", rampState.toString());
         CommonTelemetry.addData("Blocker State", blockerState.toString());
         CommonTelemetry.addData("Launch Sequence State", launchSequenceState.toString());
+        CommonTelemetry.addData("Launch queue size", launchQueue.size());
     }
 
     public static double tpsToRpm(double tps, double ppr) {
@@ -227,9 +228,9 @@ public class Robot {
     }
 
     public static void stopAll() {
-        currentNonLaunchVelocity = Constants.ZERO;
         Robot.setIntakePower(Constants.ZERO);
         Robot.setFeederPower(Constants.ZERO);
+        Robot.killLauncher();
     }
 
     public static void switchRampState() {
@@ -283,6 +284,14 @@ public class Robot {
         }
     }
 
+    public static void killLauncher() {
+        Robot.launcher.setVelocity(Constants.ZERO);
+        targetVelocityTps = Constants.ZERO;
+        launchQueue.clear();
+        launchSequenceState = LaunchSequenceState.IDLE;
+        currentNonLaunchVelocity = Constants.ZERO;
+    }
+
     public static boolean isLauncherBusy() {
         return launchSequenceState != LaunchSequenceState.IDLE;
     }
@@ -312,7 +321,7 @@ public class Robot {
                 break;
 
             case FEEDING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
+                if (System.currentTimeMillis() - stateStartTime >= calculateFeedTime()) {
                     Robot.setFeederPower(Constants.ZERO);
                     stateStartTime = System.currentTimeMillis();
                     launchSequenceState = LaunchSequenceState.SHOOTING;
@@ -321,6 +330,11 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    long totalShotsFed = calculateFeedTime() / Constants.FEED_TIME_MS;
+                    for (int i = 0; i < totalShotsFed; i++) {
+                        launchQueue.poll();
+                    }
+
                     if (launchQueue.peek() != null) {
                         startLaunchSequence(launchQueue.poll());
                     } else {
@@ -332,5 +346,27 @@ public class Robot {
             case IDLE:
                 break;
         }
+    }
+
+    public static long calculateFeedTime() {
+        long time = Constants.FEED_TIME_MS;
+
+        Object[] queuedVelocities = launchQueue.toArray();
+        int matchingShots = 0;
+        for (Object velObject : queuedVelocities) {
+            if (!(velObject instanceof Double)) {
+                break;
+            }
+            Double nextVelocity = (Double) velObject;
+
+            if (Math.abs(nextVelocity - targetVelocityTps) < Constants.LAUNCHER_VELOCITY_TOLERANCE) {
+                matchingShots++;
+            } else {
+                break;
+            }
+        }
+
+        long multiplier = matchingShots + 1;
+        return time * multiplier;
     }
 }

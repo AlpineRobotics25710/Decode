@@ -154,7 +154,7 @@ public abstract class PedroBaseAuto extends OpMode {
         }
 
         if (shootingActive) {
-            if (Robot.isLaunchQueueEmpty()) {
+            if (Robot.isLaunchQueueEmpty() && !Robot.isLauncherBusy()) {
                 shootingActive = false;
                 Robot.switchRampState();
                 advancePath();

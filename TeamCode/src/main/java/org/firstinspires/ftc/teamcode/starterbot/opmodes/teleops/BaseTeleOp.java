@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 
 import java.util.function.Supplier;
 
@@ -142,7 +143,9 @@ public abstract class BaseTeleOp extends OpMode {
             } else if (operator.left_bumper) {
                 Robot.spinToOuttake();
             } else {
-                Robot.stopAll();
+                Robot.setIntakePower(Constants.ZERO);
+                Robot.setFeederPower(Constants.ZERO);
+                Robot.currentNonLaunchVelocity = Constants.ZERO;
             }
         }
 
@@ -244,6 +247,4 @@ public abstract class BaseTeleOp extends OpMode {
     @Override
     public void stop() {
     }
-
-    protected enum Alliance {BLUE, RED}
 }
