@@ -11,13 +11,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
 
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Queue;
 
 public class Robot {
@@ -51,8 +49,9 @@ public class Robot {
 
     // Launcher variables
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
+    public static double currentNonLaunchVelocity;
     private static long stateStartTime;
-    private static Queue<Double> launchQueue = new LinkedList<>();
+    private static final Queue<Double> launchQueue = new LinkedList<>();
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -216,19 +215,19 @@ public class Robot {
     }
 
     public static void spinToIntake() {
-        Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY); // intake
+        currentNonLaunchVelocity = Constants.LAUNCHER_INTAKE_VELOCITY; // intake
         Robot.setIntakePower(Constants.INTAKE_POWER);
         Robot.setFeederPower(-Constants.FEEDER_POWER);
     }
 
     public static void spinToOuttake() {
-        Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY); // outtake
+        currentNonLaunchVelocity = -Constants.LAUNCHER_INTAKE_VELOCITY; // outtake
         Robot.setIntakePower(-Constants.INTAKE_POWER);
         Robot.setFeederPower(Constants.FEEDER_POWER);
     }
 
     public static void stopAll() {
-        Robot.launcher.setVelocity(Constants.ZERO);
+        currentNonLaunchVelocity = Constants.ZERO;
         Robot.setIntakePower(Constants.ZERO);
         Robot.setFeederPower(Constants.ZERO);
     }
@@ -271,10 +270,16 @@ public class Robot {
             updateLauncherStateMachine();
         } else if (launchQueue.peek() != null) {
             double vel = launchQueue.poll();
-            Robot.launcher.setVelocity(vel);
             startLaunchSequence(vel);
         } else {
-            Robot.launcher.setVelocity(Constants.LAUNCHER_IDLE_VELOCITY);
+            if (targetVelocityTps != currentNonLaunchVelocity) {
+                targetVelocityTps = currentNonLaunchVelocity;
+                Robot.launcher.setVelocity(currentNonLaunchVelocity);
+            }
+
+            if (launchSequenceState != LaunchSequenceState.IDLE) {
+                launchSequenceState = LaunchSequenceState.IDLE;
+            }
         }
     }
 
@@ -316,7 +321,11 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    launchSequenceState = LaunchSequenceState.IDLE;
+                    if (launchQueue.peek() != null) {
+                        startLaunchSequence(launchQueue.poll());
+                    } else {
+                        launchSequenceState = LaunchSequenceState.IDLE;
+                    }
                 }
                 break;
 

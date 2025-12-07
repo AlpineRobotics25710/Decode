@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
-import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 import java.util.function.Supplier;
 
@@ -20,7 +19,6 @@ public abstract class BaseTeleOp extends OpMode {
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
     protected static double drivingTolerance = 0.1;
-    protected double targetLauncherVelocity = 0.0;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
@@ -141,12 +139,16 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.queueLaunch(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
         } else if (operator.aWasPressed()) {
             Robot.queueLaunch(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (operator.right_bumper && !Robot.isLauncherBusy()) { // intake controls
-            Robot.spinToIntake();
-        } else if (operator.left_bumper && !Robot.isLauncherBusy()) {
-            Robot.spinToOuttake();
-        } else if (!operator.right_bumper && !operator.left_bumper && !Robot.isLauncherBusy()) {
-            Robot.stopAll();
+        }
+
+        if (!Robot.isLauncherBusy()) {
+            if (operator.right_bumper) { // intake controls
+                Robot.spinToIntake();
+            } else if (operator.left_bumper) {
+                Robot.spinToOuttake();
+            } else {
+                Robot.stopAll();
+            }
         }
 
         /*
