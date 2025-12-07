@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,8 +37,9 @@ public abstract class PedroBaseAuto extends OpMode {
     protected boolean waitingBeforeShooting = false;
     protected double currentShotVelocity = 0;
 
+    protected Alliance alliance = Alliance.BLUE; // By default blue
+
     protected boolean interrupted = false;
-    protected Alliance alliance = Alliance.BLUE;
 
     /**
      * Child must supply the starting pose for this auto
@@ -51,8 +53,14 @@ public abstract class PedroBaseAuto extends OpMode {
      */
     protected abstract void buildPaths();
 
+    /**
+     * Any alliance-specific set up. Called in the start() method before buildPaths();
+     */
+    protected abstract void allianceSetup(Alliance alliance);
+
     public void autonomousPathUpdate() {
         //if (follower.isBusy() || currIndex >= allPaths.size()) return;
+        if (interrupted) return;
 
         // if shooting, loop shooting
         if (waitingBeforeShooting || shootingActive) {
@@ -206,7 +214,6 @@ public abstract class PedroBaseAuto extends OpMode {
         // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap);
         follower = Robot.follower;
-        follower.setStartingPose(getStartPose());
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -222,17 +229,18 @@ public abstract class PedroBaseAuto extends OpMode {
         if (gamepad1.a) alliance = Alliance.BLUE;
         if (gamepad1.b) alliance = Alliance.RED;
 
-        follower.update();
-        CommonTelemetry.drawOnlyCurrent(follower);
-        CommonTelemetry.addData("Alliance", alliance);
+        CommonTelemetry.addData("Instructions", "Select A for BLUE, Select B for RED");
+        CommonTelemetry.addData("Selected Alliance", alliance);
         CommonTelemetry.update();
     }
 
     @Override
     public void start() {
-        opmodeTimer.resetTimer();
-        buildPaths();
+        allianceSetup(alliance); // Any alliance-specific set up
         follower.setStartingPose(getStartPose());
+        buildPaths();
+        follower.update();
+        opmodeTimer.resetTimer();
     }
 
     @Override
@@ -240,14 +248,13 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 29.5) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
         }
 
         if (!interrupted) {
-            // Let child drive the state machine
             autonomousPathUpdate();
 
             Robot.loop();
@@ -261,6 +268,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("Waiting before shooting", waitingBeforeShooting);
         CommonTelemetry.addData("shooting active", shootingActive);
         CommonTelemetry.addData("follower busy", follower.isBusy());
+        CommonTelemetry.addData("interrupted", interrupted);
         CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
         CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTime());
         CommonTelemetry.addData("x", follower.getPose().getX());
@@ -275,7 +283,6 @@ public abstract class PedroBaseAuto extends OpMode {
     @Override
     public void stop() {
         blackboard.put("final_auton_pose", follower.getPose());
+        blackboard.put("alliance", alliance);
     }
-
-    public enum Alliance {BLUE, RED}
 }
