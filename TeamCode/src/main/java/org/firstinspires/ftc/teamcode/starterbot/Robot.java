@@ -331,7 +331,7 @@ public class Robot {
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
                     long totalShotsFed = calculateFeedTime() / Constants.FEED_TIME_MS;
-                    for (int i = 0; i < totalShotsFed; i++) {
+                    for (int i = 0; i < totalShotsFed - 1; i++) { // First one is already removed
                         launchQueue.poll();
                     }
 
