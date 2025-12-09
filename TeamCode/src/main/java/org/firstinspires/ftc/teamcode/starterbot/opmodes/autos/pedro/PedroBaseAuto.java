@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +28,8 @@ public abstract class PedroBaseAuto extends OpMode {
     protected LinkedList<Object> allPaths;
     protected Map<Object, Double> shotNeeded;
     protected Set<Object> intakeNeeded;
-    protected int currIndex = 0;
+    protected ListIterator<Object> pathIterator;
+    protected Object currPath = null;
 
     // intake flags
     protected boolean intakeActive = false;
@@ -79,11 +81,11 @@ public abstract class PedroBaseAuto extends OpMode {
             return;
         }
 
-        if (currIndex >= allPaths.size()) {
+        if (!pathIterator.hasNext()) {
             return;
         }
 
-        Object step = currentPath();
+        Object step = currPath;
 
         // get ready to intake
         if (intakeNeeded.contains(step)) {
@@ -162,18 +164,9 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
-    protected Object currentPath() {
-        return safeGet(currIndex);
-    }
-
     protected void advancePath() {
-        currIndex++;
+        currPath = pathIterator.next();
         pathTimer.resetTimer();
-    }
-
-    protected Object safeGet(int index) {
-        if (index < 0 || index >= allPaths.size()) return null;
-        return allPaths.get(index);
     }
 
     protected void followPathOrPathChain(Object toFollow, boolean holdEnd) {
@@ -210,6 +203,7 @@ public abstract class PedroBaseAuto extends OpMode {
         allPaths = new LinkedList<>();
         shotNeeded = new HashMap<>();
         intakeNeeded = new HashSet<>();
+        pathIterator = allPaths.listIterator();
 
         // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap);
@@ -240,6 +234,12 @@ public abstract class PedroBaseAuto extends OpMode {
         follower.setStartingPose(getStartPose());
         buildPaths();
         follower.update();
+        if (allPaths.isEmpty()) {
+            CommonTelemetry.debug("No paths were added");
+            CommonTelemetry.update();
+            stop();
+        }
+        currPath = pathIterator.next();
         opmodeTimer.resetTimer();
     }
 
@@ -263,7 +263,6 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.draw(follower);
 
         // Common Pedro telemetry
-        CommonTelemetry.addData("curr index", currIndex);
         CommonTelemetry.addData("intake active", intakeActive);
         CommonTelemetry.addData("Waiting before shooting", waitingBeforeShooting);
         CommonTelemetry.addData("shooting active", shootingActive);
