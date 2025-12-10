@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 import java.util.function.Supplier;
@@ -245,6 +246,4 @@ public abstract class BaseTeleOp extends OpMode {
     @Override
     public void stop() {
     }
-
-    protected enum Alliance {BLUE, RED}
 }
