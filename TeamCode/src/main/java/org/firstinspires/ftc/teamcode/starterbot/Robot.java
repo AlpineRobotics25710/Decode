@@ -15,7 +15,8 @@ import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
 
-import java.util.Locale;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Robot {
     // Drivetrain motors
@@ -42,10 +43,15 @@ public class Robot {
     public static RampState rampState;
     public static BlockerState blockerState;
     public static LaunchSequenceState launchSequenceState;
+
     // Pedro
     public static Follower follower;
+
+    // Launcher variables
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
+    public static double currentNonLaunchVelocity;
     private static long stateStartTime;
+    private static final Queue<Double> launchQueue = new LinkedList<>();
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -140,16 +146,21 @@ public class Robot {
         //CommonTelemetry.debug("Motors:", "Left: " + leftDrive.getPower(), "Right: " + rightDrive.getPower());
         //CommonTelemetry.debug("Servos: ", "Left: " + leftFeeder.getPower(), "Right: " + rightFeeder.getPower());
 
+        updateLauncher();
+
         // launcher telemetry
         double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher tps (cur/target)", String.format(Locale.US, "%.3f / %.3f", curTps, targetVelocityTps));
-
-        // estimated RPM (5203 @ ~537.7 ticks/rev)
-        CommonTelemetry.addData("Launcher rpm (est)", String.format(Locale.US, "%.0f", curTps * 60.0 / 537.7));
+        CommonTelemetry.addData("Launcher tps (curr/target)", curTps + "/" + targetVelocityTps);
+        CommonTelemetry.addData("Launcher rpm (curr/target)", tpsToRpm(curTps, 537.7) + "/" + tpsToRpm(targetVelocityTps, 537.7));
 
         CommonTelemetry.addData("Ramp State", rampState.toString());
         CommonTelemetry.addData("Blocker State", blockerState.toString());
         CommonTelemetry.addData("Launch Sequence State", launchSequenceState.toString());
+        CommonTelemetry.addData("Launch queue size", launchQueue.size());
+    }
+
+    public static double tpsToRpm(double tps, double ppr) {
+        return (tps * 60) / ppr;
     }
 
     public static void setFeederPower(double power) {
@@ -205,21 +216,21 @@ public class Robot {
     }
 
     public static void spinToIntake() {
-        Robot.launcher.setVelocity(Constants.LAUNCHER_INTAKE_VELOCITY); // intake
+        currentNonLaunchVelocity = Constants.LAUNCHER_INTAKE_VELOCITY; // intake
         Robot.setIntakePower(Constants.INTAKE_POWER);
         Robot.setFeederPower(-Constants.FEEDER_POWER);
     }
 
     public static void spinToOuttake() {
-        Robot.launcher.setVelocity(-Constants.LAUNCHER_INTAKE_VELOCITY); // outtake
+        currentNonLaunchVelocity = -Constants.LAUNCHER_INTAKE_VELOCITY; // outtake
         Robot.setIntakePower(-Constants.INTAKE_POWER);
         Robot.setFeederPower(Constants.FEEDER_POWER);
     }
 
     public static void stopAll() {
-        Robot.launcher.setVelocity(Constants.ZERO);
         Robot.setIntakePower(Constants.ZERO);
         Robot.setFeederPower(Constants.ZERO);
+        Robot.killLauncher();
     }
 
     public static void switchRampState() {
@@ -251,18 +262,59 @@ public class Robot {
         }
     }
 
-    public static void launchBasedOnVelocity(double launcherVelocity) {
-        if (launcherVelocity != Constants.CONTINUE_LAUNCH_SEQUENCE && launchSequenceState == LaunchSequenceState.IDLE) {
-            targetVelocityTps = launcherVelocity;
-            Robot.launcher.setVelocity(launcherVelocity);
-            launchSequenceState = LaunchSequenceState.SPINNING_UP;
-            stateStartTime = System.currentTimeMillis();
-        }
+    public static void queueLaunch(double speed) {
+        launchQueue.add(speed);
+    }
 
+    public static void updateLauncher() {
+        if (isLauncherBusy()) {
+            updateLauncherStateMachine();
+        } else if (launchQueue.peek() != null) {
+            double vel = launchQueue.poll();
+            startLaunchSequence(vel);
+        } else {
+            if (targetVelocityTps != currentNonLaunchVelocity) {
+                targetVelocityTps = currentNonLaunchVelocity;
+                Robot.launcher.setVelocity(currentNonLaunchVelocity);
+            }
+
+            if (launchSequenceState != LaunchSequenceState.IDLE) {
+                launchSequenceState = LaunchSequenceState.IDLE;
+            }
+        }
+    }
+
+    public static void killLauncher() {
+        Robot.launcher.setVelocity(Constants.ZERO);
+        targetVelocityTps = Constants.ZERO;
+        launchQueue.clear();
+        launchSequenceState = LaunchSequenceState.IDLE;
+        currentNonLaunchVelocity = Constants.ZERO;
+    }
+
+    public static boolean isLauncherBusy() {
+        return launchSequenceState != LaunchSequenceState.IDLE;
+    }
+
+    public static boolean isLaunchQueueEmpty() {
+        return launchQueue.isEmpty();
+    }
+
+    private static void startLaunchSequence(double velocity) {
+        targetVelocityTps = velocity;
+        Robot.launcher.setVelocity(targetVelocityTps);
+        launchSequenceState = LaunchSequenceState.SPINNING_UP;
+        stateStartTime = System.currentTimeMillis();
+    }
+
+    public static void updateLauncherStateMachine() {
         switch (launchSequenceState) {
             case SPINNING_UP:
-                if (Robot.launcher.getVelocity() >= targetVelocityTps - Constants.LAUNCHER_VELOCITY_TOLERANCE
-                        && System.currentTimeMillis() - stateStartTime < Constants.SPINUP_TIMEOUT_MS) {
+                // shooting tolerances
+                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocityTps) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
+                boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
+
+                if (reachedSpeed || timedOut) {
                     Robot.setFeederPower(Constants.FEEDER_POWER);
                     launchSequenceState = LaunchSequenceState.FEEDING;
                     stateStartTime = System.currentTimeMillis();
@@ -279,9 +331,16 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    Robot.launcher.setVelocity(Constants.ZERO);
-                    launchSequenceState = LaunchSequenceState.IDLE;
+                    // if there are more balls to shoot, then go and shoot those
+                    if (launchQueue.peek() != null) {
+                        startLaunchSequence(launchQueue.poll());
+                    } else {
+                        launchSequenceState = LaunchSequenceState.IDLE;
+                    }
                 }
+                break;
+
+            case IDLE:
                 break;
         }
     }

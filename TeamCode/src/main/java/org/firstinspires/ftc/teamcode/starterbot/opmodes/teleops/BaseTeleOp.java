@@ -10,12 +10,10 @@ import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
-import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 
 import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
-    public static double drivingTolerance = 0.1;
     public static Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90));
     // Should probably add these and other poses to their own constants class later, but just here for now
     protected final Pose closeShootPose = new Pose(56, 84, Math.toRadians(136)); // blue initially
@@ -24,6 +22,7 @@ public abstract class BaseTeleOp extends OpMode {
     protected Supplier<Boolean> turtleMode;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
+    protected static double drivingTolerance = 0.1;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
@@ -132,21 +131,23 @@ public abstract class BaseTeleOp extends OpMode {
         }
 
         // Launcher controls
-        if (operator.bWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // outtake controls
-            Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (operator.aWasPressed() && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.setIntakePower(Constants.ZERO); // turn off intake
-            Robot.launchBasedOnVelocity(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (operator.right_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) { // intake controls
-            Robot.spinToIntake();
-        } else if (operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.spinToOuttake();
-        } else if (!operator.right_bumper && !operator.left_bumper && Robot.launchSequenceState == LaunchSequenceState.IDLE) {
-            Robot.stopAll();
+        if (operator.bWasPressed()) { // outtake controls
+            Robot.queueLaunch(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
+        } else if (operator.aWasPressed()) {
+            Robot.queueLaunch(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
         }
 
-        Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE); // Keep launchBasedOnVelocity sequence going in loop
+        if (!Robot.isLauncherBusy()) {
+            if (operator.right_bumper) { // intake controls
+                Robot.spinToIntake();
+            } else if (operator.left_bumper) {
+                Robot.spinToOuttake();
+            } else {
+                Robot.setIntakePower(Constants.ZERO);
+                Robot.setFeederPower(Constants.ZERO);
+                Robot.currentNonLaunchVelocity = Constants.ZERO;
+            }
+        }
 
         /*
          * TECH TIP: State Machines
@@ -174,8 +175,8 @@ public abstract class BaseTeleOp extends OpMode {
         // By subtracting, you're able to prevent them from fighting to give power to the motor
         //Robot.setIntakePower(operator.right_trigger - operator.left_trigger);
 
-        Robot.follower.update();
         Robot.loop();
+        Robot.follower.update();
         CommonTelemetry.draw(Robot.follower);
 
         /*

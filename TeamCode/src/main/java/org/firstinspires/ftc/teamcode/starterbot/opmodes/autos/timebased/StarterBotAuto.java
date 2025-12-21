@@ -180,7 +180,7 @@ public class StarterBotAuto extends OpMode {
              * allowing it to cycle through and continue the process of launching the first ball.
              */
             case LAUNCH:
-                Robot.launchBasedOnVelocity(Constants.LAUNCHER_FAR_VELOCITY);
+                Robot.queueLaunch(Constants.LAUNCHER_FAR_VELOCITY);
                 autonomousState = AutonomousState.WAIT_FOR_LAUNCH;
                 break;
 
@@ -243,6 +243,8 @@ public class StarterBotAuto extends OpMode {
                 break;
         }
 
+        Robot.loop();
+
         /*
          * Here is our telemetry that keeps us informed of what is going on in the robot. Since this
          * part of the code exists outside of our switch statement, it will run once every loop.
@@ -256,6 +258,7 @@ public class StarterBotAuto extends OpMode {
         CommonTelemetry.debug("Motor Current Positions", Robot.leftDrive.getCurrentPosition(), Robot.rightDrive.getCurrentPosition());
         CommonTelemetry.debug("Motor Target Positions", Robot.leftDrive.getTargetPosition(), Robot.rightDrive.getTargetPosition());
         CommonTelemetry.debug();
+        CommonTelemetry.update();
     }
 
     /*

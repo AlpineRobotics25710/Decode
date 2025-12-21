@@ -73,9 +73,6 @@ public class GoalSideAuto extends OpMode {
 
     @Override
     public void loop() {
-        // Always tick the launcher state machine
-        Robot.launchBasedOnVelocity(Constants.CONTINUE_LAUNCH_SEQUENCE);
-
         LaunchSequenceState ls = Robot.launchSequenceState;
 
         switch (state) {
@@ -93,7 +90,7 @@ public class GoalSideAuto extends OpMode {
                 // If no shot is currently in flight and we have more to shoot, command the next one
                 if (!shotInFlight && shotsFired < TOTAL_SHOTS && ls == LaunchSequenceState.IDLE
                         && shotCooldown.milliseconds() >= SHOT_COOLDOWN_MS) {
-                    Robot.launchBasedOnVelocity(Constants.LAUNCHER_CLOSE_VELOCITY);
+                    Robot.queueLaunch(Constants.LAUNCHER_CLOSE_VELOCITY);
                     shotInFlight = true;          // wait for cycle to complete
                     shotCooldown.reset();
                 }
@@ -143,6 +140,8 @@ public class GoalSideAuto extends OpMode {
                 break;
             }
         }
+
+        Robot.loop();
 
         prevLaunchState = ls;
 
