@@ -196,6 +196,18 @@ public abstract class PedroBaseAuto extends OpMode {
         Robot.stopAll();
     }
 
+    protected void addPath(Object path) {
+        allPaths.add(path);
+    }
+
+    protected void addShot(Object path, double velocity) {
+        shotNeeded.put(path, velocity);
+    }
+
+    protected void addIntake(Object path) {
+        intakeNeeded.add(path);
+    }
+
     @Override
     public void init() {
         CommonTelemetry.init(telemetry);
@@ -203,7 +215,6 @@ public abstract class PedroBaseAuto extends OpMode {
         allPaths = new LinkedList<>();
         shotNeeded = new HashMap<>();
         intakeNeeded = new HashSet<>();
-        pathIterator = allPaths.listIterator();
 
         // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap);
@@ -239,6 +250,7 @@ public abstract class PedroBaseAuto extends OpMode {
             CommonTelemetry.update();
             stop();
         }
+        pathIterator = allPaths.listIterator();
         currPath = pathIterator.next();
         opmodeTimer.resetTimer();
     }

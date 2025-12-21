@@ -310,10 +310,11 @@ public class Robot {
     public static void updateLauncherStateMachine() {
         switch (launchSequenceState) {
             case SPINNING_UP:
+                // shooting tolerances
                 boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocityTps) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
                 boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
 
-                if (targetVelocityTps != Constants.ZERO && (reachedSpeed || timedOut)) {
+                if (reachedSpeed || timedOut) {
                     Robot.setFeederPower(Constants.FEEDER_POWER);
                     launchSequenceState = LaunchSequenceState.FEEDING;
                     stateStartTime = System.currentTimeMillis();
@@ -321,7 +322,7 @@ public class Robot {
                 break;
 
             case FEEDING:
-                if (System.currentTimeMillis() - stateStartTime >= calculateFeedTime()) {
+                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
                     Robot.setFeederPower(Constants.ZERO);
                     stateStartTime = System.currentTimeMillis();
                     launchSequenceState = LaunchSequenceState.SHOOTING;
@@ -330,11 +331,7 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    long totalShotsFed = calculateFeedTime() / Constants.FEED_TIME_MS;
-                    for (int i = 0; i < totalShotsFed - 1; i++) { // First one is already removed
-                        launchQueue.poll();
-                    }
-
+                    // if there are more balls to shoot, then go and shoot those
                     if (launchQueue.peek() != null) {
                         startLaunchSequence(launchQueue.poll());
                     } else {
@@ -346,27 +343,5 @@ public class Robot {
             case IDLE:
                 break;
         }
-    }
-
-    public static long calculateFeedTime() {
-        long time = Constants.FEED_TIME_MS;
-
-        Object[] queuedVelocities = launchQueue.toArray();
-        int matchingShots = 0;
-        for (Object velObject : queuedVelocities) {
-            if (!(velObject instanceof Double)) {
-                break;
-            }
-            Double nextVelocity = (Double) velObject;
-
-            if (Math.abs(nextVelocity - targetVelocityTps) < Constants.LAUNCHER_VELOCITY_TOLERANCE) {
-                matchingShots++;
-            } else {
-                break;
-            }
-        }
-
-        long multiplier = matchingShots + 1;
-        return time * multiplier;
     }
 }
