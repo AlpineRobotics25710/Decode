@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.testers;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
-@Configurable
+@Config
 @TeleOp(group = "testers")
 public class ValueGetter extends LinearOpMode {
     public static double rampPos = 0.0;
