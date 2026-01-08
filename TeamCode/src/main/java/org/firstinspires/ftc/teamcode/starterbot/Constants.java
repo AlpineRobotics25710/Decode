@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.geometry.Pose;
 
 @Configurable
 public class Constants {
@@ -21,6 +22,7 @@ public class Constants {
 
     public static double RAMP_INTAKE_POS = 0.05;
     public static double RAMP_OUTTAKE_POS = 0.485;
+    public static final double MAX_RAMP_DEGREES = 270.0;
 
     public static double BLOCKER_OPEN = 0.07;
     public static double BLOCKER_CLOSED = 0.35;
@@ -46,6 +48,8 @@ public class Constants {
     public static double ENCODER_TICKS_PER_REV = 537.7;
     public static double TICKS_PER_MM = (ENCODER_TICKS_PER_REV / (WHEEL_DIAMETER_MM * Math.PI));
     public static double TRACK_WIDTH_MM = 404;
+
+    public static final Pose GOAL_POSE = new Pose(12, 140);
 
     // Camera Constants
     public static double EXPOSURE_MS = 2;

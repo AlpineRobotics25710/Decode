@@ -51,7 +51,7 @@ public class Robot {
     private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
     public static double currentNonLaunchVelocity;
     private static long stateStartTime;
-    private static final Queue<Double> launchQueue = new LinkedList<>();
+    private static int launchesQueued = 0;
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -116,6 +116,7 @@ public class Robot {
         // Init follower
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         CommonTelemetry.addData("follower heading constraint", follower.getConstraints().getHeadingConstraint());
+        Interpolator.init(hardwareMap.appContext);
 
         /*
          * Tell the driver that initialization is complete.
@@ -156,7 +157,7 @@ public class Robot {
         CommonTelemetry.addData("Ramp State", rampState.toString());
         CommonTelemetry.addData("Blocker State", blockerState.toString());
         CommonTelemetry.addData("Launch Sequence State", launchSequenceState.toString());
-        CommonTelemetry.addData("Launch queue size", launchQueue.size());
+        CommonTelemetry.addData("Launches Queued", launchesQueued);
     }
 
     public static double tpsToRpm(double tps, double ppr) {
@@ -248,6 +249,11 @@ public class Robot {
         }
     }
 
+    public static void setRampAngle(double angle) {
+        if (angle < 0 || angle > Constants.MAX_RAMP_DEGREES) return;
+        ramp.setPosition(angle / Constants.MAX_RAMP_DEGREES);
+    }
+
     public static void switchBlockerState() {
         switch (blockerState) {
             case OPEN:
@@ -262,16 +268,19 @@ public class Robot {
         }
     }
 
-    public static void queueLaunch(double speed) {
-        launchQueue.add(speed);
+    public static double distanceToGoal() {
+        return follower.getPose().distanceFrom(Constants.GOAL_POSE);
+    }
+
+    public static void queueLaunch() {
+        launchesQueued++;
     }
 
     public static void updateLauncher() {
         if (isLauncherBusy()) {
             updateLauncherStateMachine();
-        } else if (launchQueue.peek() != null) {
-            double vel = launchQueue.poll();
-            startLaunchSequence(vel);
+        } else if (launchesQueued > 0) {
+            startLaunchSequence();
         } else {
             if (targetVelocityTps != currentNonLaunchVelocity) {
                 targetVelocityTps = currentNonLaunchVelocity;
@@ -287,7 +296,7 @@ public class Robot {
     public static void killLauncher() {
         Robot.launcher.setVelocity(Constants.ZERO);
         targetVelocityTps = Constants.ZERO;
-        launchQueue.clear();
+        launchesQueued = 0;
         launchSequenceState = LaunchSequenceState.IDLE;
         currentNonLaunchVelocity = Constants.ZERO;
     }
@@ -297,12 +306,13 @@ public class Robot {
     }
 
     public static boolean isLaunchQueueEmpty() {
-        return launchQueue.isEmpty();
+        return launchesQueued == 0;
     }
 
-    private static void startLaunchSequence(double velocity) {
-        targetVelocityTps = velocity;
+    private static void startLaunchSequence() {
+        targetVelocityTps = Interpolator.getVelocity(distanceToGoal());
         Robot.launcher.setVelocity(targetVelocityTps);
+        setRampAngle(Interpolator.getRampAngle(distanceToGoal()));
         launchSequenceState = LaunchSequenceState.SPINNING_UP;
         stateStartTime = System.currentTimeMillis();
     }
@@ -310,6 +320,11 @@ public class Robot {
     public static void updateLauncherStateMachine() {
         switch (launchSequenceState) {
             case SPINNING_UP:
+                // Account for if the robot is moving
+                setRampAngle(Interpolator.getRampAngle(distanceToGoal()));
+                targetVelocityTps = Interpolator.getVelocity(distanceToGoal());
+                Robot.launcher.setVelocity(targetVelocityTps);
+
                 // shooting tolerances
                 boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocityTps) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
                 boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
@@ -332,8 +347,8 @@ public class Robot {
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
                     // if there are more balls to shoot, then go and shoot those
-                    if (launchQueue.peek() != null) {
-                        startLaunchSequence(launchQueue.poll());
+                    if (launchesQueued > 0) {
+                        startLaunchSequence();
                     } else {
                         launchSequenceState = LaunchSequenceState.IDLE;
                     }

@@ -146,9 +146,9 @@ public abstract class PedroBaseAuto extends OpMode {
 
                 // Angle ramp and queue three launches
                 Robot.switchRampState();
-                Robot.queueLaunch(currentShotVelocity);
-                Robot.queueLaunch(currentShotVelocity);
-                Robot.queueLaunch(currentShotVelocity);
+                Robot.queueLaunch();
+                Robot.queueLaunch();
+                Robot.queueLaunch();
 
                 shootingActive = true;
             }
