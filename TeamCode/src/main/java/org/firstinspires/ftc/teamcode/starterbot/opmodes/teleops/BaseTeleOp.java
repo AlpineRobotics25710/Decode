@@ -54,6 +54,7 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
+        if (driver == null || operator == null) throw new IllegalStateException("Gamepads have not been initialized");
         if (driver.a) alliance = Alliance.BLUE;
         if (driver.b) alliance = Alliance.RED;
 
