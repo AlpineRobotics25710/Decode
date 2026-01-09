@@ -90,7 +90,7 @@ public class GoalSideAuto extends OpMode {
                 // If no shot is currently in flight and we have more to shoot, command the next one
                 if (!shotInFlight && shotsFired < TOTAL_SHOTS && ls == LaunchSequenceState.IDLE
                         && shotCooldown.milliseconds() >= SHOT_COOLDOWN_MS) {
-                    Robot.queueLaunch(Constants.LAUNCHER_CLOSE_VELOCITY);
+                    Robot.queueLaunch();
                     shotInFlight = true;          // wait for cycle to complete
                     shotCooldown.reset();
                 }

@@ -19,7 +19,7 @@ public abstract class BaseTeleOp extends OpMode {
     protected final Pose closeShootPose = new Pose(56, 84, Math.toRadians(136)); // blue initially
     protected Gamepad driver;
     protected Gamepad operator;
-    protected Supplier<Boolean> turtleMode;
+    protected Supplier<Boolean> turtleMode = () -> false;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
     protected static double drivingTolerance = 0.1;
@@ -38,7 +38,6 @@ public abstract class BaseTeleOp extends OpMode {
 
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
-        Pose startingPose = (Pose) blackboard.getOrDefault("final_auton_pose", new Pose(56.5, 8.75, Math.toRadians(90)));
         Robot.follower.setStartingPose(startingPose);
         alliance = (Alliance) blackboard.getOrDefault("alliance", Alliance.BLUE); // blue by default
         initGamepads();
@@ -131,10 +130,8 @@ public abstract class BaseTeleOp extends OpMode {
         }
 
         // Launcher controls
-        if (operator.bWasPressed()) { // outtake controls
-            Robot.queueLaunch(Constants.LAUNCHER_FAR_VELOCITY); // Start launchBasedOnVelocity sequence
-        } else if (operator.aWasPressed()) {
-            Robot.queueLaunch(Constants.LAUNCHER_CLOSE_VELOCITY); // Start launchBasedOnVelocity sequence
+        if (operator.aWasPressed()) {
+            Robot.queueLaunch(); // Start launchBasedOnVelocity sequence
         }
 
         if (!Robot.isLauncherBusy()) {
@@ -216,7 +213,7 @@ public abstract class BaseTeleOp extends OpMode {
     public void turnToShoot() {
         double xDist = Robot.follower.getPose().getX() - shootPose.getX(); // blue side: 72-11 = 61, red side: 72 - 133 = -61
         double yDist = shootPose.getY() - Robot.follower.getPose().getY(); // 140-111 = 29
-        double desiredHeading = Math.atan(xDist / yDist); // blue side: (61/29) = ~0.44 rad = ~64 deg, red side: (-61/29) = ~-0.44 rad = ~-64 deg (i think the math checks out)
+        double desiredHeading = Math.atan2(xDist, yDist); // blue side: (61/29) = ~0.44 rad = ~64 deg, red side: (-61/29) = ~-0.44 rad = ~-64 deg (i think the math checks out)
         if (alliance == Alliance.BLUE) desiredHeading += (Math.PI / 2);
 
         Robot.follower.turnTo(desiredHeading);

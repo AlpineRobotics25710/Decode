@@ -18,18 +18,21 @@ import java.util.List;
 public class Interpolator {
     private static PolynomialSplineFunction velocityFunction;
     private static PolynomialSplineFunction rampFunction;
+    private static double minDist;
+    private static double maxDist;
 
     public static void init(Context context) {
         try {
             AssetManager assetManager = context.getAssets();
             double[][] velocityData;
             double[][] rampData;
-            try (InputStream vIn = assetManager.open("robotics-data.csv");
-                 InputStream rIn = assetManager.open("robotics-data.csv")) {
-                velocityData = readRoboticsColumnsFromCSV(vIn, 1);
-                rampData = readRoboticsColumnsFromCSV(rIn, 2);
+            try (InputStream vIn = assetManager.open("robotics-data.csv")) {
+                double[][] dat = readRoboticsColumnsFromCSV(vIn);
+                velocityData = new double[][]{dat[0], dat[1]};
+                rampData = new double[][]{dat[0], dat[2]};
             }
-            assetManager.close();
+            minDist = velocityData[0][0];
+            maxDist = velocityData[0][velocityData[0].length - 1];
 
             UnivariateInterpolator interpolator = new SplineInterpolator();
             velocityFunction = (PolynomialSplineFunction) interpolator.interpolate(velocityData[0], velocityData[1]);
@@ -45,19 +48,26 @@ public class Interpolator {
         }
     }
 
+    public static double clampDist(double dist) {
+        return Math.max(minDist, Math.min(maxDist, dist));
+    }
+
     public static double getVelocity(double distance) {
         ensureInit();
+        distance = clampDist(distance);
         return velocityFunction.value(distance);
     }
 
     public static double getRampAngle(double distance) {
         ensureInit();
+        distance = clampDist(distance);
         return rampFunction.value(distance);
     }
 
-    public static double[][] readRoboticsColumnsFromCSV(InputStream inputStream, int yColumnIndex) throws IOException {
-        List<Double> xs = new ArrayList<>();
-        List<Double> ys = new ArrayList<>();
+    public static double[][] readRoboticsColumnsFromCSV(InputStream inputStream) throws IOException {
+        List<Double> ds = new ArrayList<>();
+        List<Double> vs = new ArrayList<>();
+        List<Double> as = new ArrayList<>();
 
         try (BufferedReader buff = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
@@ -65,30 +75,33 @@ public class Interpolator {
                 if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(",");
-                if (parts.length <= yColumnIndex) continue;
+                if (parts.length < 3) continue;
 
                 try {
-                    xs.add(Double.parseDouble(parts[0]));
-                    ys.add(Double.parseDouble(parts[yColumnIndex]));
+                    ds.add(Double.parseDouble(parts[0]));
+                    vs.add(Double.parseDouble(parts[1]));
+                    as.add(Double.parseDouble(parts[2]));
                 } catch (NumberFormatException ignored) {
                     // this means that the data it tried to parse wasn't numerical, most likely a header or malformed row
                 }
             }
         }
 
-        int n = xs.size();
-        double[] xArr = new double[n];
-        double[] yArr = new double[n];
+        int n = ds.size();
+        double[] dArr = new double[n];
+        double[] vArr = new double[n];
+        double[] aArr = new double[n];
 
         List<Integer> idx = new ArrayList<>();
         for (int i = 0; i < n; i++) idx.add(i);
-        idx.sort(Comparator.comparingDouble(xs::get));
+        idx.sort(Comparator.comparingDouble(ds::get));
 
         for (int i = 0; i < n; i++) {
-            xArr[i] = xs.get(idx.get(i));
-            yArr[i] = ys.get(idx.get(i));
+            vArr[i] = vs.get(idx.get(i));
+            aArr[i] = as.get(idx.get(i));
+            dArr[i] = ds.get(idx.get(i));
         }
 
-        return new double[][]{xArr, yArr};
+        return new double[][]{dArr, vArr, aArr};
     }
 }

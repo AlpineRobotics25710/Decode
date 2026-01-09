@@ -327,9 +327,10 @@ public class Robot {
 
                 // shooting tolerances
                 boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocityTps) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
-                boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
+                //boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
+                // Remove time out to allow driver to move robot even after queueing a shot
 
-                if (reachedSpeed || timedOut) {
+                if (reachedSpeed) { // || timedOut) {
                     Robot.setFeederPower(Constants.FEEDER_POWER);
                     launchSequenceState = LaunchSequenceState.FEEDING;
                     stateStartTime = System.currentTimeMillis();
@@ -346,6 +347,7 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    launchesQueued--;
                     // if there are more balls to shoot, then go and shoot those
                     if (launchesQueued > 0) {
                         startLaunchSequence();
