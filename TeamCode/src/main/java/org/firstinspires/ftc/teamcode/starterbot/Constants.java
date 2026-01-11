@@ -39,6 +39,7 @@ public class Constants {
     public static double LAUNCHER_CLOSE_VELOCITY = 1350; // Max velocity when shooting the ball from close
     public static double LAUNCHER_INTAKE_VELOCITY = -1450; // Velocity to run at when intaking the ball
     public static double LAUNCHER_VELOCITY_TOLERANCE = 20;
+    public static double LAUNCHER_VELOCITY_TOLERANCE_RAD = 0.02;
     // public static double LAUNCHER_MIN_VELOCITY = 80; // Commented out because unnecessary (for now)
 
     // Autonomous Constants

@@ -11,12 +11,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class Robot {
     // Drivetrain motors
@@ -48,7 +46,7 @@ public class Robot {
     public static Follower follower;
 
     // Launcher variables
-    private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
+    private static double targetVelocityRad = 0.0; // commanded setpoint (ticks/sec)
     public static double currentNonLaunchVelocity;
     private static long stateStartTime;
     private static int launchesQueued = 0;
@@ -122,7 +120,6 @@ public class Robot {
          * Tell the driver that initialization is complete.
          */
         CommonTelemetry.addData("Status", "Initialized");
-        CommonTelemetry.addData("Branch", "restructure");
     }
 
     public static void initMecanumDrive(HardwareMap hardwareMap) {
@@ -150,18 +147,25 @@ public class Robot {
         updateLauncher();
 
         // launcher telemetry
-        double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher tps (curr/target)", curTps + "/" + targetVelocityTps);
-        CommonTelemetry.addData("Launcher rpm (curr/target)", tpsToRpm(curTps, 537.7) + "/" + tpsToRpm(targetVelocityTps, 537.7));
+        double curRadPSec = launcher.getVelocity(AngleUnit.RADIANS); // measured ticks/sec from encoder
+        CommonTelemetry.addData("Launcher rad/s (curr/target)", curRadPSec + "/" + targetVelocityRad);
+        CommonTelemetry.addData("Launcher rpm (curr/target)", radToRpm(curRadPSec) + "/" + radToRpm(targetVelocityRad));
 
         CommonTelemetry.addData("Ramp State", rampState.toString());
+        CommonTelemetry.addData("Ramp angle", ramp.getPosition() * Constants.MAX_RAMP_DEGREES);
         CommonTelemetry.addData("Blocker State", blockerState.toString());
         CommonTelemetry.addData("Launch Sequence State", launchSequenceState.toString());
         CommonTelemetry.addData("Launches Queued", launchesQueued);
+        CommonTelemetry.addData("Interpolated velocity (rad/sec)", Interpolator.getVelocity(distanceToGoal()));
+        CommonTelemetry.addData("Interpolated ramp angle (deg)", Interpolator.getRampAngle(distanceToGoal()));
     }
 
     public static double tpsToRpm(double tps, double ppr) {
-        return (tps * 60) / ppr;
+        return (tps * 60) / ppr; // ppr is 537.7
+    }
+
+    public static double radToRpm(double radps) {
+        return radps/ (2 * Math.PI);
     }
 
     public static void setFeederPower(double power) {
@@ -282,8 +286,8 @@ public class Robot {
         } else if (launchesQueued > 0) {
             startLaunchSequence();
         } else {
-            if (targetVelocityTps != currentNonLaunchVelocity) {
-                targetVelocityTps = currentNonLaunchVelocity;
+            if (targetVelocityRad != currentNonLaunchVelocity) {
+                targetVelocityRad = currentNonLaunchVelocity;
                 Robot.launcher.setVelocity(currentNonLaunchVelocity);
             }
 
@@ -295,7 +299,7 @@ public class Robot {
 
     public static void killLauncher() {
         Robot.launcher.setVelocity(Constants.ZERO);
-        targetVelocityTps = Constants.ZERO;
+        targetVelocityRad = Constants.ZERO;
         launchesQueued = 0;
         launchSequenceState = LaunchSequenceState.IDLE;
         currentNonLaunchVelocity = Constants.ZERO;
@@ -310,8 +314,8 @@ public class Robot {
     }
 
     private static void startLaunchSequence() {
-        targetVelocityTps = Interpolator.getVelocity(distanceToGoal());
-        Robot.launcher.setVelocity(targetVelocityTps);
+        targetVelocityRad = Interpolator.getVelocity(distanceToGoal());
+        Robot.launcher.setVelocity(targetVelocityRad, AngleUnit.RADIANS);
         setRampAngle(Interpolator.getRampAngle(distanceToGoal()));
         launchSequenceState = LaunchSequenceState.SPINNING_UP;
         stateStartTime = System.currentTimeMillis();
@@ -322,11 +326,11 @@ public class Robot {
             case SPINNING_UP:
                 // Account for if the robot is moving
                 setRampAngle(Interpolator.getRampAngle(distanceToGoal()));
-                targetVelocityTps = Interpolator.getVelocity(distanceToGoal());
-                Robot.launcher.setVelocity(targetVelocityTps);
+                targetVelocityRad = Interpolator.getVelocity(distanceToGoal());
+                Robot.launcher.setVelocity(targetVelocityRad, AngleUnit.RADIANS);
 
                 // shooting tolerances
-                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocityTps) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
+                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity(AngleUnit.RADIANS) - targetVelocityRad) <= Constants.LAUNCHER_VELOCITY_TOLERANCE_RAD;
                 //boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
                 // Remove time out to allow driver to move robot even after queueing a shot
 

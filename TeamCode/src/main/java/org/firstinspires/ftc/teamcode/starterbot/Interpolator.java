@@ -3,9 +3,10 @@ package org.firstinspires.ftc.teamcode.starterbot;
 import android.content.Context;
 import android.content.res.AssetManager;
 
-import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
+import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
-import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Interpolator {
-    private static PolynomialSplineFunction velocityFunction;
-    private static PolynomialSplineFunction rampFunction;
+    private static UnivariateFunction velocityFunction;
+    private static UnivariateFunction rampFunction;
     private static double minDist;
     private static double maxDist;
 
@@ -26,17 +27,27 @@ public class Interpolator {
             AssetManager assetManager = context.getAssets();
             double[][] velocityData;
             double[][] rampData;
+
             try (InputStream vIn = assetManager.open("robotics-data.csv")) {
                 double[][] dat = readRoboticsColumnsFromCSV(vIn);
                 velocityData = new double[][]{dat[0], dat[1]};
                 rampData = new double[][]{dat[0], dat[2]};
             }
+
             minDist = velocityData[0][0];
             maxDist = velocityData[0][velocityData[0].length - 1];
 
-            UnivariateInterpolator interpolator = new SplineInterpolator();
-            velocityFunction = (PolynomialSplineFunction) interpolator.interpolate(velocityData[0], velocityData[1]);
-            rampFunction = (PolynomialSplineFunction) interpolator.interpolate(rampData[0], rampData[1]);
+            try {
+                // closest thing to pchip interpolation that apache commons math supports
+                UnivariateInterpolator akima = new AkimaSplineInterpolator();
+                velocityFunction = akima.interpolate(velocityData[0], velocityData[1]);
+                rampFunction = akima.interpolate(rampData[0], rampData[1]);
+            } catch (Exception e) {
+                // fallback to linear interpolation if akima spline interpolation doesn't work
+                UnivariateInterpolator linear = new LinearInterpolator();
+                velocityFunction = linear.interpolate(velocityData[0], velocityData[1]);
+                rampFunction = linear.interpolate(rampData[0], rampData[1]);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
+import org.firstinspires.ftc.teamcode.starterbot.Interpolator;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 
@@ -54,7 +55,8 @@ public abstract class BaseTeleOp extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (driver == null || operator == null) throw new IllegalStateException("Gamepads have not been initialized");
+        if (driver == null || operator == null)
+            throw new IllegalStateException("Gamepads have not been initialized");
         if (driver.a) alliance = Alliance.BLUE;
         if (driver.b) alliance = Alliance.RED;
 
