@@ -35,6 +35,7 @@ public class Robot {
     public static DcMotorEx leftIntake;
     public static DcMotorEx rightIntake;
     public static Servo ramp;
+    public static Servo ramp2;
     public static Servo blocker;
 
     // States(Enums)
@@ -70,6 +71,7 @@ public class Robot {
         leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
         rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
         ramp = hardwareMap.get(Servo.class, "ramp");
+        ramp2= hardwareMap.get(Servo.class, "ramp2");
         blocker = hardwareMap.get(Servo.class, "blocker");
 
         leftIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
@@ -97,6 +99,7 @@ public class Robot {
         leftFeeder.setPower(Constants.ZERO);
         rightFeeder.setPower(Constants.ZERO);
         ramp.setPosition(Constants.RAMP_INTAKE_POS);
+        ramp2.setPosition(Constants.RAMP_INTAKE_POS);
         blocker.setPosition(Constants.BLOCKER_CLOSED);
 
         rampState = RampState.INTAKE;
@@ -242,12 +245,14 @@ public class Robot {
         // State Machine for Hinge/Ramp state
         switch (rampState) {
             case INTAKE: // we are currently in INTAKE state, and want to switch states
-                ramp.setPosition(Constants.RAMP_OUTTAKE_POS); // then change to OUTTAKE state
+                ramp.setPosition(Constants.RAMP_OUTTAKE_POS);
+                ramp2.setPosition(Constants.RAMP_OUTTAKE_POS);// then change to OUTTAKE state
                 rampState = RampState.OUTTAKE;  // then change to OUTTAKE state
                 break;
 
             case OUTTAKE: // we are currently in OUTTAKE state, and want to switch states
-                ramp.setPosition(Constants.RAMP_INTAKE_POS); // then change to INTAKE state
+                ramp.setPosition(Constants.RAMP_INTAKE_POS);
+                ramp2.setPosition(Constants.RAMP_INTAKE_POS);// then change to INTAKE state
                 rampState = RampState.INTAKE; // then change to INTAKE state
                 break;
         }
