@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
+@Configurable
 @Config
 @TeleOp(group = "testers")
 public class ValueGetter extends LinearOpMode {
