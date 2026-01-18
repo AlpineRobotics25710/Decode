@@ -35,6 +35,7 @@ public class ValueGetter extends LinearOpMode {
 
         leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        ramp2.setDirection(Servo.Direction.REVERSE);
 
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -53,6 +54,7 @@ public class ValueGetter extends LinearOpMode {
             rightFeeder.setPower(feederPower);
 
             CommonTelemetry.addData("ramp pos", rampPos);
+            CommonTelemetry.addData("ramp pos 2 raw", ramp2.getPosition());
             CommonTelemetry.addData("blocker pos", blockerPos);
             CommonTelemetry.addData("intake power", intakePower);
             CommonTelemetry.addData("launcher velocity", launcherVelocity);
