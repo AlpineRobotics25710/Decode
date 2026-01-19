@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
@@ -22,7 +21,7 @@ public class ShootingTester extends LinearOpMode {
     public static final double MAX_RAMP_DEGREES = 270.0;
     public static final Pose goalPose = new Pose(12, 140);
     public static double rampPosDegrees = 130.95; // 13.5 130.95
-    public static double launcherVelocityRadPerSec = 1.5;
+    public static double launcherVelocityTicksPerSec = 1.5;
     public static boolean feedersOn = false;
     public static double kp = 600;
     public static double ki = 13;
@@ -46,7 +45,7 @@ public class ShootingTester extends LinearOpMode {
             double rampPos = rampPosDegrees / MAX_RAMP_DEGREES;
             Robot.ramp.setPosition(rampPos);
 
-            Robot.launcher.setVelocity(launcherVelocityRadPerSec);
+            Robot.launcher.setVelocity(launcherVelocityTicksPerSec);
             Robot.launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(kp, ki, kd, ff));
 
             Robot.follower.update();
@@ -54,7 +53,7 @@ public class ShootingTester extends LinearOpMode {
 
             mt.addData("ramp pos", rampPos);
             mt.addData("ramp pos deg", rampPosDegrees);
-            mt.addData("set launcher velocity (ticks/s)", launcherVelocityRadPerSec);
+            mt.addData("set launcher velocity (ticks/s)", launcherVelocityTicksPerSec);
             mt.addData("read launcher velocity (ticks/s)", Robot.launcher.getVelocity());
             mt.addData("distance to goal", getDistanceToGoal());
             mt.update();
