@@ -26,6 +26,9 @@ public class ValueGetter extends LinearOpMode {
     public void runOpMode() {
         Servo ramp = hardwareMap.get(Servo.class, "ramp");
         Servo ramp2= hardwareMap.get(Servo.class,"ramp2");
+
+
+
         Servo blocker = hardwareMap.get(Servo.class, "blocker");
         DcMotor leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
         DcMotor rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
@@ -35,6 +38,8 @@ public class ValueGetter extends LinearOpMode {
 
         leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        ramp2.setDirection(Servo.Direction.REVERSE);
+
         ramp2.setDirection(Servo.Direction.REVERSE);
 
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);

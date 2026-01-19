@@ -35,6 +35,10 @@ public class Robot {
     public static DcMotorEx leftIntake;
     public static DcMotorEx rightIntake;
     public static Servo ramp;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     public static Servo ramp2;
     public static Servo blocker;
 
@@ -71,11 +75,17 @@ public class Robot {
         leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
         rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
         ramp = hardwareMap.get(Servo.class, "ramp");
+<<<<<<< Updated upstream
         ramp2= hardwareMap.get(Servo.class, "ramp2");
+=======
+        ramp2=hardwareMap.get(Servo.class, "ramp2");
+>>>>>>> Stashed changes
         blocker = hardwareMap.get(Servo.class, "blocker");
 
         leftIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
-        rightIntake.setDirection(DcMotorEx.Direction.FORWARD); // Might need to switch this
+        rightIntake.setDirection(DcMotorEx.Direction.FORWARD);
+
+        ramp2.setDirection(Servo.Direction.REVERSE);// Might need to switch this
 
         /*
          * Here we set our launcher to the RUN_USING_ENCODER runmode.
