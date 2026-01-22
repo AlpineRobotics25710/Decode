@@ -23,10 +23,10 @@ public class ShootingTester extends LinearOpMode {
     public static double rampPosDegrees = 130.95; // 13.5 130.95
     public static double launcherVelocityTicksPerSec = 1.5;
     public static boolean feedersOn = false;
-    public static double kp = 600;
-    public static double ki = 13;
+    public static double kp = 475;
+    public static double ki = 10;
     public static double kd = 5;
-    public static double ff = 2.41;
+    public static double ff = 18;
 
     @Override
     public void runOpMode() {

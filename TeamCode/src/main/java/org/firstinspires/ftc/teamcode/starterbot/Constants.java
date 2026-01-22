@@ -35,6 +35,7 @@ public class Constants {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
+    public static double LAUNCHER_FAR_VELOCITY = 1750; // Max velocity when shooting the ball from far away
     public static double LAUNCHER_FAR_VELOCITY_FIRST = 0;
     public static double LAUNCHER_FAR_VELOCITY_POWERUP = 0;// Max velocity when shooting the ball from far away
     public static double LAUNCHER_CLOSE_VELOCITY = 1350; // Max velocity when shooting the ball from close
