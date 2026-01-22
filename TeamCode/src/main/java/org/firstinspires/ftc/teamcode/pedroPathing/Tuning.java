@@ -1350,6 +1350,7 @@ class HeadingAutoTuner extends OpMode {
         if (!done) {
             times.add(timer.getElapsedTime() * 1e-9);
             angularVelocities.add(follower.getAngularVelocity());
+            follower.setTeleOpDrive(0,0,1,true);
 
             if (timer.getElapsedTime(TimeUnit.SECONDS) >= RUNTIME) {
                 done = true;
