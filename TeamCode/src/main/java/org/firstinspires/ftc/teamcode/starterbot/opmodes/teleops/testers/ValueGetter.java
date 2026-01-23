@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
-@Configurable
 @Config
+@Configurable
 @TeleOp(group = "testers")
 public class ValueGetter extends LinearOpMode {
     public static double rampPos = 0.0;
@@ -26,7 +26,7 @@ public class ValueGetter extends LinearOpMode {
     @Override
     public void runOpMode() {
         Servo ramp = hardwareMap.get(Servo.class, "ramp");
-        Servo ramp2 = hardwareMap.get(Servo.class,"ramp2");
+        Servo ramp2 = hardwareMap.get(Servo.class, "ramp2");
 
         Servo blocker = hardwareMap.get(Servo.class, "blocker");
         DcMotor leftIntake = hardwareMap.get(DcMotorEx.class, "LI");

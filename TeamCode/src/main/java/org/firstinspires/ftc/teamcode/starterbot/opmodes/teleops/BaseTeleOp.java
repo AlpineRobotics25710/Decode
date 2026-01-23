@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
-import org.firstinspires.ftc.teamcode.starterbot.Interpolator;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 
@@ -16,6 +15,7 @@ import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
     public static Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90));
+    protected static double drivingTolerance = 0.1;
     // Should probably add these and other poses to their own constants class later, but just here for now
     protected final Pose closeShootPose = new Pose(56, 84, Math.toRadians(136)); // blue initially
     protected Gamepad driver;
@@ -23,7 +23,6 @@ public abstract class BaseTeleOp extends OpMode {
     protected Supplier<Boolean> turtleMode = () -> false;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
-    protected static double drivingTolerance = 0.1;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;

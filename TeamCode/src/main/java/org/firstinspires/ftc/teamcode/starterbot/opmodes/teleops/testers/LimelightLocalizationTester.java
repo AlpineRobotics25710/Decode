@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.testers;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -13,12 +15,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.MultipleConfig;
 
 import java.util.Locale;
 
+@Config
+@Configurable
 @TeleOp
-@MultipleConfig
 public class LimelightLocalizationTester extends LinearOpMode {
     private Limelight3A limelight;
     private IMU imu;
