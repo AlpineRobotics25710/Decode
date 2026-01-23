@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class CommonTelemetry {
     private static TelemetryManager panelsTelemetry;
     private static Telemetry robotTelemetry;
+    private static Telemetry dashTelemetry;
 
     // Make singleton
     private CommonTelemetry() {
@@ -25,6 +27,7 @@ public class CommonTelemetry {
     public static void init(Telemetry robotTelemetry) {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         CommonTelemetry.robotTelemetry = robotTelemetry;
+        dashTelemetry = FtcDashboard.getInstance().getTelemetry();
     }
 
     public static void debug(Object... data) {
@@ -46,6 +49,7 @@ public class CommonTelemetry {
     public static void update() {
         try {
             panelsTelemetry.update(robotTelemetry);
+            panelsTelemetry.update(dashTelemetry);
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
