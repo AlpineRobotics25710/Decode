@@ -14,15 +14,20 @@ import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 
+import java.util.function.Supplier;
+
 @TeleOp(group = "testers")
 @Config
 @Configurable
 public class ShootingTester extends LinearOpMode {
+
+    // 0.3 feeding power, 1275 tps, 0.43 ramp pos
     public static final double MAX_RAMP_DEGREES = 270.0;
     public static final Pose goalPose = new Pose(12, 140);
-    public static double rampPosDegrees = 130.95; // 13.5 130.95
+    public static double rampPos = 0.4; // 13.5 130.95
     public static double launcherVelocityTicksPerSec = 1.5;
     public static boolean feedersOn = false;
+    public static double feederPower = 0.0;
     public static double kp = 475;
     public static double ki = 10;
     public static double kd = 5;
@@ -40,10 +45,12 @@ public class ShootingTester extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            Robot.setFeederPower(feedersOn ? Constants.FEEDER_POWER : 0);
+//            pedroTeleop();
+            Robot.setFeederPower(feedersOn ? feederPower : 0);
 
-            double rampPos = rampPosDegrees / MAX_RAMP_DEGREES;
+            //double rampPos = rampPosDegrees / MAX_RAMP_DEGREES;
             Robot.ramp.setPosition(rampPos);
+            Robot.ramp2.setPosition(rampPos);
 
             Robot.launcher.setVelocity(launcherVelocityTicksPerSec);
             Robot.launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(kp, ki, kd, ff));
@@ -52,7 +59,7 @@ public class ShootingTester extends LinearOpMode {
             CommonTelemetry.draw(Robot.follower);
 
             mt.addData("ramp pos", rampPos);
-            mt.addData("ramp pos deg", rampPosDegrees);
+//            mt.addData("ramp pos deg", rampPosDegrees);
             mt.addData("set launcher velocity (ticks/s)", launcherVelocityTicksPerSec);
             mt.addData("read launcher velocity (ticks/s)", Robot.launcher.getVelocity());
             mt.addData("distance to goal", getDistanceToGoal());
