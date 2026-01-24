@@ -330,7 +330,7 @@ public class Robot {
                 break;
 
             case FEEDING:
-                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
+                if (System.currentTimeMillis() - stateStartTime >= calculateFeedTime()) {
                     Robot.setFeederPower(Constants.ZERO);
                     stateStartTime = System.currentTimeMillis();
                     launchSequenceState = LaunchSequenceState.SHOOTING;
@@ -339,6 +339,11 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    long totalShotsFed = calculateFeedTime() / Constants.FEED_TIME_MS;
+                    for (int i = 1; i < totalShotsFed - 1; i++) { // First shot is already removed
+                        launchQueue.poll();
+                    }
+
                     // if there are more balls to shoot, then go and shoot those
                     if (launchQueue.peek() != null) {
                         startLaunchSequence(launchQueue.poll());
@@ -351,5 +356,27 @@ public class Robot {
             case IDLE:
                 break;
         }
+    }
+    
+    public static long calculateFeedTime() {
+        long time = Constants.FEED_TIME_MS;
+
+        Object[] queuedVelocities = launchQueue.toArray();
+        int matchingShots = 0;
+        for (Object velObject : queuedVelocities) {
+            if (!(velObject instanceof Double)) {
+                break;
+            }
+            Double nextVelocity = (Double) velObject;
+
+            if (Math.abs(nextVelocity - targetVelocityTps) < Constants.LAUNCHER_VELOCITY_TOLERANCE) {
+                matchingShots++;
+            } else {
+                break;
+            }
+        }
+
+        long multiplier = matchingShots + 1;
+        return time * multiplier;
     }
 }
