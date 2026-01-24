@@ -19,7 +19,7 @@ public class Constants {
 
     public static double INTAKE_POWER = 1; // Intake motors power
 
-    public static double RAMP_INTAKE_POS = 0.05;
+    public static double RAMP_INTAKE_POS = 0.03;
     public static double RAMP_OUTTAKE_POS = 0.385;
 
     public static double BLOCKER_OPEN = 0.1;
