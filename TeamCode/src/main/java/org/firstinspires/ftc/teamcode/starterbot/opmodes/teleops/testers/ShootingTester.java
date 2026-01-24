@@ -22,7 +22,7 @@ public class ShootingTester extends LinearOpMode {
     public static final Pose goalPose = new Pose(12, 140);
 //    public static double rampPosDegrees = 130.95; // 13.5 130.95
     public static double rampPos = 0;
-    public static double launcherVelocityTicksPerSec = 0;
+    public static double targetLauncherVelocityTPS = 0;
     public static boolean feedersOn = false;
     public static double feederPower = 0.0;
     public static double kp = 475;
@@ -52,7 +52,7 @@ public class ShootingTester extends LinearOpMode {
             Robot.ramp.setPosition(rampPos);
             Robot.ramp2.setPosition(rampPos);
 
-            Robot.launcher.setVelocity(launcherVelocityTicksPerSec);
+            Robot.launcher.setVelocity(targetLauncherVelocityTPS);
             Robot.launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(kp, ki, kd, ff));
 
             Robot.follower.update();
@@ -63,7 +63,7 @@ public class ShootingTester extends LinearOpMode {
             CommonTelemetry.addData("ramp and ramp 2 pos: ", rampPos);
             CommonTelemetry.addData("ramp pos raw: ", Robot.ramp.getPosition());
             CommonTelemetry.addData("ramp 2 pos raw: ", Robot.ramp2.getPosition());
-            CommonTelemetry.addData("set launcher velocity (ticks/s)", launcherVelocityTicksPerSec);
+            CommonTelemetry.addData("set launcher velocity (ticks/s)", targetLauncherVelocityTPS);
             CommonTelemetry.addData("read launcher velocity (ticks/s)", Robot.launcher.getVelocity());
             CommonTelemetry.addData("distance to goal", getDistanceToGoal());
             CommonTelemetry.update();
