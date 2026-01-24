@@ -22,8 +22,8 @@ public class Constants {
     public static double RAMP_INTAKE_POS = 0.05;
     public static double RAMP_OUTTAKE_POS = 0.485;
 
-    public static double BLOCKER_OPEN = 0.0;
-    public static double BLOCKER_CLOSED = 0.3;
+    public static double BLOCKER_OPEN = 0.1;
+    public static double BLOCKER_CLOSED = 0.35;
 
     public static long SPINUP_TIMEOUT_MS = 5000; // abort if never reaches speed
 
