@@ -57,14 +57,15 @@ public class ValueGetter extends LinearOpMode {
             leftFeeder.setPower(feederPower);
             rightFeeder.setPower(feederPower);
 
-            CommonTelemetry.addData("ramp pos", rampPos);
-            CommonTelemetry.addData("ramp pos 2 raw", ramp2.getPosition());
-            CommonTelemetry.addData("blocker pos", blockerPos);
-            CommonTelemetry.addData("intake power", intakePower);
-            CommonTelemetry.addData("launcher velocity", launcherVelocity);
-            CommonTelemetry.addData("feeder power", feederPower);
-            CommonTelemetry.addData("right direction", rightIntake.getDirection());
-            CommonTelemetry.addData("left direction", leftIntake.getDirection());
+            CommonTelemetry.addData("ramp and ramp 2 pos: ", rampPos);
+            CommonTelemetry.addData("ramp pos raw: ", ramp.getPosition());
+            CommonTelemetry.addData("ramp 2 pos raw: ", ramp2.getPosition());
+            CommonTelemetry.addData("blocker pos: ", blockerPos);
+            CommonTelemetry.addData("intake power: ", intakePower);
+            CommonTelemetry.addData("launcher velocity: ", launcherVelocity);
+            CommonTelemetry.addData("feeder power: ", feederPower);
+            CommonTelemetry.addData("right direction: ", rightIntake.getDirection());
+            CommonTelemetry.addData("left direction: ", leftIntake.getDirection());
             CommonTelemetry.update();
         }
     }

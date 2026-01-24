@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.starterbot.Robot;
 @TeleOp(group = "testers")
 public class ShootingTester extends LinearOpMode {
 
-    // 0.3 feeding power, 1275 tps, 0.43 ramp pos
+    // 0.33 feeding power, 1260 tps, 0.43 ramp pos
     public static final double MAX_RAMP_DEGREES = 270.0;
     public static final Pose goalPose = new Pose(12, 140);
     public static double rampPosDegrees = 130.95; // 13.5 130.95
