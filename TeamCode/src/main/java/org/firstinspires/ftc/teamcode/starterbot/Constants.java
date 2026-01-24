@@ -16,11 +16,12 @@ public class Constants {
     public static long LAUNCH_TIME_MS = 500;
 
     public static double FEEDER_POWER = 1.0;
+    public static double FEEDER_INTAKE_POWER = -1.0;
 
     public static double INTAKE_POWER = 1; // Intake motors power
 
-    public static double RAMP_INTAKE_POS = 0.03;
-    public static double RAMP_OUTTAKE_POS = 0.385;
+    public static double RAMP_INTAKE_POS = 0.0;
+    public static double RAMP_OUTTAKE_POS = 0.4;
 
     public static double BLOCKER_OPEN = 0.1;
     public static double BLOCKER_CLOSED = 0.35;

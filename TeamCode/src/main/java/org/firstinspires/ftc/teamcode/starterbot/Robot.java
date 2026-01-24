@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
@@ -224,7 +223,7 @@ public class Robot {
     public static void spinToIntake() {
         currentNonLaunchVelocity = Constants.LAUNCHER_INTAKE_VELOCITY; // intake
         Robot.setIntakePower(Constants.INTAKE_POWER);
-        Robot.setFeederPower(-Constants.FEEDER_POWER);
+        Robot.setFeederPower(Constants.FEEDER_INTAKE_POWER);
     }
 
     public static void spinToOuttake() {
@@ -244,7 +243,7 @@ public class Robot {
         switch (rampState) {
             case INTAKE: // we are currently in INTAKE state, and want to switch states
                 ramp.setPosition(Constants.RAMP_OUTTAKE_POS); // then change to OUTTAKE state
-                ramp2.setPosition(Constants.RAMP_OUTTAKE_POS);
+                ramp2.setPosition(Constants.RAMP_OUTTAKE_POS); // then change to OUTTAKE state
                 rampState = RampState.OUTTAKE;  // then change to OUTTAKE state
                 break;
 
@@ -283,7 +282,7 @@ public class Robot {
         } else {
             if (targetVelocityTps != currentNonLaunchVelocity) {
                 targetVelocityTps = currentNonLaunchVelocity;
-                Robot.launcher.setVelocity(currentNonLaunchVelocity);
+                Robot.launcher.setVelocity(targetVelocityTps);
             }
 
             if (launchSequenceState != LaunchSequenceState.IDLE) {
@@ -330,7 +329,7 @@ public class Robot {
                 break;
 
             case FEEDING:
-                if (System.currentTimeMillis() - stateStartTime >= calculateFeedTime()) {
+                if (System.currentTimeMillis() - stateStartTime >= Constants.FEED_TIME_MS) {
                     Robot.setFeederPower(Constants.ZERO);
                     stateStartTime = System.currentTimeMillis();
                     launchSequenceState = LaunchSequenceState.SHOOTING;
@@ -339,11 +338,6 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
-                    long totalShotsFed = calculateFeedTime() / Constants.FEED_TIME_MS;
-                    for (int i = 1; i < totalShotsFed - 1; i++) { // First shot is already removed
-                        launchQueue.poll();
-                    }
-
                     // if there are more balls to shoot, then go and shoot those
                     if (launchQueue.peek() != null) {
                         startLaunchSequence(launchQueue.poll());
@@ -356,27 +350,5 @@ public class Robot {
             case IDLE:
                 break;
         }
-    }
-    
-    public static long calculateFeedTime() {
-        long time = Constants.FEED_TIME_MS;
-
-        Object[] queuedVelocities = launchQueue.toArray();
-        int matchingShots = 0;
-        for (Object velObject : queuedVelocities) {
-            if (!(velObject instanceof Double)) {
-                break;
-            }
-            Double nextVelocity = (Double) velObject;
-
-            if (Math.abs(nextVelocity - targetVelocityTps) < Constants.LAUNCHER_VELOCITY_TOLERANCE) {
-                matchingShots++;
-            } else {
-                break;
-            }
-        }
-
-        long multiplier = matchingShots + 1;
-        return time * multiplier;
     }
 }
