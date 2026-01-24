@@ -17,7 +17,8 @@ import org.firstinspires.ftc.teamcode.starterbot.Robot;
 @TeleOp(group = "testers")
 public class ShootingTester extends LinearOpMode {
 
-    // 0.33 feeding power, 1260 tps, 0.43 ramp pos
+    // close shot values: 0.24 feeding power, 1340 tps, 0.385 ramp pos
+    // far shot values: 0.2 feeding power, 1670 tps, 0.385 ramp pos
     public static final double MAX_RAMP_DEGREES = 270.0;
     public static final Pose goalPose = new Pose(12, 140);
 //    public static double rampPosDegrees = 130.95; // 13.5 130.95
@@ -26,9 +27,9 @@ public class ShootingTester extends LinearOpMode {
     public static boolean feedersOn = false;
     public static double feederPower = 0.0;
     public static double kp = 475;
-    public static double ki = 10;
-    public static double kd = 5;
-    public static double ff = 18;
+    public static double ki = 0;
+    public static double kd = 10;
+    public static double ff = 12.83;
 
     @Override
     public void runOpMode() {

@@ -107,7 +107,7 @@ public class Robot {
         blockerState = BlockerState.CLOSED;
         launchSequenceState = LaunchSequenceState.IDLE;
 
-        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(475, 10, 5, 18));
+        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(475, 0, 10, 12.83));
 
         /*
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
