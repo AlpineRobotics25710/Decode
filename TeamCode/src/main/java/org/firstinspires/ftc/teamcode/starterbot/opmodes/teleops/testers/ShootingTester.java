@@ -20,7 +20,8 @@ public class ShootingTester extends LinearOpMode {
     // 0.33 feeding power, 1260 tps, 0.43 ramp pos
     public static final double MAX_RAMP_DEGREES = 270.0;
     public static final Pose goalPose = new Pose(12, 140);
-    public static double rampPosDegrees = 130.95; // 13.5 130.95
+//    public static double rampPosDegrees = 130.95; // 13.5 130.95
+    public static double rampPos = 0;
     public static double launcherVelocityTicksPerSec = 0;
     public static boolean feedersOn = false;
     public static double feederPower = 0.0;
@@ -44,9 +45,12 @@ public class ShootingTester extends LinearOpMode {
             Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x * 1.1, gamepad1.right_stick_x);
             Robot.setFeederPower(feedersOn ? feederPower : 0);
 
-            //double rampPos = rampPosDegrees / MAX_RAMP_DEGREES;
-            Robot.ramp.setPosition(rampPosDegrees / Constants.MAX_RAMP_DEGREES);
-            Robot.ramp2.setPosition(rampPosDegrees / Constants.MAX_RAMP_DEGREES);
+//            double rampPos = rampPosDegrees / MAX_RAMP_DEGREES;
+//            Robot.ramp.setPosition(rampPosDegrees / Constants.MAX_RAMP_DEGREES);
+//            Robot.ramp2.setPosition(rampPosDegrees / Constants.MAX_RAMP_DEGREES);
+
+            Robot.ramp.setPosition(rampPos);
+            Robot.ramp2.setPosition(rampPos);
 
             Robot.launcher.setVelocity(launcherVelocityTicksPerSec);
             Robot.launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(kp, ki, kd, ff));
@@ -54,8 +58,11 @@ public class ShootingTester extends LinearOpMode {
             Robot.follower.update();
             CommonTelemetry.draw(Robot.follower);
 
-            CommonTelemetry.addData("ramp pos", rampPosDegrees / Constants.MAX_RAMP_DEGREES);
-            CommonTelemetry.addData("ramp pos deg", rampPosDegrees);
+//            CommonTelemetry.addData("ramp pos", rampPosDegrees / Constants.MAX_RAMP_DEGREES);
+//            CommonTelemetry.addData("ramp pos deg", rampPosDegrees);
+            CommonTelemetry.addData("ramp and ramp 2 pos: ", rampPos);
+            CommonTelemetry.addData("ramp pos raw: ", Robot.ramp.getPosition());
+            CommonTelemetry.addData("ramp 2 pos raw: ", Robot.ramp2.getPosition());
             CommonTelemetry.addData("set launcher velocity (ticks/s)", launcherVelocityTicksPerSec);
             CommonTelemetry.addData("read launcher velocity (ticks/s)", Robot.launcher.getVelocity());
             CommonTelemetry.addData("distance to goal", getDistanceToGoal());
