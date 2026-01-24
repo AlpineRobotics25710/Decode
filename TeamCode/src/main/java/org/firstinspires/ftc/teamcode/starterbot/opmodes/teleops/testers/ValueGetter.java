@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.testers;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,10 +13,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
 @Configurable
+@Config
 @TeleOp(group = "testers")
 public class ValueGetter extends LinearOpMode {
     public static double rampPos = 0.0;
-    public static double blockerPos = 0.0;
+    public static double blockerPos = 0.1;
     public static double intakePower = 0.0;
     public static double launcherVelocity = 0.0; // this is in ticks/second
     public static double feederPower = 0.0;
@@ -52,6 +54,7 @@ public class ValueGetter extends LinearOpMode {
             CommonTelemetry.addData("blocker pos", blockerPos);
             CommonTelemetry.addData("intake power", intakePower);
             CommonTelemetry.addData("launcher velocity", launcherVelocity);
+            CommonTelemetry.addData("read launcher velocity", launcher.getVelocity());
             CommonTelemetry.addData("feeder power", feederPower);
             CommonTelemetry.addData("right direction", rightIntake.getDirection());
             CommonTelemetry.addData("left direction", leftIntake.getDirection());
