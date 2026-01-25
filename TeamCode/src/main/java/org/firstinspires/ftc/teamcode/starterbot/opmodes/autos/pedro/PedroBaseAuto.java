@@ -128,7 +128,7 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void beginShootingSequence(Object shootingPath, double velocity) {
-        ((Path) shootingPath).setBrakingStrength(1.00);
+        //((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
 
         currentShotVelocity = velocity;

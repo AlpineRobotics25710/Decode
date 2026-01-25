@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -40,10 +39,10 @@ public class FarSideAuto extends PedroBaseAuto {
         PathChain shootPreloadPath = follower.pathBuilder()
                 .addPath(new BezierLine(
                         poses.startPose,
-                        poses.shootPreloadPose))
+                        poses.shootFarPose))
                 .setLinearHeadingInterpolation(
                         poses.startPose.getHeading(),
-                        poses.shootPreloadPose.getHeading())
+                        poses.shootFarPose.getHeading())
                 .build();
         addPath(shootPreloadPath);
         addShot(shootPreloadPath, Constants.LAUNCHER_FAR_VELOCITY);
@@ -51,11 +50,11 @@ public class FarSideAuto extends PedroBaseAuto {
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddleChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        poses.shootPreloadPose,
+                        poses.shootFarPose,
                         poses.cpPickUpMiddle1,
                         poses.pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        poses.shootPreloadPose.getHeading(),
+                        poses.shootFarPose.getHeading(),
                         poses.pickUpMiddlePose.getHeading(),
                         0.65)
                 .build();
@@ -88,10 +87,10 @@ public class FarSideAuto extends PedroBaseAuto {
                 .addPath( new BezierCurve(
                         poses.openGatePose,
                         poses.cpShootMiddle1,
-                        poses.shootMiddlePose))
+                        poses.shootClosePose))
                 .setLinearHeadingInterpolation(
                         poses.openGatePose.getHeading(),
-                        poses.shootMiddlePose.getHeading())
+                        poses.shootClosePose.getHeading())
                 .build();
 
         addPath(shootMiddlePath);
@@ -100,10 +99,10 @@ public class FarSideAuto extends PedroBaseAuto {
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         PathChain pickUpTopChain = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        poses.shootMiddlePose,
+                        poses.shootClosePose,
                         poses.pickUpTopPose))
                 .setLinearHeadingInterpolation(
-                        poses.shootMiddlePose.getHeading(),
+                        poses.shootClosePose.getHeading(),
                         poses.pickUpTopPose.getHeading(),
                         0.65)
                 .build();
@@ -122,10 +121,10 @@ public class FarSideAuto extends PedroBaseAuto {
                 .addPath(new BezierCurve(
                         poses.intakeTopPose,
                         poses.cpShootTop1,
-                        poses.shootTopPose))
+                        poses.shootClosePose))
                 .setLinearHeadingInterpolation(
                         poses.intakeTopPose.getHeading(),
-                        poses.shootTopPose.getHeading())
+                        poses.shootClosePose.getHeading())
                 .build();
         addPath(shootTopPath);
         addShot(shootTopPath, Constants.LAUNCHER_CLOSE_VELOCITY);
@@ -133,11 +132,11 @@ public class FarSideAuto extends PedroBaseAuto {
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
         PathChain pickUpBottomChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        poses.shootTopPose,
+                        poses.shootClosePose,
                         poses.cpPickUpBottom1,
                         poses.pickUpBottomPose))
                 .setLinearHeadingInterpolation(
-                        poses.shootTopPose.getHeading(),
+                        poses.shootClosePose.getHeading(),
                         poses.pickUpBottomPose.getHeading(),
                         0.65)
                 .build();
@@ -159,10 +158,10 @@ public class FarSideAuto extends PedroBaseAuto {
                 .addPath(new BezierCurve(
                         poses.intakeBottomPose,
                         poses.cpShootBottom1,
-                        poses.shootBottomPose))
+                        poses.shootFarPose))
                 .setLinearHeadingInterpolation(
                         poses.intakeBottomPose.getHeading(),
-                        poses.shootBottomPose.getHeading())
+                        poses.shootFarPose.getHeading())
                 .build();
         addPath(shootBottomPath);
         addShot(shootBottomPath, Constants.LAUNCHER_FAR_VELOCITY);
@@ -170,10 +169,10 @@ public class FarSideAuto extends PedroBaseAuto {
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
         PathChain parkPath = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        poses.shootBottomPose,
+                        poses.shootFarPose,
                         poses.parkPose))
                 .setLinearHeadingInterpolation(
-                        poses.shootBottomPose.getHeading(),
+                        poses.shootFarPose.getHeading(),
                         poses.parkPose.getHeading())
                 .build();
         addPath(parkPath);
