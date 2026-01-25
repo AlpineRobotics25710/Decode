@@ -5,11 +5,11 @@ import com.bylazar.configurables.annotations.Configurable;
 @Configurable
 public class Constants {
     public static double TURN_THROTTLE = 0.8;
-    public static double TURTLE = 0.65;
+    public static double TURTLE = 0.4;
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
-    public static long FEED_TIME_MS = 170;
+    public static long FEED_TIME_MS = 115;
     // How long to delay the servos for before they feed the ball into the launcher in milliseconds
     // Waiting for the launcher to reach the target velocity
     public static long LAUNCH_DELAY_MS = 2500;
@@ -36,7 +36,7 @@ public class Constants {
      */
     public static double LAUNCHER_FAR_VELOCITY = 1660; // Max velocity when shooting the ball from far away
     public static double LAUNCHER_CLOSE_VELOCITY = 1340; // Max velocity when shooting the ball from close
-    public static double LAUNCHER_INTAKE_VELOCITY = -1000; // Velocity to run at when intaking the ball
+    public static double LAUNCHER_INTAKE_VELOCITY = -1300; // Velocity to run at when intaking the ball
     public static double LAUNCHER_VELOCITY_TOLERANCE = 20;
     // public static double LAUNCHER_MIN_VELOCITY = 80; // Commented out because unnecessary (for now)
 
