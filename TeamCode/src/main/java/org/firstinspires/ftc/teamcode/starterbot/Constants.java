@@ -20,8 +20,8 @@ public class Constants {
 
     public static double INTAKE_POWER = 0.9; // Intake motors power
 
-    public static double RAMP_INTAKE_POS = 0.05;
-    public static double RAMP_OUTTAKE_POS = 0.47;
+    public static double RAMP_INTAKE_POS = 0.0;
+    public static double RAMP_OUTTAKE_POS = 0.4;
     public static final double MAX_RAMP_DEGREES = 270.0;
 
     public static double BLOCKER_OPEN = 0.1;
@@ -35,8 +35,8 @@ public class Constants {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    public static double LAUNCHER_FAR_VELOCITY = 1750; // Max velocity when shooting the ball from far away
-    public static double LAUNCHER_CLOSE_VELOCITY = 1350; // Max velocity when shooting the ball from close
+    public static double LAUNCHER_FAR_VELOCITY = 1660; // Max velocity when shooting the ball from far away
+    public static double LAUNCHER_CLOSE_VELOCITY = 1340; // Max velocity when shooting the ball from close
     public static double LAUNCHER_INTAKE_VELOCITY = -1450; // Velocity to run at when intaking the ball
     public static double LAUNCHER_VELOCITY_TOLERANCE = 20;
     public static double LAUNCHER_VELOCITY_TOLERANCE_RAD = 0.02;
