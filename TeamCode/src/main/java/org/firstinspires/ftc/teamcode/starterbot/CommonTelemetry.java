@@ -15,6 +15,8 @@ import com.pedropathing.util.PoseHistory;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.Arrays;
+
 public class CommonTelemetry {
     private static TelemetryManager panelsTelemetry;
     private static Telemetry robotTelemetry;
@@ -33,6 +35,7 @@ public class CommonTelemetry {
     public static void debug(Object... data) {
         try {
             panelsTelemetry.debug(data);
+            dashTelemetry.addLine(Arrays.toString(data).substring(1, data.length-1));
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
@@ -41,6 +44,7 @@ public class CommonTelemetry {
     public static void addData(String key, Object value) {
         try {
             panelsTelemetry.debug(key + ": " + value);
+            dashTelemetry.addData(key, value);
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
@@ -49,7 +53,7 @@ public class CommonTelemetry {
     public static void update() {
         try {
             panelsTelemetry.update(robotTelemetry);
-            panelsTelemetry.update(dashTelemetry);
+            dashTelemetry.update();
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
