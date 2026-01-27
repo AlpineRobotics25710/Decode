@@ -42,8 +42,9 @@ public class LimelightLocalizationTester extends LinearOpMode {
         pinpoint.setOffsets(-111.7, -33.3, DistanceUnit.MM);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
-        Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90), PedroCoordinates.INSTANCE).getAsCoordinateSystem(FTCCoordinates.INSTANCE);
-        pinpoint.setPosition(PoseConverter.poseToPose2D(startingPose, FTCCoordinates.INSTANCE));
+        Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90), PedroCoordinates.INSTANCE);
+        //pinpoint.setPosition(PoseConverter.poseToPose2D(startingPose, FTCCoordinates.INSTANCE));
+        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -178.5, -98, AngleUnit.DEGREES, 0));
         pinpoint.initialize();
 
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -74,20 +75,20 @@ public class LimelightLocalizationTester extends LinearOpMode {
                 CommonTelemetry.addData("Robot X", String.format(Locale.US, "%.3f", llx));
                 CommonTelemetry.addData("Robot Y", String.format(Locale.US, "%.3f", lly));
                 CommonTelemetry.addData("Robot Heading", String.format(Locale.US, "%.3f", llh));
-
-                // Pinpoint localization data
-                Pose2D ppPose = pinpoint.getPosition();
-                double ppx = ppPose.getX(DistanceUnit.INCH);
-                double ppy = ppPose.getY(DistanceUnit.INCH);
-                double pph = ppPose.getHeading(AngleUnit.DEGREES);
-
-                CommonTelemetry.debug("------ Pinpoint Data (Inches) ------");
-                CommonTelemetry.addData("Robot X", String.format(Locale.US, "%.3f", ppx));
-                CommonTelemetry.addData("Robot Y", String.format(Locale.US, "%.3f", ppy));
-                CommonTelemetry.addData("Robot Heading", String.format(Locale.US, "%.3f", pph));
             } else {
                 CommonTelemetry.addData("Limelight", "No targets visible");
             }
+
+            // Pinpoint localization data
+            Pose2D ppPose = pinpoint.getPosition();
+            double ppx = ppPose.getX(DistanceUnit.INCH);
+            double ppy = ppPose.getY(DistanceUnit.INCH);
+            double pph = ppPose.getHeading(AngleUnit.DEGREES);
+
+            CommonTelemetry.debug("------ Pinpoint Data (Inches) ------");
+            CommonTelemetry.addData("Robot X", String.format(Locale.US, "%.3f", ppx));
+            CommonTelemetry.addData("Robot Y", String.format(Locale.US, "%.3f", ppy));
+            CommonTelemetry.addData("Robot Heading", String.format(Locale.US, "%.3f", pph));
 
             pinpoint.update();
             CommonTelemetry.update();
