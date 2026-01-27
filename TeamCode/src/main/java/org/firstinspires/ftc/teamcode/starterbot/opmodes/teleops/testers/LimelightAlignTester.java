@@ -25,6 +25,7 @@ public class LimelightAlignTester extends LinearOpMode {
     public static int targetTagId = 20; //blue goal: 20, red goal: 24
     public static double headingTolerance = 1.0;
     public static double turnGain = 0.03;
+    public static double minMotorPower = 0.1;
     public static boolean currentlyAligning = false;
 
     @Override
@@ -37,8 +38,6 @@ public class LimelightAlignTester extends LinearOpMode {
         limelight.start();
 
         Robot.follower.setStartingPose(new Pose(56.5, 8.75, Math.toRadians(90)));
-        LynxModule lm = hardwareMap.get(LynxModule.class, "Control Hub");
-        lm.getInputVoltage(VoltageUnit.VOLTS);
 
         waitForStart();
 
@@ -65,19 +64,32 @@ public class LimelightAlignTester extends LinearOpMode {
                     double turn = headingError * turnGain;
                     CommonTelemetry.addData("turn power", turn);
 
-                    if (gamepad1.aWasPressed() && !currentlyAligning) {
-                        currentlyAligning = true;
+                    // minimum motor power is heading still exists
+                    if (Math.abs(headingError) > headingTolerance) {
+                        turn += Math.signum(turn) * minMotorPower;
+                    } else {
+                        // Small corrective hold, NOT zero
+                        turn *= 0.3;
+                    }
+
+                    if (gamepad1.aWasPressed()) {
+                        currentlyAligning = !currentlyAligning;
                     }
 
                     if (currentlyAligning) {
-                        //if (Math.abs(headingError) <= headingTolerance) currentlyAligning = false;
-
-                        Robot.mecanumDrive(0, 0, turn);
+                        Robot.follower.setTeleOpDrive(0, 0, turn);
                     }
                 }
             } else {
                 CommonTelemetry.addData("Limelight", "No targets found");
+                currentlyAligning = false; // set to false if it was aligning but now no targets are found
             }
+
+            boolean leftStickX = Math.abs(gamepad1.left_stick_x) > 0.1;
+            boolean leftStickY = Math.abs(gamepad1.left_stick_y) > 0.1;
+            boolean rightStickX = Math.abs(gamepad1.right_stick_x) > 0.1;
+
+            if (leftStickX || leftStickY || rightStickX) currentlyAligning = false;
 
             if (!currentlyAligning) {
                 Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, -gamepad1.right_stick_x);
