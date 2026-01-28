@@ -18,11 +18,11 @@ import java.util.Locale;
 public class VoltageLogger extends LinearOpMode {
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         // Setup for CSV logging
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         File logFile = new File(AppUtil.getDefContext().getFilesDir(), "voltage_log_" + timestamp + ".csv");
-        PrintWriter writer = null;
+        PrintWriter writer;
 
         try {
             writer = new PrintWriter(new FileWriter(logFile, true));
