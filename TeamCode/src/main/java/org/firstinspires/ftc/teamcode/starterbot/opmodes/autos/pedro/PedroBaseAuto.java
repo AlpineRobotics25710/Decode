@@ -260,7 +260,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
