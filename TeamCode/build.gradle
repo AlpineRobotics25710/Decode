@@ -62,5 +62,5 @@ dependencies {
     implementation project(':FtcRobotController')
 
     // Check docs, need to change if installing full dairy
-    implementation("dev.frozenmilk.sinister:Sloth:0.2.4")
+//    implementation("dev.frozenmilk.sinister:Sloth:0.2.4")
 }
