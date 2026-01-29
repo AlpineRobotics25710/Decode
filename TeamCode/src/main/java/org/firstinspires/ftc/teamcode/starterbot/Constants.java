@@ -40,6 +40,7 @@ public class Constants {
     public static double LAUNCHER_INTAKE_VELOCITY = -1450; // Velocity to run at when intaking the ball
     public static double LAUNCHER_VELOCITY_TOLERANCE = 20;
     public static double LAUNCHER_VELOCITY_TOLERANCE_RAD = 0.02;
+    public static double LAUNCHER_MOTOR_PPR = 28; // gobilda 6000 rpm yellow jacket
     // public static double LAUNCHER_MIN_VELOCITY = 80; // Commented out because unnecessary (for now)
 
     // Autonomous Constants

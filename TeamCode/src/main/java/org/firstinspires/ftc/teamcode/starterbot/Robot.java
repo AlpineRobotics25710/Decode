@@ -152,8 +152,10 @@ public class Robot {
 
         // launcher telemetry
         double currTPS = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher ticks/s (curr/target)", currTPS + "/" + targetVelocity);
-        CommonTelemetry.addData("Launcher rpm (curr/target)", tpsToRpm(currTPS, 537.7) + "/" + tpsToRpm(targetVelocity, 537.7));
+        double currRADPS = launcher.getVelocity(AngleUnit.RADIANS);
+        CommonTelemetry.addData("Launcher ticks/s (curr/target)", currTPS + "/" + radToTps(targetVelocity));
+        CommonTelemetry.addData("Launcher rad/s (curr/target)", currRADPS + "/" + targetVelocity);
+        CommonTelemetry.addData("Launcher rpm (curr/target)", tpsToRpm(currTPS) + "/" + radToRpm(targetVelocity));
 
         CommonTelemetry.addData("Ramp State", rampState.toString());
         CommonTelemetry.addData("Ramp angle", ramp.getPosition() * Constants.MAX_RAMP_DEGREES);
@@ -164,13 +166,18 @@ public class Robot {
         CommonTelemetry.addData("Interpolated ramp angle (deg)", Interpolator.getRampAngle(distanceToGoal()));
     }
 
-    public static double tpsToRpm(double tps, double ppr) {
-        return (tps * 60) / ppr; // ppr is 537.7
+    public static double tpsToRpm(double tps) {
+        return (tps * 60) / Constants.LAUNCHER_MOTOR_PPR; // ppr is Constants.LAUNCHER_MOTOR_PPR
     }
 
     public static double radToRpm(double radps) {
         return radps/ (2 * Math.PI);
     }
+
+    public static double radToTps(double radps) {
+        return radps * (Constants.LAUNCHER_MOTOR_PPR / (2 * Math.PI));
+    }
+
 
     public static void setFeederPower(double power) {
         leftFeeder.setPower(power);
@@ -259,9 +266,10 @@ public class Robot {
         }
     }
 
-    public static void setRampPos(double pos) {
-        if (pos < 0 || pos > 1) return;
-        ramp.setPosition(pos);
+    /// Set angle of ramp in degrees. simply returns if out of bounds (nothing will happen!)
+    public static void setRampAngle(double angle) {
+        if (angle < 0 || angle > Constants.MAX_RAMP_DEGREES) return;
+        ramp.setPosition(angle / Constants.MAX_RAMP_DEGREES);
     }
 
     public static void switchBlockerState() {
@@ -321,22 +329,24 @@ public class Robot {
 
     private static void startLaunchSequence() {
         targetVelocity = Interpolator.getVelocity(distanceToGoal());
-        Robot.launcher.setVelocity(targetVelocity);
-        setRampPos(Interpolator.getRampAngle(distanceToGoal()));
+        Robot.launcher.setVelocity(targetVelocity, AngleUnit.RADIANS);
+        setRampAngle(Interpolator.getRampAngle(distanceToGoal()));
         launchSequenceState = LaunchSequenceState.SPINNING_UP;
         stateStartTime = System.currentTimeMillis();
     }
+
+    // TODO: NEED TO CHANGE LAUNCHER TO ALWAYS USE TICKS PER SECOND AND RAMP TO ALWAYS USE 0-1
 
     public static void updateLauncherStateMachine() {
         switch (launchSequenceState) {
             case SPINNING_UP:
                 // Account for if the robot is moving
-                setRampPos(Interpolator.getRampAngle(distanceToGoal()));
+                setRampAngle(Interpolator.getRampAngle(distanceToGoal()));
                 targetVelocity = Interpolator.getVelocity(distanceToGoal());
-                Robot.launcher.setVelocity(targetVelocity);
+                Robot.launcher.setVelocity(targetVelocity, AngleUnit.RADIANS);
 
                 // shooting tolerances
-                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocity) <= Constants.LAUNCHER_VELOCITY_TOLERANCE_RAD;
+                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity(AngleUnit.RADIANS) - targetVelocity) <= Constants.LAUNCHER_VELOCITY_TOLERANCE_RAD;
                 //boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
                 // Remove time out to allow driver to move robot even after queueing a shot
 
