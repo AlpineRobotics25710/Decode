@@ -24,6 +24,8 @@ public class VoltageLogger extends LinearOpMode {
         File logFile = new File(AppUtil.getDefContext().getFilesDir(), "voltage_log_" + timestamp + ".csv");
         PrintWriter writer;
 
+        telemetry.addData("file name", AppUtil.getDefContext().getFilesDir() + "voltage_log_" + timestamp + ".csv");
+
         try {
             writer = new PrintWriter(new FileWriter(logFile, true));
             // Write CSV header
