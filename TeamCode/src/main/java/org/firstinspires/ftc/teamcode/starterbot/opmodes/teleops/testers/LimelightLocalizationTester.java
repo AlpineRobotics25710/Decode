@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.testers;
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ftc.FTCCoordinates;
+import com.pedropathing.ftc.InvertedFTCCoordinates;
 import com.pedropathing.ftc.PoseConverter;
 import com.pedropathing.geometry.CoordinateSystem;
 import com.pedropathing.geometry.PedroCoordinates;
@@ -43,8 +44,8 @@ public class LimelightLocalizationTester extends LinearOpMode {
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90), PedroCoordinates.INSTANCE);
-        //pinpoint.setPosition(PoseConverter.poseToPose2D(startingPose, FTCCoordinates.INSTANCE));
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -178.5, -98, AngleUnit.DEGREES, 0));
+        pinpoint.setPosition(PoseConverter.poseToPose2D(startingPose, InvertedFTCCoordinates.INSTANCE));
+        //pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -178.5, -98, AngleUnit.DEGREES, 0));
         pinpoint.initialize();
 
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
