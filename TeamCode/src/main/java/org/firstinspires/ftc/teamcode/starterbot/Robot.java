@@ -341,6 +341,7 @@ public class Robot {
         Robot.launcher.setVelocity(targetVelocity);
         setRampPos(Interpolator.getRampValue(distanceToGoal()));
         launchSequenceState = LaunchSequenceState.SPINNING_UP;
+        rampState = RampState.OUTTAKE;
         stateStartTime = System.currentTimeMillis();
     }
 
