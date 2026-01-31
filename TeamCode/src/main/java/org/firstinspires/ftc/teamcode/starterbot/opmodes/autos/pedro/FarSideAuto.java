@@ -69,6 +69,7 @@ public class FarSideAuto extends PedroBaseAuto {
         addPath(intakeMiddlePath);
         addIntake(intakeMiddlePath);
 
+        /*
         // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         PathChain openGatePath = follower.pathBuilder()
                 .addPath(new BezierCurve(
@@ -82,15 +83,16 @@ public class FarSideAuto extends PedroBaseAuto {
                         0.8)
                 .build();
         addPath(openGatePath);
+        */
 
         // Line 4: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
         PathChain shootMiddlePath = follower.pathBuilder()
-                .addPath( new BezierCurve(
-                        poses.openGatePose,
+                .addPath(new BezierCurve(
+                        poses.intakeMiddlePose,
                         poses.cpShootMiddle1,
                         poses.shootMiddlePose))
                 .setLinearHeadingInterpolation(
-                        poses.openGatePose.getHeading(),
+                        poses.intakeMiddlePose.getHeading(),
                         poses.shootMiddlePose.getHeading())
                 .build();
 
