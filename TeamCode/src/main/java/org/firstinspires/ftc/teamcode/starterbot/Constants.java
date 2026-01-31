@@ -51,7 +51,7 @@ public class Constants {
     public static double TICKS_PER_MM = (ENCODER_TICKS_PER_REV / (WHEEL_DIAMETER_MM * Math.PI));
     public static double TRACK_WIDTH_MM = 404;
 
-    public static final Pose GOAL_POSE = new Pose(12, 140);
+    public static final Pose GOAL_POSE = new Pose(0, 144);
 
     // Camera Constants
     public static double EXPOSURE_MS = 2;

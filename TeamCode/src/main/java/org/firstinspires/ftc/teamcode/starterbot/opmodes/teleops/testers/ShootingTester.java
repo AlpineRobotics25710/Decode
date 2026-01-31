@@ -20,7 +20,7 @@ public class ShootingTester extends LinearOpMode {
     // close shot values: 0.24 feeding power, 1340 tps, 0.385 ramp pos
     // far shot values: 0.2 feeding power, 1670 tps, 0.385 ramp pos
     public static final double MAX_RAMP_DEGREES = 270.0;
-    public static final Pose goalPose = new Pose(0, 144);
+    public static final Pose goalPose = Constants.GOAL_POSE;
 //    public static double rampPosDegrees = 130.95; // 13.5 130.95
     public static double rampPos = 0;
     public static double targetLauncherVelocityTPS = 0;
