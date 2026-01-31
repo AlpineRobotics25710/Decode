@@ -44,14 +44,14 @@ public class FarPoses implements AutonomousPoses {
         startPose = new Pose(56.5, 8.75, Math.toRadians(90));
         shootPreloadPose = new Pose(54.5, 15.5, FAR_SHOOTING_ANGLE);
         pickUpMiddlePose = new Pose(50, 58.5, Math.toRadians(180));
-        intakeMiddlePose = new Pose(13, 58.5, Math.toRadians(180));
+        intakeMiddlePose = new Pose(15, 58.5, Math.toRadians(180));
         openGatePose = new Pose(15, 70.5, Math.toRadians(0));
         shootMiddlePose = new Pose(56, 84, CLOSE_SHOOTING_ANGLE);
         pickUpTopPose = new Pose(50, 83, Math.toRadians(180));
-        intakeTopPose = new Pose(12.5, 83, Math.toRadians(180));
+        intakeTopPose = new Pose(15.5, 83, Math.toRadians(180));
         shootTopPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);
         pickUpBottomPose = new Pose(50, 35, Math.toRadians(180));
-        intakeBottomPose = new Pose(11.5, 35, Math.toRadians(180));
+        intakeBottomPose = new Pose(13.5, 35, Math.toRadians(180));
         shootBottomPose = new Pose(54.5, 12, FAR_SHOOTING_ANGLE);
         parkPose = new Pose(53, 45, Math.toRadians(90));
 
