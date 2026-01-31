@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -26,7 +25,7 @@ public abstract class PedroBaseAuto extends OpMode {
     protected Timer pathTimer;
 
     protected LinkedList<Object> allPaths;
-    protected Map<Object, Double> shotNeeded;
+    protected Set<Object> shotNeeded;
     protected Set<Object> intakeNeeded;
     protected ListIterator<Object> pathIterator;
     protected Object currPath = null;
@@ -37,7 +36,6 @@ public abstract class PedroBaseAuto extends OpMode {
     // shooting flags
     protected boolean shootingActive = false;
     protected boolean waitingBeforeShooting = false;
-    protected double currentShotVelocity = 0;
 
     protected Alliance alliance = Alliance.BLUE; // By default blue
 
@@ -94,11 +92,8 @@ public abstract class PedroBaseAuto extends OpMode {
         }
 
         // if you need to shoot
-        if (shotNeeded.containsKey(step)) {
-            Double velocity = shotNeeded.get(step);
-            if (velocity != null) { // ensure not null
-                beginShootingSequence(step, velocity);
-            }
+        if (shotNeeded.contains(step)) {
+            beginShootingSequence(step);
             return;
         }
 
@@ -127,11 +122,10 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
-    protected void beginShootingSequence(Object shootingPath, double velocity) {
-        //((Path) shootingPath).setBrakingStrength(1.00);
+    protected void beginShootingSequence(Object shootingPath) {
+        // ((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
 
-        currentShotVelocity = velocity;
         waitingBeforeShooting = true;
         shootingActive = false;
         pathTimer.resetTimer();
@@ -200,8 +194,8 @@ public abstract class PedroBaseAuto extends OpMode {
         allPaths.add(path);
     }
 
-    protected void addShot(Object path, double velocity) {
-        shotNeeded.put(path, velocity);
+    protected void addShot(Object path) {
+        shotNeeded.add(path);
     }
 
     protected void addIntake(Object path) {
@@ -213,7 +207,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.init(telemetry);
 
         allPaths = new LinkedList<>();
-        shotNeeded = new HashMap<>();
+        shotNeeded = new HashSet<>();
         intakeNeeded = new HashSet<>();
 
         // Initialize full robot, including Pedro follower

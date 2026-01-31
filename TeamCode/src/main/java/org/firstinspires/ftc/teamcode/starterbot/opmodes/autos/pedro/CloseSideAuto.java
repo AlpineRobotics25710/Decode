@@ -46,7 +46,7 @@ public class CloseSideAuto extends PedroBaseAuto {
                         poses.shootPreloadPose.getHeading())
                 .build();
         allPaths.add(shootPreloadPath);
-        shotNeeded.put(shootPreloadPath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addShot(shootPreloadPath);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddleChain = follower.pathBuilder()
@@ -97,7 +97,7 @@ public class CloseSideAuto extends PedroBaseAuto {
                         0.65)
                 .build();
         allPaths.add(shootMiddlePath);
-        shotNeeded.put(shootMiddlePath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addShot(shootMiddlePath);
 
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         PathChain pickUpTopChain = follower.pathBuilder()
@@ -109,14 +109,14 @@ public class CloseSideAuto extends PedroBaseAuto {
                         poses.pickUpTopPose.getHeading(),
                         0.65)
                 .build();
-        allPaths.add(pickUpTopChain);
+        addPath(pickUpTopChain);
 
         // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
         PathChain intakeTopPath = follower.pathBuilder()
                 .addPath(new BezierLine(poses.pickUpTopPose, poses.intakeTopPose))
                 .setConstantHeadingInterpolation(poses.intakeTopPose.getHeading())
                 .build();
-        allPaths.add(intakeTopPath);
+        addPath(intakeTopPath);
         intakeNeeded.add(intakeTopPath);
 
         // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
@@ -131,8 +131,8 @@ public class CloseSideAuto extends PedroBaseAuto {
                         poses.shootTopPose.getHeading(),
                         0.65)
                 .build();
-        allPaths.add(shootTopPath);
-        shotNeeded.put(shootTopPath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addPath(shootTopPath);
+        addShot(shootTopPath);
 
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
         PathChain pickUpBottomChain = follower.pathBuilder()
@@ -145,7 +145,7 @@ public class CloseSideAuto extends PedroBaseAuto {
                         poses.pickUpBottomPose.getHeading(),
                         0.65)
                 .build();
-        allPaths.add(pickUpBottomChain);
+        addPath(pickUpBottomChain);
 
         // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
         PathChain intakeBottomPath = follower.pathBuilder()
@@ -155,7 +155,7 @@ public class CloseSideAuto extends PedroBaseAuto {
                                 poses.intakeBottomPose))
                 .setConstantHeadingInterpolation(poses.intakeBottomPose.getHeading())
                 .build();
-        allPaths.add(intakeBottomPath);
+        addPath(intakeBottomPath);
         intakeNeeded.add(intakeBottomPath);
 
         // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
@@ -169,8 +169,8 @@ public class CloseSideAuto extends PedroBaseAuto {
                         poses.shootBottomPose.getHeading(),
                         0.65)
                 .build();
-        allPaths.add(shootBottomPath);
-        shotNeeded.put(shootBottomPath, Constants.LAUNCHER_FAR_VELOCITY);
+        addPath(shootBottomPath);
+        addShot(shootBottomPath);
 
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
         PathChain parkPath = follower.pathBuilder()
@@ -182,6 +182,6 @@ public class CloseSideAuto extends PedroBaseAuto {
                         poses.shootBottomPose.getHeading(),
                         poses.parkPose.getHeading())
                 .build();
-        allPaths.add(parkPath);
+        addPath(parkPath);
     }
 }

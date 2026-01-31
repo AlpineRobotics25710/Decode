@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.poses.FarPoses;
 
@@ -46,7 +44,7 @@ public class FarSideAuto extends PedroBaseAuto {
                         poses.shootPreloadPose.getHeading())
                 .build();
         addPath(shootPreloadPath);
-        addShot(shootPreloadPath, Constants.LAUNCHER_FAR_VELOCITY);
+        addShot(shootPreloadPath);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddleChain = follower.pathBuilder()
@@ -97,7 +95,7 @@ public class FarSideAuto extends PedroBaseAuto {
                 .build();
 
         addPath(shootMiddlePath);
-        addShot(shootMiddlePath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addShot(shootMiddlePath);
 
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         PathChain pickUpTopChain = follower.pathBuilder()
@@ -130,7 +128,7 @@ public class FarSideAuto extends PedroBaseAuto {
                         poses.shootTopPose.getHeading())
                 .build();
         addPath(shootTopPath);
-        addShot(shootTopPath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addShot(shootTopPath);
 
         // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
         PathChain pickUpBottomChain = follower.pathBuilder()
@@ -167,7 +165,7 @@ public class FarSideAuto extends PedroBaseAuto {
                         poses.shootBottomPose.getHeading())
                 .build();
         addPath(shootBottomPath);
-        addShot(shootBottomPath, Constants.LAUNCHER_FAR_VELOCITY);
+        addShot(shootBottomPath);
 
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
         PathChain parkPath = follower.pathBuilder()
