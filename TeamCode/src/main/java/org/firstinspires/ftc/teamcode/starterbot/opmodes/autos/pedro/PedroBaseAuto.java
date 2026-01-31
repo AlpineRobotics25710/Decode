@@ -286,7 +286,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("y", follower.getPose().getY());
         CommonTelemetry.addData("curr heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
         CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
-        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
+//        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
         CommonTelemetry.addData("heading constraint (deg)", Math.toDegrees(follower.getConstraints().getHeadingConstraint()));
         CommonTelemetry.update();
     }
