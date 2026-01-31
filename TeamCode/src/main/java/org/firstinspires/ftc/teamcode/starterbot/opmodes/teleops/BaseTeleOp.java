@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
+
+
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -167,6 +169,11 @@ public abstract class BaseTeleOp extends OpMode {
         // Calling State Machine for Blocker state
         if (operator.yWasPressed()) {
             Robot.switchBlockerState();
+        }
+
+        if(operator.bWasPressed()){
+
+            Robot.RevFlywheel();
         }
 
         // Intake controls (can change later)

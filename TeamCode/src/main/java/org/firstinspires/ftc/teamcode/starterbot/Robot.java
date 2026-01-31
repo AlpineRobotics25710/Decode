@@ -345,6 +345,11 @@ public class Robot {
         stateStartTime = System.currentTimeMillis();
     }
 
+    public static void RevFlywheel(){
+        targetVelocity = Interpolator.getVelocityValue(distanceToGoal());
+        Robot.launcher.setVelocity(targetVelocity);
+    }
+
     // TODO: NEED TO CHANGE LAUNCHER TO ALWAYS USE TICKS PER SECOND AND RAMP TO ALWAYS USE 0-1
 
     public static void updateLauncherStateMachine() {
