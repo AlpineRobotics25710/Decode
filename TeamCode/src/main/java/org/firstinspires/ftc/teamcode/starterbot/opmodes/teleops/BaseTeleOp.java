@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
 
-
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -25,6 +24,7 @@ public abstract class BaseTeleOp extends OpMode {
     protected Supplier<Boolean> turtleMode = () -> false;
     protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
+    protected boolean revFlywheel = false;
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
@@ -140,13 +140,17 @@ public abstract class BaseTeleOp extends OpMode {
 
         if (!Robot.isLauncherBusy()) {
             if (operator.right_bumper) { // intake controls
+                revFlywheel = false;
                 Robot.spinToIntake();
             } else if (operator.left_bumper) {
+                revFlywheel = false;
                 Robot.spinToOuttake();
             } else {
                 Robot.setIntakePower(Constants.ZERO);
                 Robot.setFeederPower(Constants.ZERO);
-                Robot.currentNonLaunchVelocity = Constants.ZERO;
+                if (!revFlywheel) {
+                    Robot.currentNonLaunchVelocity = Constants.ZERO;
+                }
             }
         }
 
@@ -171,9 +175,12 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.switchBlockerState();
         }
 
-        if(operator.bWasPressed()){
+        if (operator.bWasPressed()) {
+            revFlywheel = !revFlywheel;
+        }
 
-            Robot.RevFlywheel();
+        if (revFlywheel) {
+            Robot.revFlywheel();
         }
 
         // Intake controls (can change later)
@@ -192,6 +199,7 @@ public abstract class BaseTeleOp extends OpMode {
         CommonTelemetry.addData("robot y", Robot.follower.getPose().getY());
         CommonTelemetry.addData("robot heading", Robot.follower.getPose().getHeading());
         CommonTelemetry.addData("autonomous driving", autonomousDriving);
+        CommonTelemetry.addData("revFlywheel", revFlywheel);
         CommonTelemetry.addData("prev auton driving", prevAutonomousDriving);
         CommonTelemetry.addData("follower is busy", Robot.follower.isBusy());
 

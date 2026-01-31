@@ -46,10 +46,9 @@ public class Robot {
 
     // Pedro
     public static Follower follower;
-
+    public static double currentNonLaunchVelocity;
     // Launcher variables
     private static double targetVelocity = 0.0; // commanded setpoint (ticks/sec)
-    public static double currentNonLaunchVelocity;
     private static long stateStartTime;
     private static int launchesQueued = 0;
 
@@ -172,7 +171,7 @@ public class Robot {
     }
 
     public static double radToRpm(double radps) {
-        return radps/ (2 * Math.PI);
+        return radps / (2 * Math.PI);
     }
 
     public static double tpsToRad(double tps) {
@@ -345,9 +344,8 @@ public class Robot {
         stateStartTime = System.currentTimeMillis();
     }
 
-    public static void RevFlywheel(){
-        targetVelocity = Interpolator.getVelocityValue(distanceToGoal());
-        Robot.launcher.setVelocity(targetVelocity);
+    public static void revFlywheel() {
+        currentNonLaunchVelocity = Interpolator.getVelocityValue(distanceToGoal());
     }
 
     // TODO: NEED TO CHANGE LAUNCHER TO ALWAYS USE TICKS PER SECOND AND RAMP TO ALWAYS USE 0-1
