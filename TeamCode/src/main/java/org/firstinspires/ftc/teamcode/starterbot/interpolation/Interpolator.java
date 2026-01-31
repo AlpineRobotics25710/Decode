@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.starterbot;
+package org.firstinspires.ftc.teamcode.starterbot.interpolation;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
-import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,15 +36,14 @@ public class Interpolator {
             maxDist = velocityData[0][velocityData[0].length - 1];
 
             try {
-                // closest thing to pchip interpolation that apache commons math supports
-                UnivariateInterpolator akima = new AkimaSplineInterpolator();
-                velocityFunction = akima.interpolate(velocityData[0], velocityData[1]);
-                rampFunction = akima.interpolate(rampData[0], rampData[1]);
+                // custom pchip interpolator. if not, use akimasplineinterpolation
+                //UnivariateInterpolator akima = new AkimaSplineInterpolator();
+                velocityFunction = new PchipInterpolator(velocityData[0], velocityData[1]);
+                rampFunction = new PchipInterpolator(rampData[0], rampData[1]);
             } catch (Exception e) {
                 // fallback to linear interpolation if akima spline interpolation doesn't work
-                UnivariateInterpolator linear = new LinearInterpolator();
-                velocityFunction = linear.interpolate(velocityData[0], velocityData[1]);
-                rampFunction = linear.interpolate(rampData[0], rampData[1]);
+                velocityFunction = new LinearInterpolator().interpolate(velocityData[0], velocityData[1]);
+                rampFunction = new LinearInterpolator().interpolate(rampData[0], rampData[1]);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -63,13 +60,13 @@ public class Interpolator {
         return Math.max(minDist, Math.min(maxDist, dist));
     }
 
-    public static double getVelocity(double distance) {
+    public static double getVelocityValue(double distance) {
         ensureInit();
         distance = clampDist(distance);
         return velocityFunction.value(distance);
     }
 
-    public static double getRampAngle(double distance) {
+    public static double getRampValue(double distance) {
         ensureInit();
         distance = clampDist(distance);
         return rampFunction.value(distance);

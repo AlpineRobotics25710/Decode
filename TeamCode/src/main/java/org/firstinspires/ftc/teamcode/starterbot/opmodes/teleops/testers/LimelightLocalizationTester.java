@@ -2,6 +2,12 @@ package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.testers;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.ftc.FTCCoordinates;
+import com.pedropathing.ftc.InvertedFTCCoordinates;
+import com.pedropathing.ftc.PoseConverter;
+import com.pedropathing.geometry.CoordinateSystem;
+import com.pedropathing.geometry.PedroCoordinates;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -15,12 +21,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
 import java.util.Locale;
 
 @Config
 @Configurable
-@TeleOp
+@TeleOp(group = "testers")
 public class LimelightLocalizationTester extends LinearOpMode {
     private Limelight3A limelight;
     private IMU imu;
@@ -28,23 +35,24 @@ public class LimelightLocalizationTester extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        CommonTelemetry.init(telemetry);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         imu = hardwareMap.get(IMU.class, "imu");
-
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
         pinpoint.setOffsets(-111.7, -33.3, DistanceUnit.MM);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 56.5, 8.75, AngleUnit.DEGREES, 90));
+        Pose startingPose = new Pose(56.5, 8.75, Math.toRadians(90), PedroCoordinates.INSTANCE);
+        pinpoint.setPosition(PoseConverter.poseToPose2D(startingPose, InvertedFTCCoordinates.INSTANCE));
+        //pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -178.5, -98, AngleUnit.DEGREES, 0));
         pinpoint.initialize();
 
-        imu.initialize(new IMU.Parameters(
-                new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)
-                )
-        );
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP)
+        ));
+        imu.resetYaw();
 
         limelight.pipelineSwitch(2);
         limelight.start();
@@ -64,27 +72,27 @@ public class LimelightLocalizationTester extends LinearOpMode {
                 double lly = llPos.y;
                 double llh = llPose.getOrientation().getYaw(AngleUnit.DEGREES);
 
-                telemetry.addLine("------ Limelight Data (Inches) ------");
-                telemetry.addData("Robot X", String.format(Locale.US, "%.3f", llx));
-                telemetry.addData("Robot Y", String.format(Locale.US, "%.3f", lly));
-                telemetry.addData("Robot Heading", String.format(Locale.US, "%.3f", llh));
-
-                // Pinpoint localization data
-                Pose2D ppPose = pinpoint.getPosition();
-                double ppx = ppPose.getX(DistanceUnit.INCH);
-                double ppy = ppPose.getY(DistanceUnit.INCH);
-                double pph = ppPose.getHeading(AngleUnit.DEGREES);
-
-                telemetry.addLine("------ Pinpoint Data (Inches) ------");
-                telemetry.addData("Robot X", String.format(Locale.US, "%.3f", ppx));
-                telemetry.addData("Robot Y", String.format(Locale.US, "%.3f", ppy));
-                telemetry.addData("Robot Heading", String.format(Locale.US, "%.3f", pph));
+                CommonTelemetry.debug("------ Limelight Data (Inches) ------");
+                CommonTelemetry.addData("Robot X", String.format(Locale.US, "%.3f", llx));
+                CommonTelemetry.addData("Robot Y", String.format(Locale.US, "%.3f", lly));
+                CommonTelemetry.addData("Robot Heading", String.format(Locale.US, "%.3f", llh));
             } else {
-                telemetry.addData("Limelight", "No targets visible");
+                CommonTelemetry.addData("Limelight", "No targets visible");
             }
 
+            // Pinpoint localization data
+            Pose2D ppPose = pinpoint.getPosition();
+            double ppx = ppPose.getX(DistanceUnit.INCH);
+            double ppy = ppPose.getY(DistanceUnit.INCH);
+            double pph = ppPose.getHeading(AngleUnit.DEGREES);
+
+            CommonTelemetry.debug("------ Pinpoint Data (Inches) ------");
+            CommonTelemetry.addData("Robot X", String.format(Locale.US, "%.3f", ppx));
+            CommonTelemetry.addData("Robot Y", String.format(Locale.US, "%.3f", ppy));
+            CommonTelemetry.addData("Robot Heading", String.format(Locale.US, "%.3f", pph));
+
             pinpoint.update();
-            telemetry.update();
+            CommonTelemetry.update();
         }
     }
 }

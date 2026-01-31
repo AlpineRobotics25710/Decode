@@ -26,7 +26,10 @@ public class Constants {
             .useSecondaryHeadingPIDF(true)
             .centripetalScaling(0.0005); // need to test
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1.35, 1);
+//            .headingPIDFCoefficients(new PIDFCoefficients(1.3, 0, 0, 0.02))
+//            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.1,0.073939,0.00152418)); // get values from running automatic predictive braking tuner
+
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -38,6 +41,7 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .useBrakeModeInTeleOp(true)
             .xVelocity(65.69173016886073) // need to test
             .yVelocity(53.80969959168923); // need to test
 

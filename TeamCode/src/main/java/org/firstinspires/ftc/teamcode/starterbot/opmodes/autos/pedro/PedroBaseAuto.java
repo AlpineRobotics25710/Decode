@@ -108,7 +108,7 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void beginIntakeSequence(Object intakePath) {
-        follower.setMaxPower(0.5);
+        follower.setMaxPower(0.4);
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;
@@ -119,7 +119,7 @@ public abstract class PedroBaseAuto extends OpMode {
     protected void updateIntakeSequence() {
         if (!intakeActive) return;
 
-        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.0) { // Add minimum 1.0s intake time after path start
+        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.35) { // Add minimum 1.0s intake time after path start
             follower.setMaxPower(1.0);
             Robot.stopAll();
             intakeActive = false;
@@ -128,7 +128,7 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void beginShootingSequence(Object shootingPath, double velocity) {
-        ((Path) shootingPath).setBrakingStrength(1.00);
+        //((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
 
         currentShotVelocity = velocity;
@@ -184,7 +184,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
         Path goToEnd = new Path(new BezierLine(followerPose, getEndPose()));
         goToEnd.setLinearHeadingInterpolation(followerPose.getHeading(), getEndPose().getHeading());
-        followPathOrPathChain(goToEnd, false);
+        followPathOrPathChain(goToEnd, true);
     }
 
     protected void cancelAllActions() {
@@ -260,7 +260,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
