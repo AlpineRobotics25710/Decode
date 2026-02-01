@@ -253,14 +253,12 @@ public class Robot {
         // State Machine for Hinge/Ramp state
         switch (rampState) {
             case INTAKE: // we are currently in INTAKE state, and want to switch states
-                ramp.setPosition(Constants.RAMP_OUTTAKE_POS);
-                ramp2.setPosition(Constants.RAMP_OUTTAKE_POS);// then change to OUTTAKE state
+                setRampPos(Constants.RAMP_OUTTAKE_POS);// then change to OUTTAKE state
                 rampState = RampState.OUTTAKE;  // then change to OUTTAKE state
                 break;
 
             case OUTTAKE: // we are currently in OUTTAKE state, and want to switch states
-                ramp.setPosition(Constants.RAMP_INTAKE_POS);
-                ramp2.setPosition(Constants.RAMP_INTAKE_POS);// then change to INTAKE state
+                setRampPos(Constants.RAMP_INTAKE_POS);// then change to INTAKE state
                 rampState = RampState.INTAKE; // then change to INTAKE state
                 break;
         }

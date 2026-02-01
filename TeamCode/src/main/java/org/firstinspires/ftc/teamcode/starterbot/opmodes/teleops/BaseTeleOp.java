@@ -4,6 +4,9 @@ package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
@@ -12,6 +15,7 @@ import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class BaseTeleOp extends OpMode {
@@ -28,8 +32,14 @@ public abstract class BaseTeleOp extends OpMode {
     protected Alliance alliance;
     protected boolean autonomousDriving = false;
     protected boolean prevAutonomousDriving = false;
+    protected boolean currentlyAligning = false;
+    protected Limelight3A limelight;
     protected Pose parkPose = new Pose(105, 33); // blue initially
     protected Pose shootPose = new Pose(11, 140); // blue initially
+    protected int targetTagId = 20; //blue goal: 20, red goal: 24
+    protected double headingTolerance = 1.0;
+    protected double turnGain = 0.0095;
+    protected double minMotorPower = 0.03;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -37,6 +47,10 @@ public abstract class BaseTeleOp extends OpMode {
     @Override
     public void init() {
         startingPose = (Pose) blackboard.getOrDefault("final_auton_pose", startingPose);
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(2);
+        limelight.start();
 
         CommonTelemetry.init(telemetry);
         Robot.init(hardwareMap);
@@ -88,6 +102,7 @@ public abstract class BaseTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        limelight.updateRobotOrientation(Math.toDegrees(Robot.follower.getHeading()));
         prevAutonomousDriving = autonomousDriving;
         autonomousDriving = Robot.follower.isBusy();
 
@@ -107,12 +122,12 @@ public abstract class BaseTeleOp extends OpMode {
             Robot.follower.startTeleopDrive(useBrakeMode);
         }
 
-        if (!autonomousDriving && driver.dpadUpWasPressed()) { // driver dpad UP for going to shoot pose
+        /*if (!autonomousDriving && !currentlyAligning && driver.dpadUpWasPressed()) { // driver dpad UP for going to shoot pose
             autonomousDriving = true;
             lineToPose(closeShootPose);
         }
 
-        if (!autonomousDriving && driver.dpadDownWasPressed()) {// driver dpad DOWN for going to park pose
+        if (!autonomousDriving && !currentlyAligning && driver.dpadDownWasPressed()) {// driver dpad DOWN for going to park pose
             autonomousDriving = true;
             double desiredHeading = Math.toRadians(90);
             if (Robot.follower.getHeading() > Math.PI) {
@@ -120,15 +135,51 @@ public abstract class BaseTeleOp extends OpMode {
             }
 
             lineToPose(parkPose.withHeading(desiredHeading));
-        }
+        }*/
 
         // turn to shoot based on alliance and current position
-        if (!autonomousDriving && driver.dpadLeftWasPressed()) {
-            autonomousDriving = true;
-            turnToShoot();
+        if (!autonomousDriving && driver.leftBumperWasPressed()) {
+            currentlyAligning = !currentlyAligning;
         }
 
-        if (!autonomousDriving) {
+        LLResult llResult = limelight.getLatestResult();
+        LLResultTypes.FiducialResult targetTag = null;
+        if (llResult != null && llResult.isValid()) {
+            List<LLResultTypes.FiducialResult> detectedTags = llResult.getFiducialResults();
+            for (LLResultTypes.FiducialResult tag : detectedTags) {
+                if (tag.getFiducialId() == targetTagId) {
+                    targetTag = tag;
+                }
+            }
+
+            if (targetTag != null) {
+                CommonTelemetry.addData("Target x degrees", targetTag.getTargetXDegrees());
+                CommonTelemetry.addData("Target y degrees", targetTag.getTargetYDegrees());
+
+                double headingError = -targetTag.getTargetXDegrees();
+                double turn = headingError * turnGain;
+                CommonTelemetry.addData("turn power", turn);
+
+                // minimum motor power is heading still exists
+                if (Math.abs(headingError) > headingTolerance) {
+                    turn += (Math.signum(turn) * minMotorPower);
+                } else {
+                    // Small corrective hold, NOT zero
+                    turn *= 0.3;
+                }
+
+                if (currentlyAligning) {
+                    Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, turn, robotCentric);
+                }
+            }
+        } else {
+            CommonTelemetry.addData("Limelight", "No targets found");
+            if (currentlyAligning) {
+                pedroTeleop();
+            }
+        }
+
+        if (!autonomousDriving && !currentlyAligning) {
             // mecanum();
             pedroTeleop();
         }
