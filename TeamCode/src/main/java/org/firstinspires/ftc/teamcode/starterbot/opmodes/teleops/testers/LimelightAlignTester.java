@@ -24,8 +24,8 @@ import java.util.List;
 public class LimelightAlignTester extends LinearOpMode {
     public static int targetTagId = 20; //blue goal: 20, red goal: 24
     public static double headingTolerance = 1.0;
-    public static double turnGain = 0.03;
-    public static double minMotorPower = 0.1;
+    public static double turnGain = 0.013;
+    public static double minMotorPower = 0.05;
     public static boolean currentlyAligning = false;
 
     @Override
@@ -60,13 +60,13 @@ public class LimelightAlignTester extends LinearOpMode {
                     CommonTelemetry.addData("Target x degrees", targetTag.getTargetXDegrees());
                     CommonTelemetry.addData("Target y degrees", targetTag.getTargetYDegrees());
 
-                    double headingError = targetTag.getTargetXDegrees();
+                    double headingError = -targetTag.getTargetXDegrees();
                     double turn = headingError * turnGain;
                     CommonTelemetry.addData("turn power", turn);
 
                     // minimum motor power is heading still exists
                     if (Math.abs(headingError) > headingTolerance) {
-                        turn += Math.signum(turn) * minMotorPower;
+                        turn += (Math.signum(turn) * minMotorPower);
                     } else {
                         // Small corrective hold, NOT zero
                         turn *= 0.3;
@@ -85,6 +85,18 @@ public class LimelightAlignTester extends LinearOpMode {
                 currentlyAligning = false; // set to false if it was aligning but now no targets are found
             }
 
+            if (gamepad1.bWasPressed()) {
+                Robot.queueLaunch();
+            }
+
+            if (gamepad1.xWasPressed()) {
+                Robot.switchRampState();
+            }
+
+            if (gamepad1.yWasPressed()) {
+                Robot.switchBlockerState();
+            }
+
             boolean leftStickX = Math.abs(gamepad1.left_stick_x) > 0.1;
             boolean leftStickY = Math.abs(gamepad1.left_stick_y) > 0.1;
             boolean rightStickX = Math.abs(gamepad1.right_stick_x) > 0.1;
@@ -99,6 +111,7 @@ public class LimelightAlignTester extends LinearOpMode {
             CommonTelemetry.draw(Robot.follower);
             CommonTelemetry.addData("currentlyAligning", currentlyAligning);
             CommonTelemetry.addData("pedro heading read deg", Math.toDegrees(Robot.follower.getHeading()));
+            Robot.loop();
             CommonTelemetry.update();
         }
     }
