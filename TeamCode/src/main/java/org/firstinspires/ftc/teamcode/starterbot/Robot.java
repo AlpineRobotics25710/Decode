@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.starterbot;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.pedropathing.follower.Follower;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -114,6 +115,10 @@ public class Robot {
          * both work to feed the ball into the robot.
          */
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        for (LynxModule lm : hardwareMap.getAll(LynxModule.class)) {
+            lm.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
         // Init follower
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
