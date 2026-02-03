@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.starterbot;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -301,6 +302,10 @@ public class Robot {
         return follower.getPose().distanceFrom(Constants.GOAL_POSE);
     }
 
+    public static double distanceToGoal(Pose p) {
+        return p.distanceFrom(Constants.GOAL_POSE);
+    }
+
     public static void queueLaunch() {
         launchesQueued++;
     }
@@ -349,6 +354,10 @@ public class Robot {
 
     public static void revFlywheel() {
         currentNonLaunchVelocity = Interpolator.getVelocityValue(distanceToGoal());
+    }
+
+    public static void revFlywheel(Pose p) { // revs flywheel for a specific pose
+        currentNonLaunchVelocity = Interpolator.getVelocityValue(distanceToGoal(p));
     }
 
     // TODO: NEED TO CHANGE LAUNCHER TO ALWAYS USE TICKS PER SECOND AND RAMP TO ALWAYS USE 0-1
