@@ -16,17 +16,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(10.25119)
-            .forwardZeroPowerAcceleration(-30.499437451291932)
-            .lateralZeroPowerAcceleration(-59.74626160865985)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.045, 0, 0.002, 0.005))
-            .headingPIDFCoefficients(new PIDFCoefficients(1.3, 0, 0, 0.02))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.65, 0, 0, 0.015))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.25, 0, 0, 0, 0.022))
+            .mass(12.15628)
+            .forwardZeroPowerAcceleration(-30.633405046849877)
+            .lateralZeroPowerAcceleration(-46.70776196795261)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.25, 0, 0.027, 0.024))
+            .headingPIDFCoefficients(new PIDFCoefficients(2.1, 0, 0.02, 0.033))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.0, 0, 0.1, 0.015))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.2, 0, 0.001, 0, 0.03))
             .useSecondaryHeadingPIDF(true)
             .centripetalScaling(0.0005);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1.3, 1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -39,8 +39,8 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .useBrakeModeInTeleOp(true)
-            .xVelocity(65.69173016886073)
-            .yVelocity(53.80969959168923);
+            .xVelocity(64.01810917891856)
+            .yVelocity(54.21175883135457);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-33.3) // values have been updated

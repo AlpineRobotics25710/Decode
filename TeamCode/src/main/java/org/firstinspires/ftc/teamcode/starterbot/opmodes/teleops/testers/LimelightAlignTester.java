@@ -60,8 +60,8 @@ public class LimelightAlignTester extends LinearOpMode {
                     CommonTelemetry.addData("Target x degrees", targetTag.getTargetXDegrees());
                     CommonTelemetry.addData("Target y degrees", targetTag.getTargetYDegrees());
 
-                    double headingError = -targetTag.getTargetXDegrees();
-                    double turn = headingError * turnGain;
+                    double headingError = targetTag.getTargetXDegrees();
+                    /*double turn = headingError * turnGain;
                     CommonTelemetry.addData("turn power", turn);
 
                     // minimum motor power is heading still exists
@@ -70,10 +70,11 @@ public class LimelightAlignTester extends LinearOpMode {
                     } else {
                         // Small corrective hold, NOT zero
                         turn *= 0.3;
-                    }
+                    }*/
 
                     if (currentlyAligning) {
-                        Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, turn);
+                        Robot.follower.turn(Math.toRadians(headingError), headingError < 0);
+                        Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, 0);
                     }
                 }
             } else {
