@@ -103,7 +103,7 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void beginIntakeSequence(Object intakePath) {
-        follower.setMaxPower(0.4);
+        follower.setMaxPower(0.7);
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;
@@ -254,7 +254,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5 && !interrupted) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.75 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();

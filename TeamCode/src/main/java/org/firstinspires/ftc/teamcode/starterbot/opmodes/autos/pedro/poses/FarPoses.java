@@ -37,7 +37,7 @@ public class FarPoses implements AutonomousPoses {
     public Pose cpPark1;
 
     public FarPoses() {
-        FAR_SHOOTING_ANGLE = Math.toRadians(111.5);
+        FAR_SHOOTING_ANGLE = Math.toRadians(109);
         CLOSE_SHOOTING_ANGLE = Math.toRadians(135);
 
         // Poses

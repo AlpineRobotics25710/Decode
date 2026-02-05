@@ -6,12 +6,8 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.lynx.LynxVoltageSensor;
-import com.qualcomm.hardware.lynx.commands.core.LynxGetADCCommand;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
@@ -60,8 +56,8 @@ public class LimelightAlignTester extends LinearOpMode {
                     CommonTelemetry.addData("Target x degrees", targetTag.getTargetXDegrees());
                     CommonTelemetry.addData("Target y degrees", targetTag.getTargetYDegrees());
 
-                    double headingError = targetTag.getTargetXDegrees();
-                    /*double turn = headingError * turnGain;
+                    double headingError = -targetTag.getTargetXDegrees();
+                    double turn = headingError * turnGain;
                     CommonTelemetry.addData("turn power", turn);
 
                     // minimum motor power is heading still exists
@@ -70,11 +66,10 @@ public class LimelightAlignTester extends LinearOpMode {
                     } else {
                         // Small corrective hold, NOT zero
                         turn *= 0.3;
-                    }*/
+                    }
 
                     if (currentlyAligning) {
-                        Robot.follower.turn(Math.toRadians(headingError), headingError < 0);
-                        Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, 0);
+                        Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, turn);
                     }
                 }
             } else {
