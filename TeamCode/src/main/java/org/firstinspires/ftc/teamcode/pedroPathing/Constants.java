@@ -28,7 +28,7 @@ public class Constants {
 
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.2,0.07198,0.0014928)); // get values from running automatic predictive braking tuner
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.98, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.96, 100, 1, 1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
