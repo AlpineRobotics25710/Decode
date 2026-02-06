@@ -26,7 +26,7 @@ public class Constants {
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.0, 0, 0.1, 0.015))
             .useSecondaryHeadingPIDF(true)
 
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.2,0.073939,0.00152418)); // get values from running automatic predictive braking tuner
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.2,0.07198,0.0014928)); // get values from running automatic predictive braking tuner
 
     public static PathConstraints pathConstraints = new PathConstraints(0.98, 100, 1, 1);
 
