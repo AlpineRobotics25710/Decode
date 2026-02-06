@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -16,17 +17,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(12.15628)
-            .forwardZeroPowerAcceleration(-30.633405046849877)
-            .lateralZeroPowerAcceleration(-46.70776196795261)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.25, 0, 0.027, 0.024))
-            .headingPIDFCoefficients(new PIDFCoefficients(2.1, 0, 0.02, 0.033))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.0, 0, 0.1, 0.015))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.2, 0, 0.001, 0, 0.03))
-            .useSecondaryHeadingPIDF(true)
-            .centripetalScaling(0.0005);
+            .mass(10.25119)// input robot mass
+            .forwardZeroPowerAcceleration(-30.499437451291932) // need to test
+            .lateralZeroPowerAcceleration(-59.74626160865985) // need to test
+            .centripetalScaling(0.0005) // need to test
+            .headingPIDFCoefficients(new PIDFCoefficients(1.3, 0, 0, 0.02))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.2,0.073939,0.00152418)); // get values from running automatic predictive braking tuner
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1.3, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -38,9 +36,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .useBrakeModeInTeleOp(true)
-            .xVelocity(64.01810917891856)
-            .yVelocity(54.21175883135457);
+            .xVelocity(65.69173016886073) // need to t// est
+            .yVelocity(53.80969959168923); // need to test
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-33.3) // values have been updated
@@ -49,13 +46,13 @@ public class Constants {
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED); // need to test for reversed
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
+                .pinpointLocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
-                .pinpointLocalizer(localizerConstants)
                 .build();
     }
 }
