@@ -9,8 +9,11 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
+import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
+import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
+import org.firstinspires.ftc.teamcode.starterbot.interpolation.Interpolator;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -254,7 +257,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 28.75 && !interrupted) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 29.25 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();

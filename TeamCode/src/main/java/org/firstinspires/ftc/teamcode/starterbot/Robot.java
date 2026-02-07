@@ -52,6 +52,7 @@ public class Robot {
     private static double targetVelocity = 0.0; // commanded setpoint (ticks/sec)
     private static long stateStartTime;
     private static int launchesQueued = 0;
+    private static boolean decreaseLauncherVel = false;
 
     // Prevent instantiation from other classes.
     private Robot() {
@@ -301,6 +302,10 @@ public class Robot {
         return follower.getPose().distanceFrom(Constants.GOAL_POSE);
     }
 
+    public static void setDecreaseLauncherVelocity(boolean decreaseLauncherVelocity) {
+        decreaseLauncherVel = decreaseLauncherVelocity;
+    }
+
     public static void queueLaunch() {
         launchesQueued++;
     }
@@ -341,6 +346,7 @@ public class Robot {
     private static void startLaunchSequence() {
         targetVelocity = Interpolator.getVelocityValue(distanceToGoal());
         Robot.launcher.setVelocity(targetVelocity);
+        if (decreaseLauncherVel) targetVelocity *= 0.95;
         setRampPos(Interpolator.getRampValue(distanceToGoal()));
         launchSequenceState = LaunchSequenceState.SPINNING_UP;
         rampState = RampState.OUTTAKE;
@@ -359,6 +365,7 @@ public class Robot {
                 // Account for if the robot is moving
                 setRampPos(Interpolator.getRampValue(distanceToGoal()));
                 targetVelocity = Interpolator.getVelocityValue(distanceToGoal());
+                if (decreaseLauncherVel) targetVelocity *= 0.95;
                 Robot.launcher.setVelocity(targetVelocity);
 
                 // shooting tolerances

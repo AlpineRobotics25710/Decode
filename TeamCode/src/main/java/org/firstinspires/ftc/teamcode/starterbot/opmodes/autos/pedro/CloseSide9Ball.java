@@ -8,6 +8,7 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
+import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.poses.ClosePoses;
 
@@ -130,5 +131,17 @@ public class CloseSide9Ball extends PedroBaseAuto {
                         poses.parkPose.getHeading())
                 .build();
         addPath(parkPath);
+    }
+
+    @Override
+    public void start() {
+        Robot.setDecreaseLauncherVelocity(true);
+        super.start();
+    }
+
+    @Override
+    public void stop() {
+        Robot.setDecreaseLauncherVelocity(false);
+        super.stop();
     }
 }
