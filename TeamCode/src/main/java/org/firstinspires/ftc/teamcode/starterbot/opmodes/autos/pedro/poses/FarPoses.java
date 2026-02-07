@@ -46,14 +46,14 @@ public class FarPoses implements AutonomousPoses {
 
         pickUpMiddlePose = new Pose(48, 59, Math.toRadians(180));
         cpPickUpMiddle1 = new Pose(53.25, 56);
-        intakeMiddlePose = new Pose(16, 59, Math.toRadians(180));
+        intakeMiddlePose = new Pose(15, 59, Math.toRadians(180));
         cpShootMiddle12 = new Pose(60, 67.25); // for 12 ball only lowk ignore...
         cpShootMiddle = new Pose (55, 51);
 
         pickUpBottomPose = new Pose(48, 35, Math.toRadians(180));
         cpPickUpBottom12 = new Pose(64, 58); // for 12 ball only lowk ignore...
         cpPickUpBottom = new Pose(54, 30);
-        intakeBottomPose = new Pose(16, 35, Math.toRadians(180));
+        intakeBottomPose = new Pose(15, 35, Math.toRadians(180));
         cpShootBottom1 = new Pose(42, 26);
 
         parkPose = new Pose(40, 18, Math.toRadians(109));
