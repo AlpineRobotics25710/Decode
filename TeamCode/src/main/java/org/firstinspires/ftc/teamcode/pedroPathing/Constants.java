@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
-import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
@@ -26,7 +25,7 @@ public class Constants {
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.0, 0, 0.1, 0.015))
             .useSecondaryHeadingPIDF(true)
 
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.2,0.07198,0.0014928)); // get values from running automatic predictive braking tuner
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.2, 0.07198, 0.0014928)); // get values from running automatic predictive braking tuner
 
     public static PathConstraints pathConstraints = new PathConstraints(0.96, 100, 1, 1);
 
