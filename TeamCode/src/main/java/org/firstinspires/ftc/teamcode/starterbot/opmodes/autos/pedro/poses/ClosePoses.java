@@ -48,10 +48,11 @@ public class ClosePoses implements AutonomousPoses {
         intakeTopPose = new Pose(16.5, 84, Math.toRadians(180));
         cpShootTop1 = new Pose(49, 81.5);
 
+        parkPose = new Pose(35, 80, Math.toRadians(180));
+
+        // additional poses for 12 ball
         pickUpBottomPose = new Pose(50, 35, Math.toRadians(180));
         intakeBottomPose = new Pose(12.5, 35, Math.toRadians(180));
-
-        parkPose = new Pose(35, 80, Math.toRadians(180));
 
         cpOpenGate1 = new Pose(51, 58);
         cpOpenGate2 = new Pose(58.5, 64);
