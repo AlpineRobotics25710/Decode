@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops;
 
 
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -26,7 +28,8 @@ public abstract class BaseTeleOp extends OpMode {
     protected Gamepad driver;
     protected Gamepad operator;
     protected Supplier<Boolean> turtleMode = () -> false;
-    protected boolean robotCentric = true;
+    protected Supplier<Boolean> autoAlignButton = () -> false;
+    protected boolean robotCentric = false;
     protected boolean useBrakeMode = true;
     protected boolean revFlywheel = false;
     protected Alliance alliance;
@@ -38,8 +41,8 @@ public abstract class BaseTeleOp extends OpMode {
     protected Pose shootPose = new Pose(11, 140); // blue initially
     protected int targetTagId = 20; //blue goal: 20, red goal: 24
     protected double headingTolerance = 1.0;
-    protected double turnGain = 0.0095;
-    protected double minMotorPower = 0.03;
+    public static double turnKF = 0.03;
+    private static final PIDFController alignPIDF = new PIDFController(new PIDFCoefficients(0.0095, 0.0, 0.0, 0));
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -138,7 +141,7 @@ public abstract class BaseTeleOp extends OpMode {
         }*/
 
         // turn to shoot based on alliance and current position
-        if (!autonomousDriving && driver.leftBumperWasPressed()) {
+        if (!autonomousDriving && autoAlignButton.get()) {
             currentlyAligning = !currentlyAligning;
         }
 
@@ -155,27 +158,30 @@ public abstract class BaseTeleOp extends OpMode {
             if (targetTag != null) {
                 CommonTelemetry.addData("Target x degrees", targetTag.getTargetXDegrees());
                 CommonTelemetry.addData("Target y degrees", targetTag.getTargetYDegrees());
-
                 double headingError = -targetTag.getTargetXDegrees();
-                double turn = headingError * turnGain;
+                alignPIDF.updateError(headingError);
+                double turn = alignPIDF.run();
                 CommonTelemetry.addData("turn power", turn);
 
                 // minimum motor power is heading still exists
                 if (Math.abs(headingError) > headingTolerance) {
-                    turn += (Math.signum(turn) * minMotorPower);
+                    turn += (Math.signum(turn) * turnKF);
                 } else {
                     // Small corrective hold, NOT zero
-                    turn *= 0.3;
+                    turn *= 0.2; // could cause problems, if there are problems maybe lower or remove this
                 }
 
+                // clamp output
+                turn = Math.min(1.0, Math.max(-1.0, turn));
+
                 if (currentlyAligning) {
-                    Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, turn, robotCentric);
+                    Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, turn);
                 }
             }
         } else {
             CommonTelemetry.addData("Limelight", "No targets found");
             if (currentlyAligning) {
-                pedroTeleop();
+                Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, 0);
             }
         }
 
@@ -289,7 +295,7 @@ public abstract class BaseTeleOp extends OpMode {
 
     public void pedroTeleop() {
         double left_stick_y = -gamepad1.left_stick_y;
-        double left_stick_x = -gamepad1.left_stick_x;
+        double left_stick_x = gamepad1.left_stick_x;
         double right_stick_x = -gamepad1.right_stick_x;
 
         if (turtleMode.get()) {
@@ -299,8 +305,8 @@ public abstract class BaseTeleOp extends OpMode {
         }
 
         Robot.follower.setTeleOpDrive(
-                left_stick_y,
                 left_stick_x,
+                left_stick_y,
                 right_stick_x,
                 robotCentric // Robot Centric
         );

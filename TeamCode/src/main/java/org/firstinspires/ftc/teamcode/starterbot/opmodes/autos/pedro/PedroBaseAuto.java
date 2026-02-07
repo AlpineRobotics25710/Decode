@@ -103,7 +103,7 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void beginIntakeSequence(Object intakePath) {
-        follower.setMaxPower(0.7);
+        follower.setMaxPower(0.35);
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;

@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.starterbot.opmodes.teleops.testers;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -20,9 +22,12 @@ import java.util.List;
 public class LimelightAlignTester extends LinearOpMode {
     public static int targetTagId = 20; //blue goal: 20, red goal: 24
     public static double headingTolerance = 1.0;
-    public static double turnGain = 0.0095;
-    public static double minMotorPower = 0.03;
     public static boolean currentlyAligning = false;
+    public static double kP = 0.0095;
+    public static double kI = 0.0;
+    public static double kD = 0.0;
+    public static double kF = 0.03;
+    private static final PIDFController alignPIDF = new PIDFController(new PIDFCoefficients(kP, kI, kD, 0));
 
     @Override
     public void runOpMode() {
@@ -55,18 +60,21 @@ public class LimelightAlignTester extends LinearOpMode {
                 if (targetTag != null) {
                     CommonTelemetry.addData("Target x degrees", targetTag.getTargetXDegrees());
                     CommonTelemetry.addData("Target y degrees", targetTag.getTargetYDegrees());
-
                     double headingError = -targetTag.getTargetXDegrees();
-                    double turn = headingError * turnGain;
+                    alignPIDF.updateError(headingError);
+                    double turn = alignPIDF.run();
                     CommonTelemetry.addData("turn power", turn);
 
                     // minimum motor power is heading still exists
                     if (Math.abs(headingError) > headingTolerance) {
-                        turn += (Math.signum(turn) * minMotorPower);
+                        turn += (Math.signum(turn) * kF);
                     } else {
                         // Small corrective hold, NOT zero
-                        turn *= 0.3;
+                        turn *= 0.2; // could cause problems, if there are problems maybe lower or remove this
                     }
+
+                    // clamp output
+                    turn = Math.min(1.0, Math.max(-1.0, turn));
 
                     if (currentlyAligning) {
                         Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, turn);
@@ -81,6 +89,7 @@ public class LimelightAlignTester extends LinearOpMode {
 
             if (gamepad1.aWasPressed()) {
                 currentlyAligning = !currentlyAligning;
+                alignPIDF.reset();
             }
 
             if (gamepad1.bWasPressed()) {
@@ -95,17 +104,13 @@ public class LimelightAlignTester extends LinearOpMode {
                 Robot.switchBlockerState();
             }
 
-            double deadzone = 0.1;
-            boolean leftStickX = Math.abs(gamepad1.left_stick_x) > deadzone;
-            boolean leftStickY = Math.abs(gamepad1.left_stick_y) > deadzone;
-            boolean rightStickX = Math.abs(gamepad1.right_stick_x) > deadzone;
-            boolean driverInterrupt = leftStickX || leftStickY || rightStickX;
-
-            //if (currentlyAligning && driverInterrupt) currentlyAligning = false;
-
             if (!currentlyAligning) {
                 Robot.follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x * 1.1, -gamepad1.right_stick_x);
             }
+
+            alignPIDF.setP(kP);
+            alignPIDF.setI(kI);
+            alignPIDF.setD(kD);
 
             Robot.follower.update();
             CommonTelemetry.draw(Robot.follower);

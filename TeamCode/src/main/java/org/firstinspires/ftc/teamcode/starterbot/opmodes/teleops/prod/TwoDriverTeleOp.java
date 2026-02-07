@@ -61,5 +61,6 @@ public class TwoDriverTeleOp extends BaseTeleOp {
 
         // Mapping common controls
         turtleMode = () -> driver.right_bumper;
+        autoAlignButton = () -> gamepad1.rightBumperWasPressed();
     }
 }
