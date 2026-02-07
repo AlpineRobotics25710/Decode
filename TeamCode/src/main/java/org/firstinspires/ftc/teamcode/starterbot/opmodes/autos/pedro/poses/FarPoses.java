@@ -78,10 +78,8 @@ public class FarPoses implements AutonomousPoses {
         shootClosePose = shootClosePose.mirror();
         pickUpTopPose = pickUpTopPose.mirror();
         intakeTopPose = intakeTopPose.mirror();
-        shootClosePose = shootClosePose.mirror();
         pickUpBottomPose = pickUpBottomPose.mirror();
         intakeBottomPose = intakeBottomPose.mirror();
-        shootFarPose = shootFarPose.mirror();
         parkPose = parkPose.mirror();
         cpPickUpMiddle1 = cpPickUpMiddle1.mirror();
         cpOpenGate1 = cpOpenGate1.mirror();
@@ -90,7 +88,6 @@ public class FarPoses implements AutonomousPoses {
         cpShootTop1 = cpShootTop1.mirror();
         cpPickUpBottom12 = cpPickUpBottom12.mirror();
         cpShootBottom1 = cpShootBottom1.mirror();
-        //cpPark1 = cpPark1.mirror();
 
         // Update headings
         CLOSE_SHOOTING_ANGLE = (Math.PI) - CLOSE_SHOOTING_ANGLE;

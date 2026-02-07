@@ -68,13 +68,10 @@ public class ClosePoses implements AutonomousPoses {
         pickUpMiddlePose = pickUpMiddlePose.mirror();
         intakeMiddlePose = intakeMiddlePose.mirror();
         openGatePose = openGatePose.mirror();
-        shootPose = shootPose.mirror();
         pickUpTopPose = pickUpTopPose.mirror();
         intakeTopPose = intakeTopPose.mirror();
-        shootPose = shootPose.mirror();
         pickUpBottomPose = pickUpBottomPose.mirror();
         intakeBottomPose = intakeBottomPose.mirror();
-        shootPose = shootPose.mirror();
         parkPose = parkPose.mirror();
         cpPickUpMiddle1 = cpPickUpMiddle1.mirror();
         cpOpenGate1 = cpOpenGate1.mirror();
