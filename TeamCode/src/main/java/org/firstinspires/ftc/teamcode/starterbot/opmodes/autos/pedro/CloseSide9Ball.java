@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.poses.ClosePoses;
@@ -41,10 +39,10 @@ public class CloseSide9Ball extends PedroBaseAuto {
                 .addPath(
                         new BezierLine(
                                 poses.startPose,
-                                poses.shootPreloadPose))
+                                poses.shootPose))
                 .setLinearHeadingInterpolation(
                         poses.startPose.getHeading(),
-                        poses.shootPreloadPose.getHeading())
+                        poses.shootPose.getHeading())
                 .build();
         allPaths.add(shootPreloadPath);
         addShot(shootPreloadPath);
@@ -52,11 +50,11 @@ public class CloseSide9Ball extends PedroBaseAuto {
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddleChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        poses.shootPreloadPose,
+                        poses.shootPose,
                         poses.cpPickUpMiddle1,
                         poses.pickUpMiddlePose))
                 .setLinearHeadingInterpolation(
-                        poses.shootPreloadPose.getHeading(),
+                        poses.shootPose.getHeading(),
                         poses.pickUpMiddlePose.getHeading(),
                         0.65)
                 .build();
@@ -76,10 +74,10 @@ public class CloseSide9Ball extends PedroBaseAuto {
                         new BezierCurve(
                                 poses.intakeMiddlePose,
                                 poses.cpShootMiddle1, // TODO: fix the control points and updates poses in close poses class, also look into integrating parametric callbacks
-                                poses.shootMiddlePose))
+                                poses.shootPose))
                 .setLinearHeadingInterpolation(
                         poses.intakeMiddlePose.getHeading(),
-                        poses.shootMiddlePose.getHeading(),
+                        poses.shootPose.getHeading(),
                         0.65)
                 .build();
         allPaths.add(shootMiddlePath);
@@ -88,10 +86,10 @@ public class CloseSide9Ball extends PedroBaseAuto {
         // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         PathChain pickUpTopChain = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        poses.shootMiddlePose,
+                        poses.shootPose,
                         poses.pickUpTopPose))
                 .setLinearHeadingInterpolation(
-                        poses.shootMiddlePose.getHeading(),
+                        poses.shootPose.getHeading(),
                         poses.pickUpTopPose.getHeading(),
                         0.65)
                 .build();
@@ -111,10 +109,10 @@ public class CloseSide9Ball extends PedroBaseAuto {
                         new BezierCurve(
                                 poses.intakeTopPose,
                                 poses.cpShootTop1,
-                                poses.shootTopPose))
+                                poses.shootPose))
                 .setLinearHeadingInterpolation(
                         poses.intakeTopPose.getHeading(),
-                        poses.shootTopPose.getHeading(),
+                        poses.shootPose.getHeading(),
                         0.65)
                 .build();
         addPath(shootTopPath);
@@ -124,10 +122,10 @@ public class CloseSide9Ball extends PedroBaseAuto {
         PathChain parkPath = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                poses.shootTopPose,
+                                poses.shootPose,
                                 poses.parkPose))
                 .setLinearHeadingInterpolation(
-                        poses.shootTopPose.getHeading(),
+                        poses.shootPose.getHeading(),
                         poses.parkPose.getHeading())
                 .build();
         addPath(parkPath);
