@@ -135,7 +135,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
     protected void updateShootingSequence() {
         if (waitingBeforeShooting) {
-            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0.5) {
+            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0.35) {
                 waitingBeforeShooting = false;
 
                 // Angle ramp and queue three launches
