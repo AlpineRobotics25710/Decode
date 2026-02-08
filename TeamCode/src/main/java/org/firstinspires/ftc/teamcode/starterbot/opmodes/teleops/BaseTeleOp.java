@@ -103,6 +103,8 @@ public abstract class BaseTeleOp extends OpMode {
             parkPose.mirror();
             shootPose.mirror();
             closeShootPose.mirror();
+            Constants.GOAL_POSE.mirror();
+            targetTagId = 24;
         }
 
         Robot.follower.startTeleopDrive(useBrakeMode);
@@ -300,8 +302,8 @@ public abstract class BaseTeleOp extends OpMode {
     }
 
     public void pedroTeleop() {
-        double left_stick_y = -gamepad1.left_stick_y;
-        double left_stick_x = -gamepad1.left_stick_x;
+        double left_stick_y = gamepad1.left_stick_y * (alliance == Alliance.RED && !robotCentric ? -1 : 1);
+        double left_stick_x = gamepad1.left_stick_x * (alliance == Alliance.RED && !robotCentric ? -1 : 1);
         double right_stick_x = -gamepad1.right_stick_x;
 
         if (turtleMode.get()) {
@@ -314,7 +316,7 @@ public abstract class BaseTeleOp extends OpMode {
                 left_stick_y,
                 left_stick_x,
                 right_stick_x,
-                robotCentric // Robot Centric
+                robotCentric // Robot Centric,
         );
     }
 
