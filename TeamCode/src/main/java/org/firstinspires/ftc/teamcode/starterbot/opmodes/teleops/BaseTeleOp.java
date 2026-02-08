@@ -148,9 +148,7 @@ public abstract class BaseTeleOp extends OpMode {
         }
 
         // turn to shoot based on alliance and current position
-        if (!autonomousDriving && autoAlignButton.get()) {
-            currentlyAligning = !currentlyAligning;
-        }
+        currentlyAligning = autoAlignButton.get();
 
         LLResult llResult = limelight.getLatestResult();
         LLResultTypes.FiducialResult targetTag = null;
@@ -241,6 +239,10 @@ public abstract class BaseTeleOp extends OpMode {
 
         if (operator.bWasPressed()) {
             revFlywheel = !revFlywheel;
+        }
+
+        if (operator.dpadLeftWasPressed()) {
+            Robot.killLauncher();
         }
 
         if (revFlywheel) {
