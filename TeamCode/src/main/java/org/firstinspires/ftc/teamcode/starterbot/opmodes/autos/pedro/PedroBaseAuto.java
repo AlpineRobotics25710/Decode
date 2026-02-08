@@ -12,10 +12,7 @@ import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
-import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
-import org.firstinspires.ftc.teamcode.starterbot.interpolation.Interpolator;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -43,6 +40,11 @@ public abstract class PedroBaseAuto extends OpMode {
     protected Alliance alliance = Alliance.BLUE; // By default blue
 
     protected boolean interrupted = false;
+    protected boolean manualShooting = false;
+    protected boolean startedFlywheel = false;
+    protected double targetManualVelocity = 0;
+    protected double targetFeederPower = 0.0;
+    protected double targetRampAngle = 0.0;
 
     /**
      * Child must supply the starting pose for this auto
@@ -138,14 +140,24 @@ public abstract class PedroBaseAuto extends OpMode {
 
     protected void updateShootingSequence() {
         if (waitingBeforeShooting) {
-            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0.35) {
+            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0.0) {
                 waitingBeforeShooting = false;
 
                 // Angle ramp and queue three launches
                 Robot.switchRampState();
-                Robot.queueLaunch();
-                Robot.queueLaunch();
-                Robot.queueLaunch();
+
+                if (!manualShooting) {
+                    Robot.queueLaunch();
+                    Robot.queueLaunch();
+                    Robot.queueLaunch();
+                } else {
+                    if (!startedFlywheel) {
+                        setFlywheelVelocity(targetManualVelocity);
+                        startedFlywheel = true;
+                    }
+                    Robot.setFeederPower(targetFeederPower);
+                    Robot.setRampPos(targetRampAngle);
+                }
 
                 shootingActive = true;
             }
@@ -153,11 +165,16 @@ public abstract class PedroBaseAuto extends OpMode {
         }
 
         if (shootingActive) {
-            if (Robot.isLaunchQueueEmpty() && !Robot.isLauncherBusy()) {
-                shootingActive = false;
-                Robot.switchRampState();
-                advancePath();
+            if (!manualShooting) {
+                if (Robot.isLaunchQueueEmpty() && !Robot.isLauncherBusy()) {
+                    Robot.switchRampState();
+                    advancePath();
+                }
+            } else {
+                setFlywheelVelocity(0.0);
+                Robot.setFeederPower(0);
             }
+            shootingActive = false;
         }
     }
 
@@ -292,5 +309,16 @@ public abstract class PedroBaseAuto extends OpMode {
     public void stop() {
         blackboard.put("final_auton_pose", follower.getPose());
         blackboard.put("alliance", alliance);
+    }
+
+    public void setManualShooting(boolean manualShooting, double targetFeederPower, double targetRampAngle, double targetManualVelocity) {
+        this.manualShooting = manualShooting; // feeder: 0.3, ramp: 0.38, shooter: 1320 ticks/sec
+        this.targetManualVelocity = targetManualVelocity;
+        this.targetFeederPower = targetFeederPower;
+        this.targetRampAngle = targetRampAngle;
+    }
+
+    public void setFlywheelVelocity(double velocity) {
+        Robot.launcher.setVelocity(velocity);
     }
 }

@@ -29,7 +29,7 @@ public abstract class BaseTeleOp extends OpMode {
     protected Gamepad operator;
     protected Supplier<Boolean> turtleMode = () -> false;
     protected Supplier<Boolean> autoAlignButton = () -> false;
-    protected boolean robotCentric = false;
+    protected boolean robotCentric = true;
     protected boolean useBrakeMode = true;
     protected boolean revFlywheel = false;
     protected Alliance alliance;
@@ -77,12 +77,17 @@ public abstract class BaseTeleOp extends OpMode {
             throw new IllegalStateException("Gamepads have not been initialized");
         if (driver.a) alliance = Alliance.BLUE;
         if (driver.b) alliance = Alliance.RED;
+        if (driver.xWasPressed()) robotCentric = !robotCentric;
 
         CommonTelemetry.drawOnlyCurrent(Robot.follower);
 
         CommonTelemetry.addData("Press A", "for BLUE");
         CommonTelemetry.addData("Press B", "for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
+        CommonTelemetry.debug("----------------------------");
+        CommonTelemetry.addData("Press X", "to toggle robot centric");
+        CommonTelemetry.addData("Robot centric", robotCentric);
+        CommonTelemetry.debug("----------------------------");
         CommonTelemetry.addData("start pose", Robot.follower.getPose());
         CommonTelemetry.addData("curr time", System.currentTimeMillis());
         CommonTelemetry.update();
@@ -129,6 +134,7 @@ public abstract class BaseTeleOp extends OpMode {
             autonomousDriving = true;
             lineToPose(closeShootPose);
         }
+         */
 
         if (!autonomousDriving && !currentlyAligning && driver.dpadDownWasPressed()) {// driver dpad DOWN for going to park pose
             autonomousDriving = true;
@@ -138,7 +144,7 @@ public abstract class BaseTeleOp extends OpMode {
             }
 
             lineToPose(parkPose.withHeading(desiredHeading));
-        }*/
+        }
 
         // turn to shoot based on alliance and current position
         if (!autonomousDriving && autoAlignButton.get()) {
@@ -280,7 +286,7 @@ public abstract class BaseTeleOp extends OpMode {
     public void lineToPose(Pose desiredPose) {
         Path path = new Path(new BezierLine(Robot.follower.getPose(), desiredPose));
         path.setLinearHeadingInterpolation(Robot.follower.getHeading(), desiredPose.getHeading());
-        Robot.follower.followPath(path);
+        Robot.follower.followPath(path, true);
     }
 
     // turns to desired shooting position from the current pose
@@ -294,8 +300,8 @@ public abstract class BaseTeleOp extends OpMode {
     }
 
     public void pedroTeleop() {
-        double left_stick_y = gamepad1.left_stick_y;
-        double left_stick_x = gamepad1.left_stick_x;
+        double left_stick_y = -gamepad1.left_stick_y;
+        double left_stick_x = -gamepad1.left_stick_x;
         double right_stick_x = -gamepad1.right_stick_x;
 
         if (turtleMode.get()) {
