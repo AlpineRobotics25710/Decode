@@ -38,11 +38,12 @@ public abstract class PedroBaseAuto extends OpMode {
 
     // shooting flags
     protected boolean shootingActive = false;
-    protected boolean waitingBeforeShooting = false;
 
     protected Alliance alliance = Alliance.BLUE; // By default blue
 
     protected boolean interrupted = false;
+    protected boolean burstShooting = false;
+    protected boolean isBursting = false;
 
     /**
      * Child must supply the starting pose for this auto
@@ -66,8 +67,12 @@ public abstract class PedroBaseAuto extends OpMode {
         if (interrupted) return;
 
         // if shooting, loop shooting
-        if (waitingBeforeShooting || shootingActive) {
-            updateShootingSequence();
+        if (shootingActive) {
+            if (burstShooting) {
+                updateBurstShooting();
+            } else {
+                updateShootingSequence();
+            }
             return;
         }
 
@@ -96,8 +101,11 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // if you need to shoot
         if (shotNeeded.contains(step)) {
-            beginBurstShooting(step);
-//            beginShootingSequence(step);
+            if (burstShooting) {
+                beginBurstShooting(step);
+            } else {
+                beginShootingSequence(step);
+            }
             return;
         }
 
@@ -129,57 +137,45 @@ public abstract class PedroBaseAuto extends OpMode {
         followPathOrPathChain(shootingPath, true);
 
         pathTimer.resetTimer();
-        Robot.revFlywheel();
         Robot.setRampPos(0.38);
+        Robot.currentNonLaunchVelocity = 1320;
+        shootingActive = false;
+    }
 
+    protected void updateBurstShooting() {
         boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - Interpolator.getVelocityValue(Robot.distanceToGoal())) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
-        // boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
-        // Remove time out to allow driver to move robot even after queueing a shot
-
-        while (!reachedSpeed) { // && !timedOut) {
-            reachedSpeed = Math.abs(Robot.launcher.getVelocity() - Interpolator.getVelocityValue(Robot.distanceToGoal())) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
-
-            if (reachedSpeed) {
-                break;
-            }
+        if (!reachedSpeed && !isBursting) {
+            return;
+        } else if (reachedSpeed) {
+            isBursting = true;
         }
 
         pathTimer.resetTimer();
-        while (pathTimer.getElapsedTimeSeconds() <= 1.2) {
-                Robot.setFeederPower(0.3);
-        }
+        Robot.setFeederPower(0.3);
 
-        Robot.setRampPos(Constants.RAMP_INTAKE_POS);
-        Robot.setFeederPower(0);
-        Robot.currentNonLaunchVelocity = Constants.ZERO;
+        if (pathTimer.getElapsedTimeSeconds() <= 0.8) {
+            Robot.setRampPos(Constants.RAMP_INTAKE_POS);
+            Robot.setFeederPower(0);
+            Robot.currentNonLaunchVelocity = Constants.ZERO;
+        }
     }
 
     protected void beginShootingSequence(Object shootingPath) {
         // ((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
 
-        waitingBeforeShooting = true;
-        shootingActive = false;
+        // Angle ramp and queue three launches
+        Robot.switchRampState();
+        Robot.queueLaunch();
+        Robot.queueLaunch();
+        Robot.queueLaunch();
+
+        shootingActive = true;
         pathTimer.resetTimer();
     }
 
     // Shooting actions
     protected void updateShootingSequence() {
-        if (waitingBeforeShooting) {
-            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0) {
-                waitingBeforeShooting = false;
-
-                // Angle ramp and queue three launches
-                Robot.switchRampState();
-                Robot.queueLaunch();
-                Robot.queueLaunch();
-                Robot.queueLaunch();
-
-                shootingActive = true;
-            }
-            return;
-        }
-
         if (shootingActive) {
             if (Robot.isLaunchQueueEmpty() && !Robot.isLauncherBusy()) {
                 shootingActive = false;
@@ -214,7 +210,6 @@ public abstract class PedroBaseAuto extends OpMode {
 
     protected void cancelAllActions() {
         intakeActive = false;
-        waitingBeforeShooting = false;
         shootingActive = false;
 
         follower.breakFollowing();
@@ -301,7 +296,6 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // Common Pedro telemetry
         CommonTelemetry.addData("intake active", intakeActive);
-        CommonTelemetry.addData("Waiting before shooting", waitingBeforeShooting);
         CommonTelemetry.addData("shooting active", shootingActive);
         CommonTelemetry.addData("follower busy", follower.isBusy());
         CommonTelemetry.addData("interrupted", interrupted);
@@ -320,5 +314,9 @@ public abstract class PedroBaseAuto extends OpMode {
     public void stop() {
         blackboard.put("final_auton_pose", follower.getPose());
         blackboard.put("alliance", alliance);
+    }
+
+    protected void setBurstShooting(boolean burstShooting) {
+        this.burstShooting = burstShooting;
     }
 }
