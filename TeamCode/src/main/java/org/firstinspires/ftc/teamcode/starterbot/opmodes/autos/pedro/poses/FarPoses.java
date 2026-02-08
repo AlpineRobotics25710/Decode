@@ -23,6 +23,7 @@ public class FarPoses implements AutonomousPoses {
     public Pose pickUpBottomPose;
     public Pose intakeBottomPose;
     public Pose parkPose;
+    public Pose preloadParkPose;
 
     // Control points
     public Pose cpPickUpMiddle1;
@@ -57,6 +58,7 @@ public class FarPoses implements AutonomousPoses {
         cpShootBottom1 = new Pose(42, 26);
 
         parkPose = new Pose(35, 18, Math.toRadians(109));
+        preloadParkPose = new Pose(36, 9.5);
 
         // additional poses for 12 ball
         openGatePose = new Pose(15, 70.5, Math.toRadians(0));
