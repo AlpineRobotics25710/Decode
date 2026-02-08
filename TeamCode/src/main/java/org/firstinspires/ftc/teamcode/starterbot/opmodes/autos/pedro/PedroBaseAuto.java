@@ -113,11 +113,10 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     // Intake actions
-
     protected void updateIntakeSequence() {
         if (!intakeActive) return;
 
-        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.35) { // Add minimum 1.0s intake time after path start
+        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.1) { // Add minimum 1.0s intake time after path start
             follower.setMaxPower(1.0);
             Robot.stopAll();
             intakeActive = false;
@@ -135,10 +134,9 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     // Shooting actions
-
     protected void updateShootingSequence() {
         if (waitingBeforeShooting) {
-            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0.35) {
+            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0) {
                 waitingBeforeShooting = false;
 
                 // Angle ramp and queue three launches
@@ -257,7 +255,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 29.6 && !interrupted) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 29.5 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
