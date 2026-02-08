@@ -27,6 +27,7 @@ public abstract class PedroBaseAuto extends OpMode {
     protected LinkedList<Object> allPaths;
     protected Set<Object> shotNeeded;
     protected Set<Object> intakeNeeded;
+    protected Set<Object> intakeSlowerNeeded;
     protected ListIterator<Object> pathIterator;
     protected Object currPath = null;
 
@@ -93,6 +94,12 @@ public abstract class PedroBaseAuto extends OpMode {
         Object step = currPath;
 
         // get ready to intake
+        if (intakeSlowerNeeded.contains(step)) {
+            beginIntakeSequence(step, 0.275);
+            return;
+        }
+
+        // get ready to intake
         if (intakeNeeded.contains(step)) {
             beginIntakeSequence(step);
             return;
@@ -115,7 +122,11 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void beginIntakeSequence(Object intakePath) {
-        follower.setMaxPower(0.35);
+        beginIntakeSequence(intakePath, 0.35);
+    }
+
+    protected void beginIntakeSequence(Object intakePath, double maxPower) {
+        follower.setMaxPower(maxPower);
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;
@@ -137,7 +148,7 @@ public abstract class PedroBaseAuto extends OpMode {
         followPathOrPathChain(shootingPath, true);
 
         Robot.setRampPos(0.38);
-        Robot.currentNonLaunchVelocity = 1320;
+        Robot.currentNonLaunchVelocity = 1290;
 
         shootingActive = true;
         isBursting = false;
@@ -252,10 +263,7 @@ public abstract class PedroBaseAuto extends OpMode {
         allPaths = new LinkedList<>();
         shotNeeded = new HashSet<>();
         intakeNeeded = new HashSet<>();
-
-        // Initialize full robot, including Pedro follower
-        Robot.init(hardwareMap, alliance);
-        follower = Robot.follower;
+        intakeSlowerNeeded = new HashSet<>();
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -270,6 +278,10 @@ public abstract class PedroBaseAuto extends OpMode {
     public void init_loop() {
         if (gamepad1.a) alliance = Alliance.BLUE;
         if (gamepad1.b) alliance = Alliance.RED;
+
+        // Initialize full robot, including Pedro follower
+        Robot.init(hardwareMap, alliance);
+        follower = Robot.follower;
 
         CommonTelemetry.addData("Instructions", "Select A for BLUE, Select B for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
