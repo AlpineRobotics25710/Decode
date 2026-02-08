@@ -96,7 +96,8 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // if you need to shoot
         if (shotNeeded.contains(step)) {
-            beginShootingSequence(step);
+            beginBurstShooting(step);
+//            beginShootingSequence(step);
             return;
         }
 
@@ -122,6 +123,35 @@ public abstract class PedroBaseAuto extends OpMode {
             intakeActive = false;
             advancePath();
         }
+    }
+
+    protected void beginBurstShooting(Object shootingPath) {
+        followPathOrPathChain(shootingPath, true);
+
+        pathTimer.resetTimer();
+        Robot.revFlywheel();
+        Robot.setRampPos(0.38);
+
+        boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - Interpolator.getVelocityValue(Robot.distanceToGoal())) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
+        // boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
+        // Remove time out to allow driver to move robot even after queueing a shot
+
+        while (!reachedSpeed) { // && !timedOut) {
+            reachedSpeed = Math.abs(Robot.launcher.getVelocity() - Interpolator.getVelocityValue(Robot.distanceToGoal())) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
+
+            if (reachedSpeed) {
+                break;
+            }
+        }
+
+        pathTimer.resetTimer();
+        while (pathTimer.getElapsedTimeSeconds() <= 1.2) {
+                Robot.setFeederPower(0.3);
+        }
+
+        Robot.setRampPos(Constants.RAMP_INTAKE_POS);
+        Robot.setFeederPower(0);
+        Robot.currentNonLaunchVelocity = Constants.ZERO;
     }
 
     protected void beginShootingSequence(Object shootingPath) {
