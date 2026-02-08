@@ -12,10 +12,7 @@ import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
-import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
-import org.firstinspires.ftc.teamcode.starterbot.interpolation.Interpolator;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -44,6 +41,7 @@ public abstract class PedroBaseAuto extends OpMode {
     protected boolean interrupted = false;
     protected boolean burstShooting = false;
     protected boolean isBursting = false;
+    protected boolean isFeeding = false;
 
     /**
      * Child must supply the starting pose for this auto
@@ -136,27 +134,41 @@ public abstract class PedroBaseAuto extends OpMode {
     protected void beginBurstShooting(Object shootingPath) {
         followPathOrPathChain(shootingPath, true);
 
-        pathTimer.resetTimer();
         Robot.setRampPos(0.38);
         Robot.currentNonLaunchVelocity = 1320;
-        shootingActive = false;
+
+        shootingActive = true;
+        isBursting = false;
+        isFeeding = false;
+        pathTimer.resetTimer();
     }
 
     protected void updateBurstShooting() {
-        boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - Interpolator.getVelocityValue(Robot.distanceToGoal())) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
-        if (!reachedSpeed && !isBursting) {
+        boolean reachedSpeed =
+                Math.abs(Robot.launcher.getVelocity() - 1320)
+                        <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
+
+        if (!isBursting) {
+            if (reachedSpeed) {
+                isBursting = true;
+                pathTimer.resetTimer();
+            }
             return;
-        } else if (reachedSpeed) {
-            isBursting = true;
         }
 
-        pathTimer.resetTimer();
-        Robot.setFeederPower(0.3);
+        if (!isFeeding) {
+            isFeeding = true;
+            Robot.setFeederPower(0.3);
+            pathTimer.resetTimer();
+            return;
+        }
 
-        if (pathTimer.getElapsedTimeSeconds() <= 0.8) {
-            Robot.setRampPos(Constants.RAMP_INTAKE_POS);
+        if (pathTimer.getElapsedTimeSeconds() >= 1.5) {
             Robot.setFeederPower(0);
+            Robot.setRampPos(Constants.RAMP_INTAKE_POS);
             Robot.currentNonLaunchVelocity = Constants.ZERO;
+            shootingActive = false;
+            advancePath();
         }
     }
 
@@ -297,6 +309,8 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common Pedro telemetry
         CommonTelemetry.addData("intake active", intakeActive);
         CommonTelemetry.addData("shooting active", shootingActive);
+        CommonTelemetry.addData("is bursting", isBursting);
+        CommonTelemetry.addData("is feeding", isFeeding);
         CommonTelemetry.addData("follower busy", follower.isBusy());
         CommonTelemetry.addData("interrupted", interrupted);
         CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
