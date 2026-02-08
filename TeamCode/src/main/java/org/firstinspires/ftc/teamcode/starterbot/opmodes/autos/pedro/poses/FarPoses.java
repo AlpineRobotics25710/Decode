@@ -56,7 +56,7 @@ public class FarPoses implements AutonomousPoses {
         intakeBottomPose = new Pose(15, 35, Math.toRadians(180));
         cpShootBottom1 = new Pose(42, 26);
 
-        parkPose = new Pose(40, 18, Math.toRadians(109));
+        parkPose = new Pose(35, 18, Math.toRadians(109));
 
         // additional poses for 12 ball
         openGatePose = new Pose(15, 70.5, Math.toRadians(0));

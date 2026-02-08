@@ -20,25 +20,21 @@ import java.util.Set;
 
 
 public abstract class PedroBaseAuto extends OpMode {
+    protected final double BURST_VELOCITY = 1290;
     protected Follower follower;
     protected Timer opmodeTimer;
     protected Timer pathTimer;
-
     protected LinkedList<Object> allPaths;
     protected Set<Object> shotNeeded;
     protected Set<Object> intakeNeeded;
     protected Set<Object> intakeSlowerNeeded;
     protected ListIterator<Object> pathIterator;
     protected Object currPath = null;
-
     // intake flags
     protected boolean intakeActive = false;
-
     // shooting flags
     protected boolean shootingActive = false;
-
     protected Alliance alliance = Alliance.BLUE; // By default blue
-
     protected boolean interrupted = false;
     protected boolean burstMode = false;
     protected boolean isBursting = false;
@@ -148,7 +144,7 @@ public abstract class PedroBaseAuto extends OpMode {
         followPathOrPathChain(shootingPath, true);
 
         Robot.setRampPos(0.38);
-        Robot.currentNonLaunchVelocity = 1290;
+        Robot.currentNonLaunchVelocity = BURST_VELOCITY;
 
         shootingActive = true;
         isBursting = false;
@@ -158,7 +154,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
     protected void updateBurstShooting() {
         boolean reachedSpeed =
-                Math.abs(Robot.launcher.getVelocity() - 1320)
+                Math.abs(Robot.launcher.getVelocity() - BURST_VELOCITY)
                         <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
 
         if (!isBursting) {
@@ -279,10 +275,6 @@ public abstract class PedroBaseAuto extends OpMode {
         if (gamepad1.a) alliance = Alliance.BLUE;
         if (gamepad1.b) alliance = Alliance.RED;
 
-        // Initialize full robot, including Pedro follower
-        Robot.init(hardwareMap, alliance);
-        follower = Robot.follower;
-
         CommonTelemetry.addData("Instructions", "Select A for BLUE, Select B for RED");
         CommonTelemetry.addData("Selected Alliance", alliance);
         CommonTelemetry.update();
@@ -290,16 +282,23 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void start() {
+        // Initialize full robot, including Pedro follower
+        Robot.init(hardwareMap, alliance);
+        Robot.currentNonLaunchVelocity = 0.0;
+        follower = Robot.follower;
+        follower.update();
+
         allianceSetup(alliance); // Any alliance-specific set up
         if (alliance == Alliance.RED) goalPose = goalPose.mirror();
         follower.setStartingPose(getStartPose());
+
         buildPaths();
-        follower.update();
         if (allPaths.isEmpty()) {
             CommonTelemetry.debug("No paths were added");
             CommonTelemetry.update();
             stop();
         }
+
         pathIterator = allPaths.listIterator();
         currPath = pathIterator.next();
         opmodeTimer.resetTimer();
@@ -310,7 +309,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 29.25 && !interrupted) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 29 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
@@ -340,6 +339,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
 //        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
         CommonTelemetry.addData("heading constraint (deg)", Math.toDegrees(follower.getConstraints().getHeadingConstraint()));
+        CommonTelemetry.addData("alliance", alliance);
         CommonTelemetry.update();
     }
 
