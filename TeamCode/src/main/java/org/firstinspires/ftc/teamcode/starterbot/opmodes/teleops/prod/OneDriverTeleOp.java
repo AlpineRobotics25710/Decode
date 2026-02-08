@@ -61,6 +61,6 @@ public class OneDriverTeleOp extends BaseTeleOp {
 
         // Mapping common controls
         turtleMode = () -> gamepad1.right_trigger > 0.05;
-        autoAlignButton = () -> gamepad1.dpadRightWasPressed();
+        autoAlignButton = () -> gamepad1.dpad_right;
     }
 }
