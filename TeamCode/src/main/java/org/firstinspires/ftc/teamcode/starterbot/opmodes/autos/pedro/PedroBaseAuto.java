@@ -39,9 +39,10 @@ public abstract class PedroBaseAuto extends OpMode {
     protected Alliance alliance = Alliance.BLUE; // By default blue
 
     protected boolean interrupted = false;
-    protected boolean burstShooting = false;
+    protected boolean burstMode = false;
     protected boolean isBursting = false;
     protected boolean isFeeding = false;
+    protected Pose goalPose = Constants.GOAL_POSE.copy();
 
     /**
      * Child must supply the starting pose for this auto
@@ -66,7 +67,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // if shooting, loop shooting
         if (shootingActive) {
-            if (burstShooting) {
+            if (burstMode) {
                 updateBurstShooting();
             } else {
                 updateShootingSequence();
@@ -99,7 +100,8 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // if you need to shoot
         if (shotNeeded.contains(step)) {
-            if (burstShooting) {
+            burstMode = shouldBurstShoot();
+            if (burstMode) {
                 beginBurstShooting(step);
             } else {
                 beginShootingSequence(step);
@@ -168,6 +170,9 @@ public abstract class PedroBaseAuto extends OpMode {
             Robot.setRampPos(Constants.RAMP_INTAKE_POS);
             Robot.currentNonLaunchVelocity = Constants.ZERO;
             shootingActive = false;
+            isBursting = false;
+            isFeeding = false;
+            burstMode = false;
             advancePath();
         }
     }
@@ -249,7 +254,7 @@ public abstract class PedroBaseAuto extends OpMode {
         intakeNeeded = new HashSet<>();
 
         // Initialize full robot, including Pedro follower
-        Robot.init(hardwareMap);
+        Robot.init(hardwareMap, alliance);
         follower = Robot.follower;
 
         opmodeTimer = new Timer();
@@ -274,6 +279,7 @@ public abstract class PedroBaseAuto extends OpMode {
     @Override
     public void start() {
         allianceSetup(alliance); // Any alliance-specific set up
+        if (alliance == Alliance.RED) goalPose = goalPose.mirror();
         follower.setStartingPose(getStartPose());
         buildPaths();
         follower.update();
@@ -292,7 +298,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 29.5 && !interrupted) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 29.25 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
@@ -311,6 +317,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("shooting active", shootingActive);
         CommonTelemetry.addData("is bursting", isBursting);
         CommonTelemetry.addData("is feeding", isFeeding);
+        CommonTelemetry.addData("shoot mode", shouldBurstShoot() ? "BURST" : "QUEUE");
         CommonTelemetry.addData("follower busy", follower.isBusy());
         CommonTelemetry.addData("interrupted", interrupted);
         CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
@@ -330,7 +337,7 @@ public abstract class PedroBaseAuto extends OpMode {
         blackboard.put("alliance", alliance);
     }
 
-    protected void setBurstShooting(boolean burstShooting) {
-        this.burstShooting = burstShooting;
+    protected boolean shouldBurstShoot() {
+        return Robot.distanceToGoal() <= 118.0;
     }
 }

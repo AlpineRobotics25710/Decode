@@ -134,14 +134,12 @@ public class CloseSide9Ball extends PedroBaseAuto {
     @Override
     public void start() {
         Robot.setDecreaseLauncherVelocity(true);
-        setBurstShooting(true);
         super.start();
     }
 
     @Override
     public void stop() {
         Robot.setDecreaseLauncherVelocity(false);
-        setBurstShooting(false);
         super.stop();
     }
 }

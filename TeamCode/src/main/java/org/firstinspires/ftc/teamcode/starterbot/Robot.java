@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.starterbot;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
@@ -53,12 +55,18 @@ public class Robot {
     private static long stateStartTime;
     private static int launchesQueued = 0;
     private static boolean decreaseLauncherVel = false;
+    private static Pose goalPose = Constants.GOAL_POSE.copy();
 
     // Prevent instantiation from other classes.
     private Robot() {
     }
 
+    ///  Default Blue Alliance
     public static void init(HardwareMap hardwareMap) {
+        init(hardwareMap, Alliance.BLUE);
+    }
+
+    public static void init(HardwareMap hardwareMap, Alliance alliance) {
         /*
          * Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
@@ -120,6 +128,8 @@ public class Robot {
         for (LynxModule lm : hardwareMap.getAll(LynxModule.class)) {
             lm.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+        if (alliance == Alliance.RED) goalPose = goalPose.mirror();
 
         // Init follower
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
@@ -299,7 +309,7 @@ public class Robot {
     }
 
     public static double distanceToGoal() {
-        return follower.getPose().distanceFrom(Constants.GOAL_POSE);
+        return follower.getPose().distanceFrom(goalPose);
     }
 
     public static void setDecreaseLauncherVelocity(boolean decreaseLauncherVelocity) {
