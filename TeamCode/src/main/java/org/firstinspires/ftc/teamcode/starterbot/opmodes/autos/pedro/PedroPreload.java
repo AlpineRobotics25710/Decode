@@ -56,6 +56,6 @@ public class PedroPreload extends PedroBaseAuto {
                         poses.shootFarPose.getHeading(),
                         poses.preloadParkPose.getHeading())
                 .build();
-        addPath(shootPreloadPath);
+        addPath(park);
     }
 }
