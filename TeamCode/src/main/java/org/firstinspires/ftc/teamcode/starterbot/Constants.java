@@ -6,7 +6,7 @@ import com.pedropathing.geometry.Pose;
 @Configurable
 public class Constants {
     public static double TURN_THROTTLE = 0.8;
-    public static double TURTLE = 0.65;
+    public static double TURTLE = 0.4;
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.

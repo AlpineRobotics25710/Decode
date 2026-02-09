@@ -90,6 +90,9 @@ public class FarPoses implements AutonomousPoses {
         cpShootTop1 = cpShootTop1.mirror();
         cpPickUpBottom12 = cpPickUpBottom12.mirror();
         cpShootBottom1 = cpShootBottom1.mirror();
+        cpShootMiddle = cpShootMiddle.mirror();
+        cpPickUpBottom = cpPickUpBottom.mirror();
+        preloadParkPose = preloadParkPose.mirror();
 
         // Update headings
         CLOSE_SHOOTING_ANGLE = (Math.PI) - CLOSE_SHOOTING_ANGLE;
