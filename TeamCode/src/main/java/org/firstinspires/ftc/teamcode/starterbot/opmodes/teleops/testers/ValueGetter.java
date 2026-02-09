@@ -8,10 +8,12 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
+@Config
 @Configurable
 @Config
 @TeleOp(group = "testers")
@@ -25,6 +27,8 @@ public class ValueGetter extends LinearOpMode {
     @Override
     public void runOpMode() {
         Servo ramp = hardwareMap.get(Servo.class, "ramp");
+        Servo ramp2 = hardwareMap.get(Servo.class, "ramp2");
+
         Servo blocker = hardwareMap.get(Servo.class, "blocker");
         DcMotor leftIntake = hardwareMap.get(DcMotorEx.class, "LI");
         DcMotor rightIntake = hardwareMap.get(DcMotorEx.class, "RI");
@@ -34,6 +38,9 @@ public class ValueGetter extends LinearOpMode {
 
         leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
         rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        ramp2.setDirection(Servo.Direction.REVERSE);
+
+        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(475, 10, 5, 18));
 
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -43,6 +50,7 @@ public class ValueGetter extends LinearOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
             ramp.setPosition(rampPos);
+            ramp2.setPosition(rampPos);
             blocker.setPosition(blockerPos);
             leftIntake.setPower(intakePower);
             rightIntake.setPower(intakePower);
@@ -50,14 +58,15 @@ public class ValueGetter extends LinearOpMode {
             leftFeeder.setPower(feederPower);
             rightFeeder.setPower(feederPower);
 
-            CommonTelemetry.addData("ramp pos", rampPos);
-            CommonTelemetry.addData("blocker pos", blockerPos);
-            CommonTelemetry.addData("intake power", intakePower);
-            CommonTelemetry.addData("launcher velocity", launcherVelocity);
-            CommonTelemetry.addData("read launcher velocity", launcher.getVelocity());
-            CommonTelemetry.addData("feeder power", feederPower);
-            CommonTelemetry.addData("right direction", rightIntake.getDirection());
-            CommonTelemetry.addData("left direction", leftIntake.getDirection());
+            CommonTelemetry.addData("ramp and ramp 2 pos: ", rampPos);
+            CommonTelemetry.addData("ramp pos raw: ", ramp.getPosition());
+            CommonTelemetry.addData("ramp 2 pos raw: ", ramp2.getPosition());
+            CommonTelemetry.addData("blocker pos: ", blockerPos);
+            CommonTelemetry.addData("intake power: ", intakePower);
+            CommonTelemetry.addData("launcher velocity: ", launcherVelocity);
+            CommonTelemetry.addData("feeder power: ", feederPower);
+            CommonTelemetry.addData("right direction: ", rightIntake.getDirection());
+            CommonTelemetry.addData("left direction: ", leftIntake.getDirection());
             CommonTelemetry.update();
         }
     }

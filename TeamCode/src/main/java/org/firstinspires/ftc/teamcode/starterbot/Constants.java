@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.geometry.Pose;
 
 @Configurable
 public class Constants {
@@ -9,19 +10,19 @@ public class Constants {
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
-    public static long FEED_TIME_MS = 115;
+    public static long FEED_TIME_MS = 220;
     // How long to delay the servos for before they feed the ball into the launcher in milliseconds
     // Waiting for the launcher to reach the target velocity
     public static long LAUNCH_DELAY_MS = 2500;
-    public static long LAUNCH_TIME_MS = 500;
+    public static long LAUNCH_TIME_MS = 1250;
 
-    public static double FEEDER_POWER = 1.0;
-    public static double FEEDER_INTAKE_POWER = -1.0;
+    public static double FEEDER_POWER = 0.35;
 
     public static double INTAKE_POWER = 1; // Intake motors power
 
     public static double RAMP_INTAKE_POS = 0.0;
     public static double RAMP_OUTTAKE_POS = 0.4;
+    public static final double MAX_RAMP_DEGREES = 270.0;
 
     public static double BLOCKER_OPEN = 0.1;
     public static double BLOCKER_CLOSED = 0.35;
@@ -36,8 +37,10 @@ public class Constants {
      */
     public static double LAUNCHER_FAR_VELOCITY = 1660; // Max velocity when shooting the ball from far away
     public static double LAUNCHER_CLOSE_VELOCITY = 1340; // Max velocity when shooting the ball from close
-    public static double LAUNCHER_INTAKE_VELOCITY = -1300; // Velocity to run at when intaking the ball
+    public static double LAUNCHER_INTAKE_VELOCITY = -1350; // Velocity to run at when intaking the ball
     public static double LAUNCHER_VELOCITY_TOLERANCE = 20;
+    public static double LAUNCHER_VELOCITY_TOLERANCE_RAD = 0.02;
+    public static double LAUNCHER_MOTOR_PPR = 28; // gobilda 6000 rpm yellow jacket
     // public static double LAUNCHER_MIN_VELOCITY = 80; // Commented out because unnecessary (for now)
 
     // Autonomous Constants
@@ -47,6 +50,8 @@ public class Constants {
     public static double ENCODER_TICKS_PER_REV = 537.7;
     public static double TICKS_PER_MM = (ENCODER_TICKS_PER_REV / (WHEEL_DIAMETER_MM * Math.PI));
     public static double TRACK_WIDTH_MM = 404;
+
+    public static final Pose GOAL_POSE = new Pose(0, 144);
 
     // Camera Constants
     public static double EXPOSURE_MS = 2;

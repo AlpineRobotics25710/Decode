@@ -36,18 +36,28 @@ public class ClosePoses implements AutonomousPoses {
         CLOSE_SHOOTING_ANGLE = Math.toRadians(135);
 
         startPose = new Pose(24, 126, Math.toRadians(143.5));
-        shootPose = new Pose(53, 91, CLOSE_SHOOTING_ANGLE); // close shooting pose
-        pickUpMiddlePose = new Pose(45, 60, Math.toRadians(180));
-        intakeMiddlePose = new Pose(12, 60, Math.toRadians(180));
+        shootPose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);
+
+        pickUpMiddlePose = new Pose(50, 59, Math.toRadians(180));
+        cpPickUpMiddle1 = new Pose(57, 63);
+        intakeMiddlePose = new Pose(14, 59, Math.toRadians(180));
+        cpShootMiddle1 = new Pose(44, 57);
+
         openGatePose = new Pose(15, 70.5, Math.toRadians(0));
-        pickUpTopPose = new Pose(45, 85, Math.toRadians(180));
-        intakeTopPose = new Pose(16.5, 85, Math.toRadians(180));
-        parkPose = new Pose(27, 70, Math.toRadians(0));
-        cpPickUpMiddle1 = new Pose(65.5, 60);
+
+        pickUpTopPose = new Pose(50, 84, Math.toRadians(180));
+        intakeTopPose = new Pose(16.5, 84, Math.toRadians(180));
+        cpShootTop1 = new Pose(49, 81.5);
+
+        parkPose = new Pose(33, 80, Math.toRadians(180));
+
+        // additional poses for 12 ball
+        pickUpBottomPose = new Pose(50, 35, Math.toRadians(180));
+        intakeBottomPose = new Pose(14, 35, Math.toRadians(180));
+
         cpOpenGate1 = new Pose(51, 58);
         cpOpenGate2 = new Pose(58.5, 64);
-        cpShootMiddle1 = new Pose(56, 54);
-        cpShootTop1 = new Pose(45, 81.5);
+
         cpPickUpBottom1 = new Pose(66, 57);
         cpShootBottom1 = new Pose(53, 48);
         cpParkPose = new Pose(46, 70.5);

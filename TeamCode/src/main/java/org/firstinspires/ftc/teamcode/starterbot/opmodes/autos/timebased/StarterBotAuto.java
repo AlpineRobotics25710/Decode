@@ -180,7 +180,7 @@ public class StarterBotAuto extends OpMode {
              * allowing it to cycle through and continue the process of launching the first ball.
              */
             case LAUNCH:
-                Robot.queueLaunch(Constants.LAUNCHER_FAR_VELOCITY);
+                Robot.queueLaunch();
                 autonomousState = AutonomousState.WAIT_FOR_LAUNCH;
                 break;
 

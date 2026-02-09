@@ -23,43 +23,51 @@ public class FarPoses implements AutonomousPoses {
     public Pose pickUpBottomPose;
     public Pose intakeBottomPose;
     public Pose parkPose;
+    public Pose preloadParkPose;
 
     // Control points
     public Pose cpPickUpMiddle1;
     public Pose cpOpenGate1;
     public Pose cpOpenGate2;
-    public Pose cpShootMiddle1;
+    public Pose cpShootMiddle12;
+    public Pose cpShootMiddle;
     public Pose cpShootTop1;
-    public Pose cpPickUpBottom1;
+    public Pose cpPickUpBottom12;
+    public Pose cpPickUpBottom;
     public Pose cpShootBottom1;
-    public Pose cpPark1;
 
     public FarPoses() {
-        FAR_SHOOTING_ANGLE = Math.toRadians(111.5);
-        CLOSE_SHOOTING_ANGLE = Math.toRadians(135);
+        FAR_SHOOTING_ANGLE = Math.toRadians(109);
+        CLOSE_SHOOTING_ANGLE = Math.toRadians(136);
 
         // Poses
         startPose = new Pose(56.5, 8.75, Math.toRadians(90));
         shootFarPose = new Pose(54.5, 15.5, FAR_SHOOTING_ANGLE);
-        pickUpMiddlePose = new Pose(50, 58.5, Math.toRadians(180));
-        intakeMiddlePose = new Pose(16, 58.5, Math.toRadians(180));
-        openGatePose = new Pose(15, 70.5, Math.toRadians(0));
-        shootClosePose = new Pose(53, 91, CLOSE_SHOOTING_ANGLE);
-        pickUpTopPose = new Pose(50, 83, Math.toRadians(180));
-        intakeTopPose = new Pose(15.5, 83, Math.toRadians(180));
-        pickUpBottomPose = new Pose(50, 35, Math.toRadians(180));
-        intakeBottomPose = new Pose(14.5, 35, Math.toRadians(180));
-        parkPose = new Pose(53, 35, Math.toRadians(90));
+        shootClosePose = new Pose(56, 88, CLOSE_SHOOTING_ANGLE);
 
-        // Control points
+        pickUpMiddlePose = new Pose(48, 59, Math.toRadians(180));
         cpPickUpMiddle1 = new Pose(53.25, 56);
+        intakeMiddlePose = new Pose(15, 59, Math.toRadians(180));
+        cpShootMiddle12 = new Pose(60, 67.25); // for 12 ball only lowk ignore...
+        cpShootMiddle = new Pose (55, 51);
+
+        pickUpBottomPose = new Pose(48, 35, Math.toRadians(180));
+        cpPickUpBottom12 = new Pose(64, 58); // for 12 ball only lowk ignore...
+        cpPickUpBottom = new Pose(54, 30);
+        intakeBottomPose = new Pose(15, 35, Math.toRadians(180));
+        cpShootBottom1 = new Pose(42, 26);
+
+        parkPose = new Pose(35, 18, Math.toRadians(109));
+        preloadParkPose = new Pose(36, 9.5);
+
+        // additional poses for 12 ball
+        openGatePose = new Pose(15, 70.5, Math.toRadians(0));
         cpOpenGate1 = new Pose(51, 58);
         cpOpenGate2 = new Pose(58.5, 64);
-        cpShootMiddle1 = new Pose(60, 67.25);
+
+        pickUpTopPose = new Pose(50, 83, Math.toRadians(180));
+        intakeTopPose = new Pose(15.5, 83, Math.toRadians(180));
         cpShootTop1 = new Pose(49, 92);
-        cpPickUpBottom1 = new Pose(64, 58);
-        cpShootBottom1 = new Pose(42, 26);
-        //cpPark1 = new Pose(46, 60);
     }
     
     @Override
@@ -72,19 +80,19 @@ public class FarPoses implements AutonomousPoses {
         shootClosePose = shootClosePose.mirror();
         pickUpTopPose = pickUpTopPose.mirror();
         intakeTopPose = intakeTopPose.mirror();
-        shootClosePose = shootClosePose.mirror();
         pickUpBottomPose = pickUpBottomPose.mirror();
         intakeBottomPose = intakeBottomPose.mirror();
-        shootFarPose = shootFarPose.mirror();
         parkPose = parkPose.mirror();
         cpPickUpMiddle1 = cpPickUpMiddle1.mirror();
         cpOpenGate1 = cpOpenGate1.mirror();
         cpOpenGate2 = cpOpenGate2.mirror();
-        cpShootMiddle1 = cpShootMiddle1.mirror();
+        cpShootMiddle12 = cpShootMiddle12.mirror();
         cpShootTop1 = cpShootTop1.mirror();
-        cpPickUpBottom1 = cpPickUpBottom1.mirror();
+        cpPickUpBottom12 = cpPickUpBottom12.mirror();
         cpShootBottom1 = cpShootBottom1.mirror();
-        //cpPark1 = cpPark1.mirror();
+        cpShootMiddle = cpShootMiddle.mirror();
+        cpPickUpBottom = cpPickUpBottom.mirror();
+        preloadParkPose = preloadParkPose.mirror();
 
         // Update headings
         CLOSE_SHOOTING_ANGLE = (Math.PI) - CLOSE_SHOOTING_ANGLE;

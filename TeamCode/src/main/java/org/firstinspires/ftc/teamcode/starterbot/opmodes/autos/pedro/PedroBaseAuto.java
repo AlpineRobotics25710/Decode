@@ -9,39 +9,37 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
+import org.firstinspires.ftc.teamcode.starterbot.Constants;
 import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Set;
 
 
 public abstract class PedroBaseAuto extends OpMode {
+    protected final double BURST_VELOCITY = 1290;
     protected Follower follower;
     protected Timer opmodeTimer;
     protected Timer pathTimer;
-
     protected LinkedList<Object> allPaths;
-    protected Map<Object, Double> shotNeeded;
+    protected Set<Object> shotNeeded;
     protected Set<Object> intakeNeeded;
+    protected Set<Object> intakeSlowerNeeded;
     protected ListIterator<Object> pathIterator;
     protected Object currPath = null;
-
     // intake flags
     protected boolean intakeActive = false;
-
     // shooting flags
     protected boolean shootingActive = false;
-    protected boolean waitingBeforeShooting = false;
-    protected double currentShotVelocity = 0;
-
     protected Alliance alliance = Alliance.BLUE; // By default blue
-
     protected boolean interrupted = false;
+    protected boolean burstMode = false;
+    protected boolean isBursting = false;
+    protected boolean isFeeding = false;
+    protected Pose goalPose = Constants.GOAL_POSE.copy();
 
     /**
      * Child must supply the starting pose for this auto
@@ -65,8 +63,12 @@ public abstract class PedroBaseAuto extends OpMode {
         if (interrupted) return;
 
         // if shooting, loop shooting
-        if (waitingBeforeShooting || shootingActive) {
-            updateShootingSequence();
+        if (shootingActive) {
+            if (burstMode) {
+                updateBurstShooting();
+            } else {
+                updateShootingSequence();
+            }
             return;
         }
 
@@ -88,16 +90,24 @@ public abstract class PedroBaseAuto extends OpMode {
         Object step = currPath;
 
         // get ready to intake
+        if (intakeSlowerNeeded.contains(step)) {
+            beginIntakeSequence(step, 0.275);
+            return;
+        }
+
+        // get ready to intake
         if (intakeNeeded.contains(step)) {
             beginIntakeSequence(step);
             return;
         }
 
         // if you need to shoot
-        if (shotNeeded.containsKey(step)) {
-            Double velocity = shotNeeded.get(step);
-            if (velocity != null) { // ensure not null
-                beginShootingSequence(step, velocity);
+        if (shotNeeded.contains(step)) {
+            burstMode = shouldBurstShoot();
+            if (burstMode) {
+                beginBurstShooting(step);
+            } else {
+                beginShootingSequence(step);
             }
             return;
         }
@@ -108,18 +118,21 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void beginIntakeSequence(Object intakePath) {
-        follower.setMaxPower(0.5);
+        beginIntakeSequence(intakePath, 0.35);
+    }
+
+    protected void beginIntakeSequence(Object intakePath, double maxPower) {
+        follower.setMaxPower(maxPower);
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;
     }
 
     // Intake actions
-
     protected void updateIntakeSequence() {
         if (!intakeActive) return;
 
-        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.0) { // Add minimum 1.0s intake time after path start
+        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.1) { // Add minimum 1.0s intake time after path start
             follower.setMaxPower(1.0);
             Robot.stopAll();
             intakeActive = false;
@@ -127,34 +140,66 @@ public abstract class PedroBaseAuto extends OpMode {
         }
     }
 
-    protected void beginShootingSequence(Object shootingPath, double velocity) {
-        //((Path) shootingPath).setBrakingStrength(1.00);
+    protected void beginBurstShooting(Object shootingPath) {
         followPathOrPathChain(shootingPath, true);
 
-        currentShotVelocity = velocity;
-        waitingBeforeShooting = true;
-        shootingActive = false;
+        Robot.setRampPos(0.38);
+        Robot.currentNonLaunchVelocity = BURST_VELOCITY;
+
+        shootingActive = true;
+        isBursting = false;
+        isFeeding = false;
         pathTimer.resetTimer();
     }
 
-    // Shooting actions
+    protected void updateBurstShooting() {
+        boolean reachedSpeed =
+                Math.abs(Robot.launcher.getVelocity() - BURST_VELOCITY)
+                        <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
 
-    protected void updateShootingSequence() {
-        if (waitingBeforeShooting) {
-            if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 0.5) {
-                waitingBeforeShooting = false;
-
-                // Angle ramp and queue three launches
-                Robot.switchRampState();
-                Robot.queueLaunch(currentShotVelocity);
-                Robot.queueLaunch(currentShotVelocity);
-                Robot.queueLaunch(currentShotVelocity);
-
-                shootingActive = true;
+        if (!isBursting) {
+            if (reachedSpeed) {
+                isBursting = true;
+                pathTimer.resetTimer();
             }
             return;
         }
 
+        if (!isFeeding) {
+            isFeeding = true;
+            Robot.setFeederPower(0.3);
+            pathTimer.resetTimer();
+            return;
+        }
+
+        if (pathTimer.getElapsedTimeSeconds() >= 1.5) {
+            Robot.setFeederPower(0);
+            Robot.setRampPos(Constants.RAMP_INTAKE_POS);
+            Robot.currentNonLaunchVelocity = Constants.ZERO;
+            shootingActive = false;
+            isBursting = false;
+            isFeeding = false;
+            burstMode = false;
+            advancePath();
+        }
+    }
+
+    protected void beginShootingSequence(Object shootingPath) {
+        // ((Path) shootingPath).setBrakingStrength(1.00);
+        followPathOrPathChain(shootingPath, true);
+
+        // Angle ramp and queue three launches
+        Robot.switchRampState();
+        Robot.queueLaunch();
+        Robot.queueLaunch();
+        Robot.queueLaunch();
+
+        shootingActive = true;
+        pathTimer.resetTimer();
+    }
+
+    // Shooting actions
+    protected void updateShootingSequence() {
         if (shootingActive) {
             if (Robot.isLaunchQueueEmpty() && !Robot.isLauncherBusy()) {
                 shootingActive = false;
@@ -184,12 +229,11 @@ public abstract class PedroBaseAuto extends OpMode {
 
         Path goToEnd = new Path(new BezierLine(followerPose, getEndPose()));
         goToEnd.setLinearHeadingInterpolation(followerPose.getHeading(), getEndPose().getHeading());
-        followPathOrPathChain(goToEnd, false);
+        followPathOrPathChain(goToEnd, true);
     }
 
     protected void cancelAllActions() {
         intakeActive = false;
-        waitingBeforeShooting = false;
         shootingActive = false;
 
         follower.breakFollowing();
@@ -200,8 +244,8 @@ public abstract class PedroBaseAuto extends OpMode {
         allPaths.add(path);
     }
 
-    protected void addShot(Object path, double velocity) {
-        shotNeeded.put(path, velocity);
+    protected void addShot(Object path) {
+        shotNeeded.add(path);
     }
 
     protected void addIntake(Object path) {
@@ -213,12 +257,9 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.init(telemetry);
 
         allPaths = new LinkedList<>();
-        shotNeeded = new HashMap<>();
+        shotNeeded = new HashSet<>();
         intakeNeeded = new HashSet<>();
-
-        // Initialize full robot, including Pedro follower
-        Robot.init(hardwareMap);
-        follower = Robot.follower;
+        intakeSlowerNeeded = new HashSet<>();
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -241,15 +282,23 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void start() {
-        allianceSetup(alliance); // Any alliance-specific set up
-        follower.setStartingPose(getStartPose());
-        buildPaths();
+        // Initialize full robot, including Pedro follower
+        Robot.init(hardwareMap, alliance);
+        Robot.currentNonLaunchVelocity = 0.0;
+        follower = Robot.follower;
         follower.update();
+
+        allianceSetup(alliance); // Any alliance-specific set up
+        if (alliance == Alliance.RED) goalPose = goalPose.mirror();
+        follower.setStartingPose(getStartPose());
+
+        buildPaths();
         if (allPaths.isEmpty()) {
             CommonTelemetry.debug("No paths were added");
             CommonTelemetry.update();
             stop();
         }
+
         pathIterator = allPaths.listIterator();
         currPath = pathIterator.next();
         opmodeTimer.resetTimer();
@@ -260,7 +309,7 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 29 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
@@ -276,8 +325,10 @@ public abstract class PedroBaseAuto extends OpMode {
 
         // Common Pedro telemetry
         CommonTelemetry.addData("intake active", intakeActive);
-        CommonTelemetry.addData("Waiting before shooting", waitingBeforeShooting);
         CommonTelemetry.addData("shooting active", shootingActive);
+        CommonTelemetry.addData("is bursting", isBursting);
+        CommonTelemetry.addData("is feeding", isFeeding);
+        CommonTelemetry.addData("shoot mode", shouldBurstShoot() ? "BURST" : "QUEUE");
         CommonTelemetry.addData("follower busy", follower.isBusy());
         CommonTelemetry.addData("interrupted", interrupted);
         CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
@@ -286,8 +337,9 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("y", follower.getPose().getY());
         CommonTelemetry.addData("curr heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
         CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
-        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
+//        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
         CommonTelemetry.addData("heading constraint (deg)", Math.toDegrees(follower.getConstraints().getHeadingConstraint()));
+        CommonTelemetry.addData("alliance", alliance);
         CommonTelemetry.update();
     }
 
@@ -295,5 +347,9 @@ public abstract class PedroBaseAuto extends OpMode {
     public void stop() {
         blackboard.put("final_auton_pose", follower.getPose());
         blackboard.put("alliance", alliance);
+    }
+
+    protected boolean shouldBurstShoot() {
+        return Robot.distanceToGoal() <= 118.0;
     }
 }

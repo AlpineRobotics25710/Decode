@@ -20,12 +20,12 @@ public class ShootingTester extends LinearOpMode {
     // close shot values: 0.24 feeding power, 1340 tps, 0.385 ramp pos
     // far shot values: 0.2 feeding power, 1670 tps, 0.385 ramp pos
     public static final double MAX_RAMP_DEGREES = 270.0;
-    public static final Pose goalPose = new Pose(12, 140);
-    //    public static double rampPosDegrees = 130.95; // 13.5 130.95
+    public static final Pose goalPose = Constants.GOAL_POSE.copy();
+//    public static double rampPosDegrees = 130.95; // 13.5 130.95
     public static double rampPos = 0;
     public static double targetLauncherVelocityTPS = 0;
     public static boolean feedersOn = false;
-    public static double feederPower = 0.0;
+    public static double feederPower = 0.35;
     public static double kp = 475;
     public static double ki = 0;
     public static double kd = 10;
@@ -61,9 +61,8 @@ public class ShootingTester extends LinearOpMode {
 
 //            CommonTelemetry.addData("ramp pos", rampPosDegrees / Constants.MAX_RAMP_DEGREES);
 //            CommonTelemetry.addData("ramp pos deg", rampPosDegrees);
-            CommonTelemetry.addData("ramp and ramp 2 pos: ", rampPos);
-            CommonTelemetry.addData("ramp pos raw: ", Robot.ramp.getPosition());
-            CommonTelemetry.addData("ramp 2 pos raw: ", Robot.ramp2.getPosition());
+            CommonTelemetry.addData("set ramp pos", rampPos);
+            CommonTelemetry.addData("read ramp pos: ", "ramp 1: " + Robot.ramp.getPosition() + ", ramp 2: " + Robot.ramp2.getPosition());
             CommonTelemetry.addData("set launcher velocity (ticks/s)", targetLauncherVelocityTPS);
             CommonTelemetry.addData("read launcher velocity (ticks/s)", Robot.launcher.getVelocity());
             CommonTelemetry.addData("distance to goal", getDistanceToGoal());

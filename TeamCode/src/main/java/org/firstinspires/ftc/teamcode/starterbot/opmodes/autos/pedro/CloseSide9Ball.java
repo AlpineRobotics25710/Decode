@@ -6,11 +6,12 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.starterbot.Robot;
 import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.opmodes.autos.pedro.poses.ClosePoses;
 
-@Autonomous(name = "Close Side Auto", group = "pedro")
-public class CloseSideAuto extends PedroBaseAuto {
+@Autonomous(name = "Close Side 9 Ball", group = "pedro")
+public class CloseSide9Ball extends PedroBaseAuto {
     private ClosePoses poses;
 
     @Override
@@ -67,27 +68,12 @@ public class CloseSideAuto extends PedroBaseAuto {
         allPaths.add(intakeMiddlePath);
         intakeSlowerNeeded.add(intakeMiddlePath);
 
-        // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
-        /*PathChain openGatePath = follower.pathBuilder()
-                .addPath(
-                        new BezierCurve(
-                                poses.intakeMiddlePose,
-                                poses.cpOpenGate1,
-                                poses.cpOpenGate2,
-                                poses.openGatePose))
-                .setLinearHeadingInterpolation(
-                        poses.intakeMiddlePose.getHeading(),
-                        poses.openGatePose.getHeading(),
-                        0.8)
-                .build();
-        addPath(openGatePath);*/
-
-        // Line 4: Shoot middle (openGatePose -> shootMiddlePose), curve, Path
+        // Line 4: Shoot middle (intakeMiddlePose -> shootMiddlePose), curve, Path
         PathChain shootMiddlePath = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 poses.intakeMiddlePose,
-                                poses.cpShootMiddle1,
+                                poses.cpShootMiddle1, // TODO: fix the control points and updates poses in close poses class, also look into integrating parametric callbacks
                                 poses.shootPose))
                 .setLinearHeadingInterpolation(
                         poses.intakeMiddlePose.getHeading(),
@@ -115,7 +101,7 @@ public class CloseSideAuto extends PedroBaseAuto {
                 .setConstantHeadingInterpolation(poses.intakeTopPose.getHeading())
                 .build();
         addPath(intakeTopPath);
-        intakeNeeded.add(intakeTopPath);
+        intakeSlowerNeeded.add(intakeTopPath);
 
         // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
         PathChain shootTopPath = follower.pathBuilder()
@@ -132,44 +118,6 @@ public class CloseSideAuto extends PedroBaseAuto {
         addPath(shootTopPath);
         addShot(shootTopPath);
 
-        // Line 8: Pick up bottom (shootTopPose -> pickUpBottomPose), curve, PathChain
-        PathChain pickUpBottomChain = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        poses.shootPose,
-                        poses.cpPickUpBottom1,
-                        poses.pickUpBottomPose))
-                .setLinearHeadingInterpolation(
-                        poses.shootPose.getHeading(),
-                        poses.pickUpBottomPose.getHeading(),
-                        0.65)
-                .build();
-        addPath(pickUpBottomChain);
-
-        // Line 9: Intake bottom (pickUpBottomPose -> intakeBottomPose), straight, Path
-        PathChain intakeBottomPath = follower.pathBuilder()
-                .addPath(
-                        new BezierLine(
-                                poses.pickUpBottomPose,
-                                poses.intakeBottomPose))
-                .setConstantHeadingInterpolation(poses.intakeBottomPose.getHeading())
-                .build();
-        addPath(intakeBottomPath);
-        intakeSlowerNeeded.add(intakeBottomPath);
-
-        // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
-        PathChain shootBottomPath = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        poses.intakeBottomPose,
-                        poses.cpShootBottom1,
-                        poses.shootPose))
-                .setLinearHeadingInterpolation(
-                        poses.intakeBottomPose.getHeading(),
-                        poses.shootPose.getHeading(),
-                        0.65)
-                .build();
-        addPath(shootBottomPath);
-        addShot(shootBottomPath);
-
         // Line 11: Park (shootBottomPose -> parkPose), curve, Path
         PathChain parkPath = follower.pathBuilder()
                 .addPath(
@@ -181,5 +129,17 @@ public class CloseSideAuto extends PedroBaseAuto {
                         poses.parkPose.getHeading())
                 .build();
         addPath(parkPath);
+    }
+
+    @Override
+    public void start() {
+        Robot.setDecreaseLauncherVelocity(true);
+        super.start();
+    }
+
+    @Override
+    public void stop() {
+        Robot.setDecreaseLauncherVelocity(false);
+        super.stop();
     }
 }

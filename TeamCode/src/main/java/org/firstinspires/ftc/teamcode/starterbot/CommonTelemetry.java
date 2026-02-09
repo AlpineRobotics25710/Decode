@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.starterbot;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
@@ -15,24 +16,22 @@ import com.pedropathing.util.PoseHistory;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.Arrays;
+
 public class CommonTelemetry {
-    private static TelemetryManager panelsTelemetry;
-    private static Telemetry robotTelemetry;
-    private static Telemetry dashTelemetry;
+    private static MultipleTelemetry multipleTelemetry;
 
     // Make singleton
     private CommonTelemetry() {
     }
 
     public static void init(Telemetry robotTelemetry) {
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        CommonTelemetry.robotTelemetry = robotTelemetry;
-        dashTelemetry = FtcDashboard.getInstance().getTelemetry();
+        multipleTelemetry = new MultipleTelemetry(robotTelemetry, FtcDashboard.getInstance().getTelemetry(), PanelsTelemetry.INSTANCE.getFtcTelemetry());
     }
 
     public static void debug(Object... data) {
         try {
-            panelsTelemetry.debug(data);
+            multipleTelemetry.addLine(Arrays.toString(data));
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
@@ -40,7 +39,7 @@ public class CommonTelemetry {
 
     public static void addData(String key, Object value) {
         try {
-            panelsTelemetry.debug(key + ": " + value);
+            multipleTelemetry.addData(key, value);
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }
@@ -48,8 +47,7 @@ public class CommonTelemetry {
 
     public static void update() {
         try {
-            panelsTelemetry.update(robotTelemetry);
-            panelsTelemetry.update(dashTelemetry);
+            multipleTelemetry.update();
         } catch (NullPointerException e) {
             throw new NullPointerException("Did you forget to call init and initialize common telemetry in your OpMode?");
         }

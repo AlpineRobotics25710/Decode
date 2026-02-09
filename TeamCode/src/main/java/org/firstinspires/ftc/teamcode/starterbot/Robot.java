@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.starterbot;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,12 +13,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.starterbot.enums.Alliance;
 import org.firstinspires.ftc.teamcode.starterbot.enums.BlockerState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.LaunchSequenceState;
 import org.firstinspires.ftc.teamcode.starterbot.enums.RampState;
-
-import java.util.LinkedList;
-import java.util.Queue;
+import org.firstinspires.ftc.teamcode.starterbot.interpolation.Interpolator;
 
 public class Robot {
     // Drivetrain motors
@@ -47,18 +49,24 @@ public class Robot {
 
     // Pedro
     public static Follower follower;
-
-    // Launcher variables
-    private static double targetVelocityTps = 0.0; // commanded setpoint (ticks/sec)
     public static double currentNonLaunchVelocity;
+    // Launcher variables
+    private static double targetVelocity = 0.0; // commanded setpoint (ticks/sec)
     private static long stateStartTime;
-    private static final Queue<Double> launchQueue = new LinkedList<>();
+    private static int launchesQueued = 0;
+    private static boolean decreaseLauncherVel = false;
+    private static Pose goalPose = Constants.GOAL_POSE.copy();
 
     // Prevent instantiation from other classes.
     private Robot() {
     }
 
+    ///  Default Blue Alliance
     public static void init(HardwareMap hardwareMap) {
+        init(hardwareMap, Alliance.BLUE);
+    }
+
+    public static void init(HardwareMap hardwareMap, Alliance alliance) {
         /*
          * Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
@@ -77,7 +85,8 @@ public class Robot {
         blocker = hardwareMap.get(Servo.class, "blocker");
 
         leftIntake.setDirection(DcMotorEx.Direction.REVERSE); // Might need to switch this
-        rightIntake.setDirection(DcMotorEx.Direction.FORWARD); // Might need to switch this
+        rightIntake.setDirection(DcMotorEx.Direction.FORWARD);
+        ramp2.setDirection(Servo.Direction.REVERSE);// Might need to switch this
 
         ramp2.setDirection(Servo.Direction.REVERSE);
 
@@ -118,15 +127,21 @@ public class Robot {
          */
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        for (LynxModule lm : hardwareMap.getAll(LynxModule.class)) {
+            lm.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+        if (alliance == Alliance.RED) goalPose = goalPose.mirror();
+
         // Init follower
         follower = org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower(hardwareMap);
         CommonTelemetry.addData("follower heading constraint", follower.getConstraints().getHeadingConstraint());
+        Interpolator.init(hardwareMap.appContext);
 
         /*
          * Tell the driver that initialization is complete.
          */
         CommonTelemetry.addData("Status", "Initialized");
-        CommonTelemetry.addData("Branch", "restructure");
     }
 
     public static void initMecanumDrive(HardwareMap hardwareMap) {
@@ -154,19 +169,33 @@ public class Robot {
         updateLauncher();
 
         // launcher telemetry
-        double curTps = launcher.getVelocity(); // measured ticks/sec from encoder
-        CommonTelemetry.addData("Launcher tps (curr/target)", curTps + "/" + targetVelocityTps);
-        CommonTelemetry.addData("Launcher rpm (curr/target)", tpsToRpm(curTps, 537.7) + "/" + tpsToRpm(targetVelocityTps, 537.7));
+        double currTPS = launcher.getVelocity(); // measured ticks/sec from encoder
+        double currRADPS = launcher.getVelocity(AngleUnit.RADIANS);
+        CommonTelemetry.addData("Launcher ticks/s (curr/target)", currTPS + "/" + targetVelocity);
+        CommonTelemetry.addData("Launcher rad/s (curr/target)", currRADPS + "/" + tpsToRad(targetVelocity));
+        CommonTelemetry.addData("Launcher rpm (curr/target)", tpsToRpm(currTPS) + "/" + radToRpm(targetVelocity));
 
         CommonTelemetry.addData("Ramp State", rampState.toString());
+        CommonTelemetry.addData("Ramp angle", ramp.getPosition() * Constants.MAX_RAMP_DEGREES);
         CommonTelemetry.addData("Blocker State", blockerState.toString());
         CommonTelemetry.addData("Launch Sequence State", launchSequenceState.toString());
-        CommonTelemetry.addData("Launch queue size", launchQueue.size());
+        CommonTelemetry.addData("Launches Queued", launchesQueued);
+        CommonTelemetry.addData("Interpolated velocity (ticks/sec)", Interpolator.getVelocityValue(distanceToGoal()));
+        CommonTelemetry.addData("Interpolated ramp angle (deg)", Interpolator.getRampValue(distanceToGoal()));
     }
 
-    public static double tpsToRpm(double tps, double ppr) {
-        return (tps * 60) / ppr;
+    public static double tpsToRpm(double tps) {
+        return (tps * 60) / Constants.LAUNCHER_MOTOR_PPR; // ppr is Constants.LAUNCHER_MOTOR_PPR
     }
+
+    public static double radToRpm(double radps) {
+        return radps / (2 * Math.PI);
+    }
+
+    public static double tpsToRad(double tps) {
+        return tps * ((2 * Math.PI) / Constants.LAUNCHER_MOTOR_PPR);
+    }
+
 
     public static void setFeederPower(double power) {
         leftFeeder.setPower(power);
@@ -242,17 +271,29 @@ public class Robot {
         // State Machine for Hinge/Ramp state
         switch (rampState) {
             case INTAKE: // we are currently in INTAKE state, and want to switch states
-                ramp.setPosition(Constants.RAMP_OUTTAKE_POS); // then change to OUTTAKE state
-                ramp2.setPosition(Constants.RAMP_OUTTAKE_POS); // then change to OUTTAKE state
+                setRampPos(Constants.RAMP_OUTTAKE_POS);// then change to OUTTAKE state
                 rampState = RampState.OUTTAKE;  // then change to OUTTAKE state
                 break;
 
             case OUTTAKE: // we are currently in OUTTAKE state, and want to switch states
-                ramp.setPosition(Constants.RAMP_INTAKE_POS); // then change to INTAKE state
-                ramp2.setPosition(Constants.RAMP_INTAKE_POS); // then change to INTAKE state
+                setRampPos(Constants.RAMP_INTAKE_POS);// then change to INTAKE state
                 rampState = RampState.INTAKE; // then change to INTAKE state
                 break;
         }
+    }
+
+    /// Set angle of ramp in degrees. simply returns if out of bounds (nothing will happen!)
+    public static void setRampAngle(double angle) {
+        if (angle < 0 || angle > Constants.MAX_RAMP_DEGREES) return;
+        ramp.setPosition(angle / Constants.MAX_RAMP_DEGREES);
+        ramp2.setPosition(angle / Constants.MAX_RAMP_DEGREES);
+    }
+
+    /// Set ramp position. simply returns if out of bounds (nothing will happen!)
+    public static void setRampPos(double pos) {
+        if (pos < 0 || pos > 1) return;
+        ramp.setPosition(pos);
+        ramp2.setPosition(pos);
     }
 
     public static void switchBlockerState() {
@@ -269,20 +310,27 @@ public class Robot {
         }
     }
 
-    public static void queueLaunch(double speed) {
-        launchQueue.add(speed);
+    public static double distanceToGoal() {
+        return follower.getPose().distanceFrom(goalPose);
+    }
+
+    public static void setDecreaseLauncherVelocity(boolean decreaseLauncherVelocity) {
+        decreaseLauncherVel = decreaseLauncherVelocity;
+    }
+
+    public static void queueLaunch() {
+        launchesQueued++;
     }
 
     public static void updateLauncher() {
         if (isLauncherBusy()) {
             updateLauncherStateMachine();
-        } else if (launchQueue.peek() != null) {
-            double vel = launchQueue.poll();
-            startLaunchSequence(vel);
+        } else if (launchesQueued > 0) {
+            startLaunchSequence();
         } else {
-            if (targetVelocityTps != currentNonLaunchVelocity) {
-                targetVelocityTps = currentNonLaunchVelocity;
-                Robot.launcher.setVelocity(targetVelocityTps);
+            if (targetVelocity != currentNonLaunchVelocity) {
+                targetVelocity = currentNonLaunchVelocity;
+                Robot.launcher.setVelocity(currentNonLaunchVelocity);
             }
 
             if (launchSequenceState != LaunchSequenceState.IDLE) {
@@ -293,8 +341,8 @@ public class Robot {
 
     public static void killLauncher() {
         Robot.launcher.setVelocity(Constants.ZERO);
-        targetVelocityTps = Constants.ZERO;
-        launchQueue.clear();
+        targetVelocity = Constants.ZERO;
+        launchesQueued = 0;
         launchSequenceState = LaunchSequenceState.IDLE;
         currentNonLaunchVelocity = Constants.ZERO;
     }
@@ -304,24 +352,40 @@ public class Robot {
     }
 
     public static boolean isLaunchQueueEmpty() {
-        return launchQueue.isEmpty();
+        return launchesQueued == 0;
     }
 
-    private static void startLaunchSequence(double velocity) {
-        targetVelocityTps = velocity;
-        Robot.launcher.setVelocity(targetVelocityTps);
+    private static void startLaunchSequence() {
+        targetVelocity = Interpolator.getVelocityValue(distanceToGoal());
+        Robot.launcher.setVelocity(targetVelocity);
+        if (decreaseLauncherVel) targetVelocity *= 0.95;
+        setRampPos(Interpolator.getRampValue(distanceToGoal()));
         launchSequenceState = LaunchSequenceState.SPINNING_UP;
+        rampState = RampState.OUTTAKE;
         stateStartTime = System.currentTimeMillis();
     }
+
+    public static void revFlywheel() {
+        currentNonLaunchVelocity = Interpolator.getVelocityValue(distanceToGoal());
+    }
+
+    // TODO: NEED TO CHANGE LAUNCHER TO ALWAYS USE TICKS PER SECOND AND RAMP TO ALWAYS USE 0-1
 
     public static void updateLauncherStateMachine() {
         switch (launchSequenceState) {
             case SPINNING_UP:
-                // shooting tolerances
-                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocityTps) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
-                boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
+                // Account for if the robot is moving
+                setRampPos(Interpolator.getRampValue(distanceToGoal()));
+                targetVelocity = Interpolator.getVelocityValue(distanceToGoal());
+                if (decreaseLauncherVel) targetVelocity *= 0.95;
+                Robot.launcher.setVelocity(targetVelocity);
 
-                if (reachedSpeed || timedOut) {
+                // shooting tolerances
+                boolean reachedSpeed = Math.abs(Robot.launcher.getVelocity() - targetVelocity) <= Constants.LAUNCHER_VELOCITY_TOLERANCE;
+                //boolean timedOut = System.currentTimeMillis() - stateStartTime > Constants.SPINUP_TIMEOUT_MS;
+                // Remove time out to allow driver to move robot even after queueing a shot
+
+                if (reachedSpeed) { // || timedOut) {
                     Robot.setFeederPower(Constants.FEEDER_POWER);
                     launchSequenceState = LaunchSequenceState.FEEDING;
                     stateStartTime = System.currentTimeMillis();
@@ -338,9 +402,10 @@ public class Robot {
 
             case SHOOTING:
                 if (System.currentTimeMillis() - stateStartTime >= Constants.LAUNCH_TIME_MS) {
+                    launchesQueued--;
                     // if there are more balls to shoot, then go and shoot those
-                    if (launchQueue.peek() != null) {
-                        startLaunchSequence(launchQueue.poll());
+                    if (launchesQueued > 0) {
+                        startLaunchSequence();
                     } else {
                         launchSequenceState = LaunchSequenceState.IDLE;
                     }
