@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.starterbot.CommonTelemetry;
 
 @Config
 @Configurable
+@Config
 @TeleOp(group = "testers")
 public class ValueGetter extends LinearOpMode {
     public static double rampPos = 0.0;

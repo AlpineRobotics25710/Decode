@@ -88,6 +88,8 @@ public class Robot {
         rightIntake.setDirection(DcMotorEx.Direction.FORWARD);
         ramp2.setDirection(Servo.Direction.REVERSE);// Might need to switch this
 
+        ramp2.setDirection(Servo.Direction.REVERSE);
+
         /*
          * Here we set our launcher to the RUN_USING_ENCODER runmode.
          * If you notice that you have no control over the velocity of the motor, it just jumps
@@ -250,7 +252,7 @@ public class Robot {
     public static void spinToIntake() {
         currentNonLaunchVelocity = Constants.LAUNCHER_INTAKE_VELOCITY; // intake
         Robot.setIntakePower(Constants.INTAKE_POWER);
-        Robot.setFeederPower(-Constants.FEEDER_POWER);
+        Robot.setFeederPower(Constants.FEEDER_INTAKE_POWER);
     }
 
     public static void spinToOuttake() {
