@@ -252,7 +252,7 @@ public class Robot {
     public static void spinToIntake() {
         currentNonLaunchVelocity = Constants.LAUNCHER_INTAKE_VELOCITY; // intake
         Robot.setIntakePower(Constants.INTAKE_POWER);
-        Robot.setFeederPower(Constants.FEEDER_INTAKE_POWER);
+        Robot.setFeederPower(-Constants.FEEDER_POWER);
     }
 
     public static void spinToOuttake() {

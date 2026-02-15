@@ -45,7 +45,7 @@ public class CloseSide9 extends PedroBaseAuto {
                         poses.shootPose.getHeading())
                 .build();
         addPath(shootPreloadPath);
-        addShot(shootPreloadPath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addShot(shootPreloadPath);
 
         // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
         PathChain pickUpMiddlePath = follower.pathBuilder()
@@ -79,7 +79,7 @@ public class CloseSide9 extends PedroBaseAuto {
                         poses.shootPose.getHeading())
                 .build();
         addPath(shootMiddlePath);
-        addShot(shootMiddlePath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addShot(shootMiddlePath);
 
         // Line 4: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
         PathChain pickUpTopChain = follower.pathBuilder()
@@ -112,7 +112,7 @@ public class CloseSide9 extends PedroBaseAuto {
                         poses.shootPose.getHeading())
                 .build();
         addPath(shootTopPath);
-        addShot(shootTopPath, Constants.LAUNCHER_CLOSE_VELOCITY);
+        addShot(shootTopPath);
 
         // Line 7: Park (shootPose -> parkPose), curve, Path
         PathChain parkPath = follower.pathBuilder()
