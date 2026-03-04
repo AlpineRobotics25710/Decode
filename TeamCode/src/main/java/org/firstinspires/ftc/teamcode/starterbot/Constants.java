@@ -10,7 +10,7 @@ public class Constants {
     public static double ZERO = 0.0;
 
     // The feeder servos run this long when a shot is requested.
-    public static long FEED_TIME_MS = 220;
+    public static long FEED_TIME_MS = 270;
     // How long to delay the servos for before they feed the ball into the launcher in milliseconds
     // Waiting for the launcher to reach the target velocity
     public static long LAUNCH_DELAY_MS = 2500;
