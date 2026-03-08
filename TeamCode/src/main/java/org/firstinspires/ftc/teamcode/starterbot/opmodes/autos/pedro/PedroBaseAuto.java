@@ -21,7 +21,7 @@ import java.util.Set;
 
 public abstract class PedroBaseAuto extends OpMode {
     protected final double BURST_VELOCITY = 1290;
-    protected final double STUCK_TIMEOUT = 1.5; // seconds before skipping a stuck path
+    protected final double STUCK_TIMEOUT = 500; // ms before skipping a stuck path
     protected Follower follower;
     protected Timer opmodeTimer;
     protected Timer pathTimer;
@@ -81,9 +81,6 @@ public abstract class PedroBaseAuto extends OpMode {
             return;
         }
 
-        currStuck = this.isStuck();
-        if (!currStuck && prevStuck) prevStuck = false;
-
         if (currStuck && !prevStuck) {
             prevStuck = true;
             cancelAllActions();
@@ -100,7 +97,9 @@ public abstract class PedroBaseAuto extends OpMode {
             //follower.followPath(recovery, true);
             //pathTimer.resetTimer();
 
-            advancePath();
+            if (pathIterator.hasNext()) {
+                advancePath();
+            }
             return;
         }
 
@@ -335,13 +334,16 @@ public abstract class PedroBaseAuto extends OpMode {
         // Common follower update
         follower.update();
 
+        currStuck = this.isStuck();
+        if (!currStuck && prevStuck) prevStuck = false;
+
         if (opmodeTimer.getElapsedTimeSeconds() >= 29 && !interrupted) {
             interrupted = true;
             follower.breakFollowing();
             interruptAndPark();
         }
 
-        if (!interrupted ) {
+        if (!interrupted) {
             autonomousPathUpdate();
 
             Robot.loop();
@@ -385,7 +387,13 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected boolean isStuck() {
-        boolean timeUp = pathTimer != null && pathTimer.getElapsedTime() > 500.0;
-        return follower.poseTracker.getVelocity().getMagnitude() < 1.0 && timeUp && follower.isBusy();
+        if (intakeActive || shootingActive || interrupted) return false;
+        if (currPath == null) return false;
+        if (!follower.isBusy()) return false;
+
+        boolean timeUp = pathTimer != null && pathTimer.getElapsedTime() > STUCK_TIMEOUT;
+        boolean movingTooSlow = follower.poseTracker.getVelocity().getMagnitude() < 1.0;
+
+        return movingTooSlow && timeUp;
     }
 }
