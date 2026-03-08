@@ -97,14 +97,16 @@ public abstract class PedroBaseAuto extends OpMode {
             //follower.followPath(recovery, true);
             //pathTimer.resetTimer();
 
-            if (pathIterator.hasNext()) {
-                advancePath();
-            }
+            advancePath();
             return;
         }
 
         // block new paths if busy or if all paths are done
         if (follower.isBusy()) {
+            return;
+        }
+
+        if (currPath == null) {
             return;
         }
 
@@ -235,8 +237,12 @@ public abstract class PedroBaseAuto extends OpMode {
     }
 
     protected void advancePath() {
-        currPath = pathIterator.next();
-        pathTimer.resetTimer();
+        if (pathIterator.hasNext()) {
+            currPath = pathIterator.next();
+            pathTimer.resetTimer();
+        } else {
+            currPath = null;
+        }
     }
 
     protected void followPathOrPathChain(Object toFollow, boolean holdEnd) {
