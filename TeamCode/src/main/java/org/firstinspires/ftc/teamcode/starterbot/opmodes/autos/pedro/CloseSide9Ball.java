@@ -34,7 +34,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
 
     @Override
     protected void buildPaths() {
-        // Line 1: Shoot preload (startPose -> shootPreloadPose), curve, Path
+        // Line 1: Shoot preload (startPose -> shootPreloadPose)
         PathChain shootPreloadPath = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
@@ -47,7 +47,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
         allPaths.add(shootPreloadPath);
         addShot(shootPreloadPath);
 
-        // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose), curve, PathChain
+        // Line 1: Pick up middle (shootPreloadPose -> pickUpMiddlePose)
         PathChain pickUpMiddleChain = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         poses.shootPose,
@@ -60,7 +60,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
                 .build();
         allPaths.add(pickUpMiddleChain);
 
-        // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose), straight, Path
+        // Line 2: Intake middle (pickUpMiddlePose -> intakeMiddlePose)
         PathChain intakeMiddlePath = follower.pathBuilder()
                 .addPath(new BezierLine(poses.pickUpMiddlePose, poses.intakeMiddlePose))
                 .setConstantHeadingInterpolation(poses.intakeMiddlePose.getHeading())
@@ -68,12 +68,12 @@ public class CloseSide9Ball extends PedroBaseAuto {
         allPaths.add(intakeMiddlePath);
         intakeSlowerNeeded.add(intakeMiddlePath);
 
-        // Line 4: Shoot middle (intakeMiddlePose -> shootMiddlePose), curve, Path
+        // Line 3: Shoot middle (intakeMiddlePose -> shootMiddlePose)
         PathChain shootMiddlePath = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 poses.intakeMiddlePose,
-                                poses.cpShootMiddle1, // TODO: fix the control points and updates poses in close poses class, also look into integrating parametric callbacks
+                                poses.cpShootMiddle1,
                                 poses.shootPose))
                 .setLinearHeadingInterpolation(
                         poses.intakeMiddlePose.getHeading(),
@@ -83,7 +83,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
         allPaths.add(shootMiddlePath);
         addShot(shootMiddlePath);
 
-        // Line 5: Pick up top (shootMiddlePose -> pickUpTopPose), straight, PathChain
+        // Line 4: Pick up top (shootMiddlePose -> pickUpTopPose)
         PathChain pickUpTopChain = follower.pathBuilder()
                 .addPath(new BezierLine(
                         poses.shootPose,
@@ -95,7 +95,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
                 .build();
         addPath(pickUpTopChain);
 
-        // Line 6: Intake top (pickUpTopPose -> intakeTopPose), straight, Path
+        // Line 5: Intake top (pickUpTopPose -> intakeTopPose)
         PathChain intakeTopPath = follower.pathBuilder()
                 .addPath(new BezierLine(poses.pickUpTopPose, poses.intakeTopPose))
                 .setConstantHeadingInterpolation(poses.intakeTopPose.getHeading())
@@ -103,7 +103,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
         addPath(intakeTopPath);
         intakeSlowerNeeded.add(intakeTopPath);
 
-        // Line 7: Shoot top (intakeTopPose -> shootTopPose), curve, Path
+        // Line 6: Shoot top (intakeTopPose -> shootTopPose)
         PathChain shootTopPath = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
@@ -118,7 +118,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
         addPath(shootTopPath);
         addShot(shootTopPath);
 
-        // Line 11: Park (shootBottomPose -> parkPose), curve, Path
+        // Line 7: Park (shootBottomPose -> parkPose)
         PathChain parkPath = follower.pathBuilder()
                 .addPath(
                         new BezierLine(

@@ -21,6 +21,7 @@ import java.util.Set;
 
 public abstract class PedroBaseAuto extends OpMode {
     protected final double BURST_VELOCITY = 1290;
+    protected final double STUCK_TIMEOUT = 1.5; // seconds before skipping a stuck path
     protected Follower follower;
     protected Timer opmodeTimer;
     protected Timer pathTimer;
@@ -75,6 +76,26 @@ public abstract class PedroBaseAuto extends OpMode {
         // if intaking, loop intake
         if (intakeActive) {
             updateIntakeSequence();
+            return;
+        }
+
+        if (follower.isBusy() && follower.isRobotStuck()) {
+
+            cancelAllActions();
+
+            /*Pose currentPose = follower.getPose();
+            Pose targetPose = ((Path) pathIterator.next()).endPose();
+
+            Path recovery = new Path(new BezierLine(currentPose, targetPose));
+            recovery.setLinearHeadingInterpolation(
+                    currentPose.getHeading(),
+                    targetPose.getHeading()
+            );*/
+
+            //follower.followPath(recovery, true);
+            //pathTimer.resetTimer();
+
+            advancePath();
             return;
         }
 
@@ -315,7 +336,7 @@ public abstract class PedroBaseAuto extends OpMode {
             interruptAndPark();
         }
 
-        if (!interrupted) {
+        if (!interrupted ) {
             autonomousPathUpdate();
 
             Robot.loop();
@@ -324,6 +345,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.draw(follower);
 
         // Common Pedro telemetry
+        CommonTelemetry.addData("follower stuck", follower.isRobotStuck());
         CommonTelemetry.addData("intake active", intakeActive);
         CommonTelemetry.addData("shooting active", shootingActive);
         CommonTelemetry.addData("is bursting", isBursting);
