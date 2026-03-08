@@ -40,6 +40,8 @@ public abstract class PedroBaseAuto extends OpMode {
     protected boolean burstMode = false;
     protected boolean isBursting = false;
     protected boolean isFeeding = false;
+    protected boolean currStuck = false;
+    protected boolean prevStuck = false;
     protected Pose goalPose = Constants.GOAL_POSE.copy();
 
     /**
@@ -79,8 +81,11 @@ public abstract class PedroBaseAuto extends OpMode {
             return;
         }
 
-        if (follower.isBusy() && follower.isRobotStuck()) {
+        currStuck = this.isStuck();
+        if (!currStuck && prevStuck) prevStuck = false;
 
+        if (currStuck && !prevStuck) {
+            prevStuck = true;
             cancelAllActions();
 
             /*Pose currentPose = follower.getPose();
@@ -345,7 +350,11 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.draw(follower);
 
         // Common Pedro telemetry
-        CommonTelemetry.addData("follower stuck", follower.isRobotStuck());
+        CommonTelemetry.addData("follower stuck custom", this.isStuck());
+        CommonTelemetry.addData("curr stuck", currStuck);
+        CommonTelemetry.addData("prev stuck", prevStuck);
+        CommonTelemetry.addData("pose tracker velocity", follower.poseTracker.getVelocity().getMagnitude());
+        CommonTelemetry.addData("t val", currPath instanceof Path ? ((Path) currPath).getClosestPointTValue() > 0.8 : "not a path obj");
         CommonTelemetry.addData("intake active", intakeActive);
         CommonTelemetry.addData("shooting active", shootingActive);
         CommonTelemetry.addData("is bursting", isBursting);
@@ -373,5 +382,10 @@ public abstract class PedroBaseAuto extends OpMode {
 
     protected boolean shouldBurstShoot() {
         return Robot.distanceToGoal() <= 118.0;
+    }
+
+    protected boolean isStuck() {
+        boolean timeUp = pathTimer != null && pathTimer.getElapsedTime() > 500.0;
+        return follower.poseTracker.getVelocity().getMagnitude() < 1.0 && timeUp && follower.isBusy();
     }
 }
