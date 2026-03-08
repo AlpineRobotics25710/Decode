@@ -65,7 +65,7 @@ public class CloseSideAuto extends PedroBaseAuto {
                 .setConstantHeadingInterpolation(poses.intakeMiddlePose.getHeading())
                 .build();
         allPaths.add(intakeMiddlePath);
-        intakeSlowerNeeded.add(intakeMiddlePath);
+        addSlowIntake(intakeMiddlePath);
 
         // Line 3: Open gate (intakeMiddlePose -> openGatePose), curve, Path
         /*PathChain openGatePath = follower.pathBuilder()
@@ -154,7 +154,7 @@ public class CloseSideAuto extends PedroBaseAuto {
                 .setConstantHeadingInterpolation(poses.intakeBottomPose.getHeading())
                 .build();
         addPath(intakeBottomPath);
-        intakeSlowerNeeded.add(intakeBottomPath);
+        addSlowIntake(intakeBottomPath);
 
         // Line 10: Shoot bottom (intakeBottomPose -> shootBottomPose), curve, Path
         PathChain shootBottomPath = follower.pathBuilder()

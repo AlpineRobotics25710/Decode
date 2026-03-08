@@ -66,7 +66,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
                 .setConstantHeadingInterpolation(poses.intakeMiddlePose.getHeading())
                 .build();
         allPaths.add(intakeMiddlePath);
-        intakeSlowerNeeded.add(intakeMiddlePath);
+        addSlowIntake(intakeMiddlePath);
 
         // Line 3: Shoot middle (intakeMiddlePose -> shootMiddlePose)
         PathChain shootMiddlePath = follower.pathBuilder()
@@ -101,7 +101,7 @@ public class CloseSide9Ball extends PedroBaseAuto {
                 .setConstantHeadingInterpolation(poses.intakeTopPose.getHeading())
                 .build();
         addPath(intakeTopPath);
-        intakeSlowerNeeded.add(intakeTopPath);
+        addSlowIntake(intakeTopPath);
 
         // Line 6: Shoot top (intakeTopPose -> shootTopPose)
         PathChain shootTopPath = follower.pathBuilder()
