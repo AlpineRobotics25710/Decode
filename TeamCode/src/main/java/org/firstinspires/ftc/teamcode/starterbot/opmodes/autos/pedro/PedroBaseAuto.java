@@ -21,7 +21,7 @@ import java.util.Set;
 public abstract class PedroBaseAuto extends OpMode {
     protected final double BURST_VELOCITY = 1290;
     protected final double STUCK_TIMEOUT_MS = 900; // ms before skipping a stuck path
-    protected final double STUCK_MIN_PROGRESS = 2.0; // min distance travelled before we consider it moving
+    protected final double STUCK_MIN_PROGRESS = 2.0; // min distance traveled before we consider it moving
     protected final double PATH_FINISH_CONFIRM_SECONDS = 0.15; // prevents one-loop false finishes
 
     protected Follower follower;
@@ -298,6 +298,8 @@ public abstract class PedroBaseAuto extends OpMode {
         burstMode = false;
         pathStartPose = null;
 
+        // Ensure a skipped intake does not leave the next path capped at intake power.
+        follower.setMaxPower(1.0);
         follower.breakFollowing();
         Robot.stopAll();
     }
@@ -407,6 +409,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTimeSeconds());
         CommonTelemetry.addData("path time (ms)", pathTimer.getElapsedTime());
         CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTimeSeconds());
+        CommonTelemetry.addData("path start pose", pathStartPose == null ? "null" : pathStartPose.toString());
         CommonTelemetry.addData("x", follower.getPose().getX());
         CommonTelemetry.addData("y", follower.getPose().getY());
         CommonTelemetry.addData("curr heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
@@ -439,8 +442,8 @@ public abstract class PedroBaseAuto extends OpMode {
 
         boolean timeUp = pathTimer.getElapsedTime() > STUCK_TIMEOUT_MS;
         boolean movingTooSlow = follower.poseTracker.getVelocity().getMagnitude() < 1.0;
-        boolean insufficientProgress = distanceFromPathStart() < STUCK_MIN_PROGRESS;
+        //boolean insufficientProgress = distanceFromPathStart() < STUCK_MIN_PROGRESS;
 
-        return timeUp && movingTooSlow && insufficientProgress;
+        return timeUp && movingTooSlow; // && insufficientProgress;
     }
 }
