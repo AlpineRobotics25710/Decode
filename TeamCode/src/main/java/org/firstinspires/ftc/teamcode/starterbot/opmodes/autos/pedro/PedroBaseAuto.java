@@ -20,7 +20,8 @@ import java.util.Set;
 
 public abstract class PedroBaseAuto extends OpMode {
     protected final double BURST_VELOCITY = 1290;
-    protected final double STUCK_TIMEOUT_MS = 500; // ms before skipping a stuck path
+    protected final double STUCK_TIMEOUT_MS = 900; // ms before skipping a stuck path
+    protected final double STUCK_MIN_PROGRESS = 2.0; // min distance travelled before we consider it moving
     protected final double PATH_FINISH_CONFIRM_SECONDS = 0.15; // prevents one-loop false finishes
 
     protected Follower follower;
@@ -48,6 +49,8 @@ public abstract class PedroBaseAuto extends OpMode {
 
     protected boolean currStuck = false;
     protected boolean prevStuck = false;
+
+    protected Pose pathStartPose = null;
 
     protected Pose goalPose = Constants.GOAL_POSE.copy();
 
@@ -165,7 +168,7 @@ public abstract class PedroBaseAuto extends OpMode {
     protected void beginBurstShooting(Object shootingPath) {
         followPathOrPathChain(shootingPath, true);
 
-        Robot.setRampPos(0.38);
+        Robot.setRampPos(0.41);
         Robot.currentNonLaunchVelocity = BURST_VELOCITY;
 
         shootingActive = true;
@@ -245,14 +248,30 @@ public abstract class PedroBaseAuto extends OpMode {
         pathStarted = false;
         currStuck = false;
         prevStuck = false;
+        pathStartPose = null;
     }
 
     protected void followPathOrPathChain(Object toFollow, boolean holdEnd) {
+        recordPathStartPose();
         if (toFollow instanceof Path) {
             follower.followPath((Path) toFollow, holdEnd);
         } else if (toFollow instanceof PathChain) {
             follower.followPath((PathChain) toFollow, holdEnd);
         }
+    }
+
+    protected void recordPathStartPose() {
+        if (follower != null) {
+            pathStartPose = follower.getPose().copy();
+        }
+    }
+
+    protected double distanceFromPathStart() {
+        if (pathStartPose == null || follower == null) return Double.MAX_VALUE;
+        Pose current = follower.getPose();
+        double dx = current.getX() - pathStartPose.getX();
+        double dy = current.getY() - pathStartPose.getY();
+        return Math.hypot(dx, dy);
     }
 
     public void interruptAndPark() {
@@ -277,6 +296,7 @@ public abstract class PedroBaseAuto extends OpMode {
         isBursting = false;
         isFeeding = false;
         burstMode = false;
+        pathStartPose = null;
 
         follower.breakFollowing();
         Robot.stopAll();
@@ -360,7 +380,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
         currStuck = isStuck();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 29 && !interrupted) {
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5 && !interrupted) {
             interrupted = true;
             interruptAndPark();
         }
@@ -393,6 +413,7 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
         CommonTelemetry.addData("heading constraint (deg)", Math.toDegrees(follower.getConstraints().getHeadingConstraint()));
         CommonTelemetry.addData("alliance", alliance);
+        CommonTelemetry.addData("path progress", distanceFromPathStart());
         CommonTelemetry.update();
     }
 
@@ -414,9 +435,12 @@ public abstract class PedroBaseAuto extends OpMode {
         if (!pathStarted) return false;
         if (!follower.isBusy()) return false;
 
-        boolean timeUp = pathTimer != null && pathTimer.getElapsedTime() > STUCK_TIMEOUT_MS;
-        boolean movingTooSlow = follower.poseTracker.getVelocity().getMagnitude() < 1.0;
+        if (pathTimer == null || pathStartPose == null) return false;
 
-        return movingTooSlow && timeUp;
+        boolean timeUp = pathTimer.getElapsedTime() > STUCK_TIMEOUT_MS;
+        boolean movingTooSlow = follower.poseTracker.getVelocity().getMagnitude() < 1.0;
+        boolean insufficientProgress = distanceFromPathStart() < STUCK_MIN_PROGRESS;
+
+        return timeUp && movingTooSlow && insufficientProgress;
     }
 }
