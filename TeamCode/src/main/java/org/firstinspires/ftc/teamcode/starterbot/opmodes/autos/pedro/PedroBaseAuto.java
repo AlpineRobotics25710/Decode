@@ -18,51 +18,56 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Set;
 
-
 public abstract class PedroBaseAuto extends OpMode {
     protected final double BURST_VELOCITY = 1290;
+    protected final double STUCK_TIMEOUT_MS = 900; // ms before skipping a stuck path
+    protected final double STUCK_MIN_PROGRESS = 2.0; // min distance traveled before we consider it moving
+    protected final double PATH_FINISH_CONFIRM_SECONDS = 0.15; // prevents one-loop false finishes
+
     protected Follower follower;
     protected Timer opmodeTimer;
     protected Timer pathTimer;
+
     protected LinkedList<Object> allPaths;
     protected Set<Object> shotNeeded;
     protected Set<Object> intakeNeeded;
     protected Set<Object> intakeSlowerNeeded;
+
     protected ListIterator<Object> pathIterator;
     protected Object currPath = null;
-    // intake flags
+
+    protected boolean pathStarted = false;
+
     protected boolean intakeActive = false;
-    // shooting flags
     protected boolean shootingActive = false;
-    protected Alliance alliance = Alliance.BLUE; // By default blue
+
+    protected Alliance alliance = Alliance.BLUE;
     protected boolean interrupted = false;
     protected boolean burstMode = false;
     protected boolean isBursting = false;
     protected boolean isFeeding = false;
+
+    protected boolean currStuck = false;
+    protected boolean prevStuck = false;
+
+    protected Pose pathStartPose = null;
+
     protected Pose goalPose = Constants.GOAL_POSE.copy();
 
-    /**
-     * Child must supply the starting pose for this auto
-     */
     protected abstract Pose getStartPose();
-
     protected abstract Pose getEndPose();
-
-    /**
-     * Child must build all Paths / PathChains here
-     */
     protected abstract void buildPaths();
-
-    /**
-     * Any alliance-specific set up. Called in the start() method before buildPaths();
-     */
     protected abstract void allianceSetup(Alliance alliance);
 
     public void autonomousPathUpdate() {
-        //if (follower.isBusy() || currIndex >= allPaths.size()) return;
         if (interrupted) return;
 
-        // if shooting, loop shooting
+        // Check stuck FIRST, before intake/shooting logic can early-return
+        currStuck = isStuck();
+        if (handleStuck()) {
+            return;
+        }
+
         if (shootingActive) {
             if (burstMode) {
                 updateBurstShooting();
@@ -72,36 +77,39 @@ public abstract class PedroBaseAuto extends OpMode {
             return;
         }
 
-        // if intaking, loop intake
         if (intakeActive) {
             updateIntakeSequence();
             return;
         }
 
-        // block new paths if busy or if all paths are done
-        if (follower.isBusy()) {
+        if (currPath == null) {
             return;
         }
 
-        if (!pathIterator.hasNext()) {
+        // If current step already started, wait for real completion
+        if (pathStarted) {
+            boolean finished = !follower.isBusy()
+                    && pathTimer.getElapsedTimeSeconds() >= PATH_FINISH_CONFIRM_SECONDS;
+
+            if (finished) {
+                pathStarted = false;
+                advancePath();
+            }
             return;
         }
 
         Object step = currPath;
 
-        // get ready to intake
         if (intakeSlowerNeeded.contains(step)) {
             beginIntakeSequence(step, 0.275);
             return;
         }
 
-        // get ready to intake
         if (intakeNeeded.contains(step)) {
             beginIntakeSequence(step);
             return;
         }
 
-        // if you need to shoot
         if (shotNeeded.contains(step)) {
             burstMode = shouldBurstShoot();
             if (burstMode) {
@@ -112,9 +120,24 @@ public abstract class PedroBaseAuto extends OpMode {
             return;
         }
 
-        // follow regular path
         followPathOrPathChain(step, false);
+        pathStarted = true;
+        pathTimer.resetTimer();
+    }
+
+    protected boolean handleStuck() {
+        if (!currStuck || prevStuck) {
+            return false;
+        }
+
+        prevStuck = true;
+
+        CommonTelemetry.addData("STUCK ACTION", "Skipping current path");
+
+        cancelAllActions();
+        pathStarted = false;
         advancePath();
+        return true;
     }
 
     protected void beginIntakeSequence(Object intakePath) {
@@ -126,16 +149,18 @@ public abstract class PedroBaseAuto extends OpMode {
         Robot.spinToIntake();
         followPathOrPathChain(intakePath, true);
         intakeActive = true;
+        pathStarted = true;
+        pathTimer.resetTimer();
     }
 
-    // Intake actions
     protected void updateIntakeSequence() {
         if (!intakeActive) return;
 
-        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.1) { // Add minimum 1.0s intake time after path start
+        if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 1.1) {
             follower.setMaxPower(1.0);
             Robot.stopAll();
             intakeActive = false;
+            pathStarted = false;
             advancePath();
         }
     }
@@ -143,10 +168,11 @@ public abstract class PedroBaseAuto extends OpMode {
     protected void beginBurstShooting(Object shootingPath) {
         followPathOrPathChain(shootingPath, true);
 
-        Robot.setRampPos(0.38);
+        Robot.setRampPos(0.41);
         Robot.currentNonLaunchVelocity = BURST_VELOCITY;
 
         shootingActive = true;
+        pathStarted = true;
         isBursting = false;
         isFeeding = false;
         pathTimer.resetTimer();
@@ -176,50 +202,76 @@ public abstract class PedroBaseAuto extends OpMode {
             Robot.setFeederPower(0);
             Robot.setRampPos(Constants.RAMP_INTAKE_POS);
             Robot.currentNonLaunchVelocity = Constants.ZERO;
+
             shootingActive = false;
+            pathStarted = false;
             isBursting = false;
             isFeeding = false;
             burstMode = false;
+
             advancePath();
         }
     }
 
     protected void beginShootingSequence(Object shootingPath) {
-        // ((Path) shootingPath).setBrakingStrength(1.00);
         followPathOrPathChain(shootingPath, true);
 
-        // Angle ramp and queue three launches
         Robot.switchRampState();
         Robot.queueLaunch();
         Robot.queueLaunch();
         Robot.queueLaunch();
 
         shootingActive = true;
+        pathStarted = true;
         pathTimer.resetTimer();
     }
 
-    // Shooting actions
     protected void updateShootingSequence() {
-        if (shootingActive) {
-            if (Robot.isLaunchQueueEmpty() && !Robot.isLauncherBusy()) {
-                shootingActive = false;
-                Robot.switchRampState();
-                advancePath();
-            }
+        if (!shootingActive) return;
+
+        if (Robot.isLaunchQueueEmpty() && !Robot.isLauncherBusy()) {
+            shootingActive = false;
+            pathStarted = false;
+            Robot.switchRampState();
+            advancePath();
         }
     }
 
     protected void advancePath() {
-        currPath = pathIterator.next();
+        if (pathIterator != null && pathIterator.hasNext()) {
+            currPath = pathIterator.next();
+        } else {
+            currPath = null;
+        }
+
         pathTimer.resetTimer();
+        pathStarted = false;
+        currStuck = false;
+        prevStuck = false;
+        pathStartPose = null;
     }
 
     protected void followPathOrPathChain(Object toFollow, boolean holdEnd) {
+        recordPathStartPose();
         if (toFollow instanceof Path) {
             follower.followPath((Path) toFollow, holdEnd);
         } else if (toFollow instanceof PathChain) {
             follower.followPath((PathChain) toFollow, holdEnd);
         }
+    }
+
+    protected void recordPathStartPose() {
+        if (follower != null) {
+            pathStartPose = follower.getPose().copy();
+        }
+    }
+
+    protected double distanceFromPathStart() {
+        if (pathStartPose == null || follower == null) return Double.MAX_VALUE;
+        Pose current = follower.getPose();
+        double dx = current.getX() - pathStartPose.getX();
+        double dy = current.getY() - pathStartPose.getY();
+        return Math.hypot(dx, dy);
     }
 
     public void interruptAndPark() {
@@ -228,14 +280,26 @@ public abstract class PedroBaseAuto extends OpMode {
         cancelAllActions();
 
         Path goToEnd = new Path(new BezierLine(followerPose, getEndPose()));
-        goToEnd.setLinearHeadingInterpolation(followerPose.getHeading(), getEndPose().getHeading());
+        goToEnd.setLinearHeadingInterpolation(
+                followerPose.getHeading(),
+                getEndPose().getHeading()
+        );
+
         followPathOrPathChain(goToEnd, true);
+        pathStarted = true;
+        pathTimer.resetTimer();
     }
 
     protected void cancelAllActions() {
         intakeActive = false;
         shootingActive = false;
+        isBursting = false;
+        isFeeding = false;
+        burstMode = false;
+        pathStartPose = null;
 
+        // Ensure a skipped intake does not leave the next path capped at intake power.
+        follower.setMaxPower(1.0);
         follower.breakFollowing();
         Robot.stopAll();
     }
@@ -252,6 +316,10 @@ public abstract class PedroBaseAuto extends OpMode {
         intakeNeeded.add(path);
     }
 
+    protected void addSlowIntake(Object path) {
+        intakeSlowerNeeded.add(path);
+    }
+
     @Override
     public void init() {
         CommonTelemetry.init(telemetry);
@@ -263,6 +331,7 @@ public abstract class PedroBaseAuto extends OpMode {
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+
         pathTimer = new Timer();
         pathTimer.resetTimer();
 
@@ -282,14 +351,16 @@ public abstract class PedroBaseAuto extends OpMode {
 
     @Override
     public void start() {
-        // Initialize full robot, including Pedro follower
         Robot.init(hardwareMap, alliance);
         Robot.currentNonLaunchVelocity = 0.0;
         follower = Robot.follower;
         follower.update();
 
-        allianceSetup(alliance); // Any alliance-specific set up
-        if (alliance == Alliance.RED) goalPose = goalPose.mirror();
+        allianceSetup(alliance);
+        if (alliance == Alliance.RED) {
+            goalPose = goalPose.mirror();
+        }
+
         follower.setStartingPose(getStartPose());
 
         buildPaths();
@@ -297,33 +368,37 @@ public abstract class PedroBaseAuto extends OpMode {
             CommonTelemetry.debug("No paths were added");
             CommonTelemetry.update();
             stop();
+            return;
         }
 
         pathIterator = allPaths.listIterator();
-        currPath = pathIterator.next();
+        advancePath();
         opmodeTimer.resetTimer();
     }
 
     @Override
     public void loop() {
-        // Common follower update
         follower.update();
 
-        if (opmodeTimer.getElapsedTimeSeconds() >= 29 && !interrupted) {
+        currStuck = isStuck();
+
+        if (opmodeTimer.getElapsedTimeSeconds() >= 28.5 && !interrupted) {
             interrupted = true;
-            follower.breakFollowing();
             interruptAndPark();
         }
 
-        if (!interrupted) {
-            autonomousPathUpdate();
-
-            Robot.loop();
-        }
+        autonomousPathUpdate();
+        Robot.loop();
 
         CommonTelemetry.draw(follower);
 
-        // Common Pedro telemetry
+        CommonTelemetry.addData("follower stuck custom", isStuck());
+        CommonTelemetry.addData("curr stuck", currStuck);
+        CommonTelemetry.addData("prev stuck", prevStuck);
+        CommonTelemetry.addData("path started", pathStarted);
+        CommonTelemetry.addData("currPath null", currPath == null);
+        CommonTelemetry.addData("currPath id", currPath == null ? "null" : currPath.hashCode());
+        CommonTelemetry.addData("pose tracker velocity", follower.poseTracker.getVelocity().getMagnitude());
         CommonTelemetry.addData("intake active", intakeActive);
         CommonTelemetry.addData("shooting active", shootingActive);
         CommonTelemetry.addData("is bursting", isBursting);
@@ -331,25 +406,44 @@ public abstract class PedroBaseAuto extends OpMode {
         CommonTelemetry.addData("shoot mode", shouldBurstShoot() ? "BURST" : "QUEUE");
         CommonTelemetry.addData("follower busy", follower.isBusy());
         CommonTelemetry.addData("interrupted", interrupted);
-        CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTime());
-        CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTime());
+        CommonTelemetry.addData("opmode time (s)", opmodeTimer.getElapsedTimeSeconds());
+        CommonTelemetry.addData("path time (ms)", pathTimer.getElapsedTime());
+        CommonTelemetry.addData("path time (s)", pathTimer.getElapsedTimeSeconds());
+        CommonTelemetry.addData("path start pose", pathStartPose == null ? "null" : pathStartPose.toString());
         CommonTelemetry.addData("x", follower.getPose().getX());
         CommonTelemetry.addData("y", follower.getPose().getY());
         CommonTelemetry.addData("curr heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
         CommonTelemetry.addData("target heading (deg)", Math.toDegrees(follower.getCurrentPath().getHeadingGoal(1.0)));
-//        CommonTelemetry.addData("heading error (deg)", Math.toDegrees(follower.getHeadingError()));
         CommonTelemetry.addData("heading constraint (deg)", Math.toDegrees(follower.getConstraints().getHeadingConstraint()));
         CommonTelemetry.addData("alliance", alliance);
+        CommonTelemetry.addData("path progress", distanceFromPathStart());
         CommonTelemetry.update();
     }
 
     @Override
     public void stop() {
-        blackboard.put("final_auton_pose", follower.getPose());
+        if (follower != null) {
+            blackboard.put("final_auton_pose", follower.getPose());
+        }
         blackboard.put("alliance", alliance);
     }
 
     protected boolean shouldBurstShoot() {
         return Robot.distanceToGoal() <= 118.0;
+    }
+
+    protected boolean isStuck() {
+        if (interrupted) return false;
+        if (currPath == null) return false;
+        if (!pathStarted) return false;
+        if (!follower.isBusy()) return false;
+
+        if (pathTimer == null || pathStartPose == null) return false;
+
+        boolean timeUp = pathTimer.getElapsedTime() > STUCK_TIMEOUT_MS;
+        boolean movingTooSlow = follower.poseTracker.getVelocity().getMagnitude() < 1.0;
+        //boolean insufficientProgress = distanceFromPathStart() < STUCK_MIN_PROGRESS;
+
+        return timeUp && movingTooSlow; // && insufficientProgress;
     }
 }
