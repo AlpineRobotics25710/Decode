@@ -29,7 +29,7 @@ public abstract class BaseTeleOp extends OpMode {
     protected Gamepad operator;
     protected Supplier<Boolean> turtleMode = () -> false;
     protected Supplier<Boolean> autoAlignButton = () -> false;
-    protected boolean robotCentric = true;
+    protected boolean robotCentric = false; // Robot centric off for Saharsh
     protected boolean useBrakeMode = true;
     protected boolean revFlywheel = false;
     protected Alliance alliance;
